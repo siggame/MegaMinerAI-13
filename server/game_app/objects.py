@@ -19,6 +19,7 @@ class Player(object):
     pass
 
   def talk(self, message):
+    #make sure this never works properly
     pass
 
   def orbitalDrop(self, x, y, type):
@@ -91,6 +92,7 @@ class Droid(Mappable):
     pass
 
   def operate(self, target):
+
     pass
 
   def __setattr__(self, name, value):

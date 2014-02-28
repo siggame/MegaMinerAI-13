@@ -29,16 +29,16 @@ class Match(DefaultGameWorld):
       self.dictLog = dict(gameName = "Droids", turns = [])
     self.addPlayer(self.scribe, "spectator")
 
-    #TODO: INITIALIZE THESE!
-    self.mapWidth = None
-    self.mapHeight = None
-    self.turnNumber = None
-    self.maxDroids = None
-    self.maxWalls = None
-    self.playerID = None
+    self.turnNumber = -1
+    self.playerID = -1
     self.gameNumber = id
-    self.scrapRate = None
-    self.maxScrap = None
+
+    self.mapWidth = self.mapWidth
+    self.mapHeight = self.mapHeight
+    self.maxDroids = self.maxDroids
+    self.maxWalls = self.maxWalls
+    self.scrapRate = self.scrapRate
+    self.maxScrap = self.maxScrap
 
   #this is here to be wrapped
   def __del__(self):
