@@ -1,3 +1,7 @@
+import networking.config.config
+
+cfgVariants = networking.config.config.readConfig("config/variants.cfg")
+
 class Player(object):
   game_state_attributes = ['id', 'playerName', 'time', 'scrapAmount']
   def __init__(self, game, id, playerName, time, scrapAmount):
@@ -118,13 +122,19 @@ class Droid(Mappable):
     self.movementLeft -= 1
     self.game.grid[self.x][self.y].append(self)
 
+
     tile = self.game.getTile(x, y)
 
     return True
 
   def operate(self, target):
-    pass 
-    
+    variantName = self.game.variantString[self.variant]
+    if self.owner != self.game.playerID:
+        return "Turn: %i: You cannot control the opponent's units"%(self.game.turnNumber)
+    if self.attacksLeft == 0:
+        return
+    pass
+
 
   def __setattr__(self, name, value):
       if name in self.game_state_attributes:

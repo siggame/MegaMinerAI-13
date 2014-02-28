@@ -51,7 +51,7 @@ class Match(DefaultGameWorld):
     if type == "player":
       self.players.append(connection)
       try:
-        self.addObject(Player, [connection.screenName, self.startTime])
+        self.addObject(Player, [connection.screenName, self.startTime, 0]) #['id', 'playerName', 'time', 'scrapAmount']
       except TypeError:
         raise TypeError("Someone forgot to add the extra attributes to the Player object initialization")
     elif type == "spectator":
@@ -79,6 +79,12 @@ class Match(DefaultGameWorld):
     #TODO: START STUFF
     self.turn = self.players[-1]
     self.turnNumber = -1
+
+    statList = ["name", "variant", "cost", "maxAttacks", "maxHealth", "maxMovement", "range", "attack", "maxArmor", "scrapWorth"]
+    variants = cfgVariants.values()
+    variants.sort(key=lambda variant: variant['variant'])
+    for t in variants:
+      self.addObject(ModelVariant, [t[value] for value in statList])
 
     self.nextTurn()
     return True
