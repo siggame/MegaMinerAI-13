@@ -80,6 +80,11 @@ class Match(DefaultGameWorld):
     self.turn = self.players[-1]
     self.turnNumber = -1
 
+    variant = cfgVariants.values()
+    variant.sort(key=itemgetter('variantNum'))
+
+    self.variantStrings = {variant.variantsNum:variant.name for variants in self.objects.variantsList}
+
     self.nextTurn()
     return True
 
