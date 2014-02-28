@@ -97,10 +97,16 @@ class Droid(Mappable):
 
   def operate(self, target):
     variantName = self.game.variantString[self.variant]
-    if self.owner != self.game.playerID:
-        return "Turn: %i: You cannot control the opponent's units"%(self.game.turnNumber)
-    if self.attacksLeft == 0:
-        return
+    opponentName = self.game.variantString[target.variant]
+    if self.owner != self.game.playerID and target.hackedTurnsLeft <= 0:
+      return "Turn: %i: You cannot control your opponent's %s when it isn't hacked."%(self.game.turnNumber, opponentName)
+    elif self.attacksLeft == 0:
+      return "Turn: %i: Your %s has no attacks left."%(self.game.turnNumber, variantName)
+    elif self.attack > 0 and target.owner == self.game.playerID:
+      return "Turn: %i: Your %s cannot attack your %s."%(self.game.turnNumber, variantName, opponentName)
+    elif self.attack < 0 and target.owner != self.game.playerID:
+      return "Turn: %i: Your %s cannot heal your opponent's %s."%(self.game.turnNumber, variantName, opponentName)
+    elif
     pass
 
   def __setattr__(self, name, value):
