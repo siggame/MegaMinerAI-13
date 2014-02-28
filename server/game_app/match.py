@@ -86,6 +86,8 @@ class Match(DefaultGameWorld):
     for t in variants:
       self.addObject(ModelVariant, [t[value] for value in statList])
 
+    self.speciesStrings = {variants.variant:variants.name for variants in self.objects.modelVariants}
+
     self.nextTurn()
     return True
 

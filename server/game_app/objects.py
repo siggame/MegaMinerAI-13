@@ -82,6 +82,10 @@ class Droid(Mappable):
     self.hackets = hackets
     self.updatedAt = game.turnNumber
 
+  #Distance for Taxicab Distance
+  def taxiDist(self, source, x, y):
+    return abs(source.x-x) + abs(source.y-y)
+
   def toList(self):
     return [self.id, self.x, self.y, self.owner, self.variant, self.attacksLeft, self.maxAttacks, self.healthLeft, self.maxHealth, self.movementLeft, self.maxMovement, self.range, self.attack, self.armor, self.maxArmor, self.scrapWorth, self.hackedTurnsLeft, self.hackets, ]
   
@@ -129,10 +133,17 @@ class Droid(Mappable):
 
   def operate(self, target):
     variantName = self.game.variantString[self.variant]
-    if self.owner != self.game.playerID:
-        return "Turn: %i: You cannot control the opponent's units"%(self.game.turnNumber)
-    if self.attacksLeft == 0:
-        return
+    opponentName = self.game.variantString[target.variant]
+    if self.owner != self.game.playerID and target.hackedTurnsLeft <= 0:
+      return "Turn: %i: You cannot control your opponent's %s when it isn't hacked."%(self.game.turnNumber, opponentName)
+    elif self.attacksLeft == 0:
+      return "Turn: %i: Your %s has no attacks left."%(self.game.turnNumber, variantName)
+    elif self.attack > 0 and target.owner == self.game.playerID:
+      return "Turn: %i: Your %s cannot attack your %s."%(self.game.turnNumber, variantName, opponentName)
+    elif self.attack < 0 and target.owner != self.game.playerID:
+      return "Turn: %i: Your %s cannot heal your opponent's %s."%(self.game.turnNumber, variantName, opponentName)
+    elif self.taxiDist(self, target.x, target.y) > self.range:
+      return "Turn: %i: The opponent's %s is too far away from your %s"%(self.game.turnNumber, opponentName, variantName)
     pass
 
 
