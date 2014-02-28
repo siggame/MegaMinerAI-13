@@ -91,7 +91,12 @@ class Match(DefaultGameWorld):
     self.nextTurn()
     return True
 
-
+  def getTile(self, x, y):
+    if (0 <= x < self.mapWidth) and (0 <= y < self.mapHeight):
+      return self.grid[x][y][0]
+    else:
+      return None
+    
   def nextTurn(self):
     self.turnNumber += 1
     if self.turn == self.players[0]:
