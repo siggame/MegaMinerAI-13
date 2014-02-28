@@ -121,11 +121,7 @@ namespace visualizer
   // The "main" function
   void Droids::run()
   {
-    
-    // Build the Debug Table's Headers
-    QStringList header;
-    header << "one" << "two" << "three";
-    gui->setDebugHeader( header );
+	gui->setDebugOptions(this);
     timeManager->setNumTurns( 0 );
 
     animationEngine->registerGame(0, 0);
