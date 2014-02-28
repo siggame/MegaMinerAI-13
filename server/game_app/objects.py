@@ -105,8 +105,8 @@ class Droid(Mappable):
       return 'Turn {}: Your unit {} cannot move off the map. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif len(self.game.grid[x][y]) > 1:
       return 'Turn {}: Your unit {} is trying to run into something. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
-    elif self.game.getTile(x, y).health > 0:
-      return 'Turn {}: Your unit {} is trying to run into either a wall, turret, or base. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
+    elif self.game.getTile(x, y).health > 0 and self.game.getTile(x, y).owner != self.game.playerID:
+      return 'Turn {}: Your unit {} is trying to run into either a wall or enemy base. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.game.getTile(x, y).isSpawning == 1:
       return 'Turn {}: Your unit {} is trying to move onto a spawn tile that is spawning a unit. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif abs(self.x-x) + abs(self.y-y) != 1:
