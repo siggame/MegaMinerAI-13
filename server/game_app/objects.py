@@ -131,19 +131,80 @@ class Droid(Mappable):
 
     return True
 
+  #the function to deal damage; separated out so armor damage can be changed
+  def doDamage(self, attacker, target):
+    damage = 3
+    if target.armor > 0:
+      damage = attacker.attack/target.armor
+      target.armor -= attacker.attack
+      if target.armor < 0:
+        target.armor = 0
+    else:
+      damage = attacker.attack
+
+    target.health -= damage
+
   def operate(self, target):
     variantName = self.game.variantString[self.variant]
-    opponentName = self.game.variantString[target.variant]
-    if self.owner != self.game.playerID and target.hackedTurnsLeft <= 0:
-      return "Turn: %i: You cannot control your opponent's %s when it isn't hacked."%(self.game.turnNumber, opponentName)
+    #make sure valid for operating on either a droid or tile
+    if isinstance(target, Droid) or isinstance(target, Tile):
+      return "Turn %i: You can only attack droids/hangars or heal tiles."%(self.game.turnNumber)
+    elif self.owner == self.game.playerID and self.hackedTurnsLeft > 0:
+      return "Turn %i: You cannot control your %s while it is hacked."%(self.game.turnNumber, variantName)
     elif self.attacksLeft == 0:
-      return "Turn: %i: Your %s has no attacks left."%(self.game.turnNumber, variantName)
-    elif self.attack > 0 and target.owner == self.game.playerID:
-      return "Turn: %i: Your %s cannot attack your %s."%(self.game.turnNumber, variantName, opponentName)
-    elif self.attack < 0 and target.owner != self.game.playerID:
-      return "Turn: %i: Your %s cannot heal your opponent's %s."%(self.game.turnNumber, variantName, opponentName)
-    elif self.taxiDist(self, target.x, target.y) > self.range:
-      return "Turn: %i: The opponent's %s is too far away from your %s"%(self.game.turnNumber, opponentName, variantName)
+      return "Turn %i: Your %s has no attacks left."%(self.game.turnNumber, variantName)
+    elif self.healthLeft < 0:
+      return "Turn %i: Your %s does not have any health left."%(self.game.turnNumber, variantName)
+
+    #seperate this out so it makes more sense/easier to change
+    hackerVariantVal = 3
+
+    if isinstance(target, Droid):
+      #droid logic here
+      opponentName = self.game.variantString[target.variant]
+      if self.owner != self.game.playerID and self.hackedTurnsLeft <= 0:
+        return "Turn %i: You cannot control your opponent's %s when it isn't hacked."%(self.game.turnNumber, opponentName)
+      elif self.attack < 0 and target.owner != self.game.playerID:
+        return "Turn %i: Your %s cannot heal your opponent's %s."%(self.game.turnNumber, variantName, opponentName)
+      elif self.taxiDist(self, target.x, target.y) > self.range:
+        return "Turn %i: The opponent's %s is too far away from your %s."%(self.game.turnNumber, opponentName, variantName)
+      elif self.attack > 0 and target.owner == self.game.playerID:
+       return "Turn %i: Your %s cannot attack your %s."%(self.game.turnNumber, variantName, opponentName)
+
+      if self.attack < 0:
+        #heal the armor by the attack amount
+        target.armor -= self.attack
+        if target.armor > target.maxArmor:
+          target.armor = target.maxArmor
+        #reduce hackets
+        target.hackets += self.attack
+        if target.hackets < 0:
+          target.hackets = 0
+      elif self.attack > 0 and self.variant != hackerVariantVal:
+        doDamage(self, target)
+      elif self.attack > 0 and self.variant == hackerVariantVal:
+        target.hackets += self.attack
+        if target.hackets > self.maxHackets:
+          target.hackedTurnsLeft = self.turnsToBeHacked
+
+    elif isinstance(target, Tile):
+      #tile logic here
+      if target.variant == hackerVariantVal:
+        return "Turn %i: Your %s cannot attack walls."%(self.game.turnNumber, variantName)
+      elif target.health <= 0:
+        return "Turn %i: Your %s can only operate on walls or hangars."%(self.game.turnNumber, variantName)
+      elif target.owner == self.game.playerID and self.attack > 0:
+        return "Turn %i: Your %s cannot attack your own hangar."%(self.game.turnNumber, variantName)
+      elif target.owner != self.game.playerID and self.attack < 0:
+        return "Turn %i: Your %s cannot heal the opponent's hangar."%(self.game.turnNumber, variantName)
+      elif self.attack < 0:
+        #heal the wall
+        target.health -= self.attack
+        if target.health > self.maxWallHealth:
+          target.health = self.maxWallHealth
+      elif self.attack > 0:
+        target.health -= self.attack
+
     pass
 
 
