@@ -85,10 +85,12 @@ class Match(DefaultGameWorld):
       for x in range(centerX-hangarSize/2, centerX+hangarSize/2):
         self.grid[x][y][0].owner = 0
         self.grid[x][y][0].health = self.maxHangarHealth
+        self.hangartiles[(x,y)] = self.grid[x][y][0]
       #Player 2
       for x in range(self.width-(centerX-hangarSize/2)+1, centerX+hangarSize/2):
-        self.grid[x][y][0].owner = 0
+        self.grid[x][y][0].owner = 1
         self.grid[x][y][0].health = self.maxHangarHealth
+        self.hangartiles[(x,y)] = self.grid[x][y][0]
 
     return
 
@@ -103,6 +105,8 @@ class Match(DefaultGameWorld):
     self.turnNumber = -1
     #'x', 'y', 'owner', 'turnsUntilAssembled', 'scrapAmount', 'health']
     self.grid = [[[ self.addObject(Tile,[x, y, 2, 0, 0, 0]) ] for y in range(self.mapHeight)] for x in range(self.mapWidth)]
+
+    self.createhangars()
 
     statList = ["name", "variant", "cost", "maxAttacks", "maxHealth", "maxMovement", "range", "attack", "maxArmor", "scrapWorth"]
     variants = cfgVariants.values()
@@ -172,15 +176,10 @@ class Match(DefaultGameWorld):
     player1 = self.objects.players[0]
     player2 = self.objects.players[1]
     
-    #Get the hangar tiles - USE RUSSLEY'S FUNCTION HERE
-    for tile in self.objects.tiles:
-      if tile.owner == 0 or tile.owner == 1:
-        hangartiles[tile.x,tile.y] = tile
-    
     #Determine if hangars are dead
     allDead1 = True #true if player 1's hangar is dead
     allDead2 = True #true if player 2's hangar is dead
-    for tile in hangartiles: #this line will likely change after Russley finishes his function
+    for tile in self.hangartiles: #this line will likely change after Russley finishes his function
       if tile.owner == 0 and tile.health > 0:
         allDead1 = False
       if tile.owner == 1 and tile.health > 0:
@@ -188,18 +187,29 @@ class Match(DefaultGameWorld):
     
     #Crown winner
     if allDead1:
-      declareWinner(self.players[0], "Player 1's hangar has been destroyed")
+      declareWinner(self.players[1], "Player 1\'s hangar has been destroyed")
+      return
     elif allDead2:
-      declareWinner(self.players[1], "Player 2's hangar has been destroyed")
-      
-    #TODO: implement logic to determine winner if max turn limit is reached
-  
-    
-    #These 3 lines were here before I wrote the code up there ^^^^^^^
-    #TODO: Make this check if a player won, and call declareWinner with a player if they did
-    #if self.turnNumber >= self.turnLimit:
-       #self.declareWinner(self.players[0], "Because I said so, this should be removed")
+      declareWinner(self.players[0], "Player 2\'s hangar has been destroyed")
+      return
+    elif self.turnNumber >= self.turnLimit:
+      total1 = 0
+      total2 = 0
+      for tile in self.hangartiles:
+        if tile.owner == 0:
+          total1 += tile.health
+        elif tile.owner == 1:
+          total2 += tile.health
 
+      #Winner has most health
+      if total1 > total2:
+        declareWinner(self.players[0], "Player 1\'s hangar has more total health.")
+      elif total1 < total2:
+        declareWinner(self.players[1], "Player 2\'s hangar has more total health.")
+      else:
+        declareWinner(self.players[0], "Player 1 wins because both are equally matched.")
+
+  return
 
   def declareWinner(self, winner, reason=''):
     print "Player", self.getPlayerIndex(self.winner), "wins game", self.id
