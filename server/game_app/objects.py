@@ -27,7 +27,9 @@ class Player(object):
     pass
 
   def orbitalDrop(self, x, y, type):
-    pass
+    if not (0 < x <= self.mapWidth) and not (0 < y < self.mapHeight):
+      return 'Turn {}: You cannot drop outside of the '
+
 
   def __setattr__(self, name, value):
       if name in self.game_state_attributes:
