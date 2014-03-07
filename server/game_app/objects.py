@@ -156,7 +156,7 @@ class Droid(Mappable):
     elif self.healthLeft < 0:
       return "Turn %i: Your %s does not have any health left."%(self.game.turnNumber, variantName)
 
-    #seperate this out so it makes more sense/easier to change
+    #separate this out so it makes more sense/easier to change
     hackerVariantVal = 3
 
     if isinstance(target, Droid):
