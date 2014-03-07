@@ -130,9 +130,9 @@ namespace visualizer
     for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
     {
       Frame turn;  // The frame that will be drawn
-      SmartPointer<Something> something = new Something();
-      something->addKeyFrame( new DrawSomething( something ) );
-      turn.addAnimatable( something );
+	 // SmartPointer<Something> something = new Something();
+	  //something->addKeyFrame( new DrawSomething( something ) );
+	  //turn.addAnimatable( something );
       animationEngine->buildAnimations(turn);
       addFrame(turn);
       
