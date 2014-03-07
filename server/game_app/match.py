@@ -8,6 +8,7 @@ import os
 import itertools
 import scribe
 import jsonLogger
+import random
 
 Scribe = scribe.Scribe
 
@@ -40,6 +41,8 @@ class Match(DefaultGameWorld):
     self.scrapRate = self.scrapRate
     self.maxScrap = self.maxScrap
 
+    self.grid = None
+
   #this is here to be wrapped
   def __del__(self):
     pass
@@ -70,6 +73,23 @@ class Match(DefaultGameWorld):
     else:
       self.spectators.remove(connection)
 
+  def createhangars(self):
+    hangarSize = random.range(self.minHangar, self.maxHangar)
+    centerX = int(self.mapWidth/4.0)
+    centerY = int(self.mapHeight/2.0)
+
+    for y in range(centerY-hangarSize/2, centerY+hangarSize/2):
+      #Player 1
+      for x in range(centerX-hangarSize/2, centerX+hangarSize/2):
+        self.grid[x][y][0].owner = 0
+        self.grid[x][y][0].health = self.maxHangarHealth
+      #Player 2
+      for x in range(self.width-(centerX-hangarSize/2)+1, centerX+hangarSize/2):
+        self.grid[x][y][0].owner = 0
+        self.grid[x][y][0].health = self.maxHangarHealth
+
+    return
+
   def start(self):
     if len(self.players) < 2:
       return "Game is not full"
@@ -79,6 +99,8 @@ class Match(DefaultGameWorld):
     #TODO: START STUFF
     self.turn = self.players[-1]
     self.turnNumber = -1
+    #'x', 'y', 'owner', 'turnsUntilAssembled', 'scrapAmount', 'health']
+    self.grid = [[[ self.addObject(Tile,[x, y, 2, 0, 0, 0]) ] for y in range(self.mapHeight)] for x in range(self.mapWidth)]
 
     statList = ["name", "variant", "cost", "maxAttacks", "maxHealth", "maxMovement", "range", "attack", "maxArmor", "scrapWorth"]
     variants = cfgVariants.values()
@@ -86,7 +108,7 @@ class Match(DefaultGameWorld):
     for t in variants:
       self.addObject(ModelVariant, [t[value] for value in statList])
 
-    self.speciesStrings = {variants.variant:variants.name for variants in self.objects.modelVariants}
+    self.varaintStrings = {variants.variant:variants.name for variants in self.objects.modelVariants}
 
     self.nextTurn()
     return True
