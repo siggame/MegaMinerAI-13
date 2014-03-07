@@ -40,6 +40,8 @@ class Match(DefaultGameWorld):
     self.maxWalls = self.maxWalls
     self.scrapRate = self.scrapRate
     self.maxScrap = self.maxScrap
+    
+    self.hangartiles = []
 
     self.grid = None
 
@@ -166,9 +168,37 @@ class Match(DefaultGameWorld):
     return True
 
   def checkWinner(self):
+    #Get the players, is this necessary? If not, just remove these two lines :3
+    player1 = self.objects.players[0]
+    player2 = self.objects.players[1]
+    
+    #Get the hangar tiles - USE RUSSLEY'S FUNCTION HERE
+    for tile in self.objects.tiles:
+      if tile.owner == 0 or tile.owner == 1:
+        hangartiles[tile.x,tile.y] = tile
+    
+    #Determine if hangars are dead
+    allDead1 = True #true if player 1's hangar is dead
+    allDead2 = True #true if player 2's hangar is dead
+    for tile in hangartiles: #this line will likely change after Russley finishes his function
+      if tile.owner == 0 and tile.health > 0:
+        allDead1 = False
+      if tile.owner == 1 and tile.health > 0:
+        allDead2 = False
+    
+    #Crown winner
+    if allDead1:
+      declareWinner(self.players[0], "Player 1's hangar has been destroyed")
+    elif allDead2:
+      declareWinner(self.players[1], "Player 2's hangar has been destroyed")
+      
+    #TODO: implement logic to determine winner if max turn limit is reached
+  
+    
+    #These 3 lines were here before I wrote the code up there ^^^^^^^
     #TODO: Make this check if a player won, and call declareWinner with a player if they did
-    if self.turnNumber >= self.turnLimit:
-       self.declareWinner(self.players[0], "Because I said so, this shold be removed")
+    #if self.turnNumber >= self.turnLimit:
+       #self.declareWinner(self.players[0], "Because I said so, this should be removed")
 
 
   def declareWinner(self, winner, reason=''):
