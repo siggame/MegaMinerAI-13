@@ -11,7 +11,8 @@ class Player(object):
     self.time = time
     self.scrapAmount = scrapAmount
     self.updatedAt = game.turnNumber
-    self.dropsInProgress = dict()
+    self.dropsInProgress = dict() # key: tile. data: type (0-wall,1-turret)
+    self.assembleQueue = [] # List of new droid stats
 
   def toList(self):
     return [self.id, self.playerName, self.time, self.scrapAmount, ]
@@ -56,7 +57,9 @@ class Player(object):
     tile.turnsUntilAssembled = self.game.maxTurnsUntilDeploy * (abs(xoff - x) / float(self.game.mapWidth - 1))
     self.scrapAmount -= cost
 
-    self.game.dropsInProgress[(x, y)] = (type, self.id)
+    self.game.dropsInProgress[tile] = type
+
+    return True
 
   def __setattr__(self, name, value):
       if name in self.game_state_attributes:
@@ -266,7 +269,34 @@ class Tile(Mappable):
     pass
 
   def assemble(self, type):
-    pass
+    player = self.game.objects.players[self.game.playerID]
+
+    if self.owner != self.game.playerID:
+      return 'Turn {}: You cannot assemble a droid on a non hanger tile. ({},{})'.format(self.game.turnNumber, self.x, self.y)
+    if len(self.game.grid[self.x][self.y]) > 1:
+      return 'Turn {} You cannot assemble a droid on top of another droid. ({},{})'.format(self.game.turnNumber, self.x, self.y)
+    if self.turnsUntilAssembled != 0:
+       return 'Turn {} You cannot assemble a droid because you are already attempting to assemble here ({},{})'.format(self.game.turnNumber, self.x, self.y)
+    count = len([droid for droid in self.game.objects.droids if droid.owner == playerID])
+    if count >= self.game.maxDroids:
+      return 'Turn {} You cannot assemble a droid because you already have the maximum number of droids ({})'.format(self.game.turnNumber, self.game.maxDroids)
+    variant = self.game.variantToModelVariant(type)
+    if variant is None:
+      return 'Turn {}: You cannot spawn a droid with this variant ({}).'.format(self.game.turnNumber, type)
+    if player.scrapAmount < variant.cost:
+      return 'Turn {}: You do not have enough resources({}) to spawn this unit({}).'.format(self.game.turnNumber, player.scrapAmount, variant.cost)
+
+    player.scrapAmount -= variant.cost
+
+    # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'hackedTurnsLeft', 'hackets']
+    newDroidStats = [self.x, self.y, self.owner, type, 0, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, 0, 0]
+    player.assembleQueue.append(newDroidStats)
+    self.turnsUntilAssembled = 1
+
+    # NOTE: we are providing 0 for droid.id
+    self.game.addAnimation(SpawnAnimation(self.id, 0))
+
+    return True
 
   def __setattr__(self, name, value):
       if name in self.game_state_attributes:

@@ -43,7 +43,6 @@ class Match(DefaultGameWorld):
     
     self.hangartiles = []
 
-    self.dropsInProgress = dict()
     self.grid = None
 
   #this is here to be wrapped
