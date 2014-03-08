@@ -42,6 +42,8 @@ class Match(DefaultGameWorld):
     
     self.hangartiles = []
 
+    self.dropsInProgress = dict()
+
   #this is here to be wrapped
   def __del__(self):
     pass

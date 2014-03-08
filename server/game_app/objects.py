@@ -11,6 +11,7 @@ class Player(object):
     self.time = time
     self.scrapAmount = scrapAmount
     self.updatedAt = game.turnNumber
+    self.dropsInProgress = dict()
 
   def toList(self):
     return [self.id, self.playerName, self.time, self.scrapAmount, ]
@@ -27,7 +28,35 @@ class Player(object):
     pass
 
   def orbitalDrop(self, x, y, type):
-    pass
+    # type == 0 for wall
+    # type == 1 for turret
+    if not (0 <= x < self.game.mapWidth) or not (0 <= y < self.game.mapHeight):
+      return 'Turn {}: You cannot drop onto a location off of the map. ({},{})'.format(self.game.turnNumber, x, y)
+    if type != 0 and type != 1:
+      return 'Turn {}: You cannot drop a structure of type {}. Must be 0 or 1.'.format(self.game.turnNumber, type)
+    if type == 0:
+      cost = self.game.wallCost
+    else:
+      cost = self.game.variantToModelVariant(4).cost
+    if self.scrapAmount < cost:
+      return 'Turn {}: You do not have enough scrap to drop. Have: () Need: ()'.format(self.game.turnNumber, self.scrapAmount, cost)
+    tile = getTile(x, y)
+    if tile.health > 0:
+      return 'Turn {}: You cannot drop a structure onto another structure.'.format(self.game.turnNumber)
+    if tile.turnsUntilAssembled > 0:
+      return 'Turn {}: You cannot drop a structure onto tile that is assembling a droid.'.format(self.game.turnNumber)
+    if len(self.game.grid[x][y]) > 1:
+      return 'Turn {}: You cannot drop a structure onto a droid.'.format(self.game.turnNumber)
+    
+    if self.id == 0:
+      xoff = 0
+    else:
+      xoff = self.game.mapWidth - 1
+
+    tile.turnsUntilAssembled = self.game.maxTurnsUntilDeploy * (abs(xoff - x) / float(self.game.mapWidth - 1))
+    self.scrapAmount -= cost
+
+    self.game.dropsInProgress[(x, y)] = (type, self.id)
 
   def __setattr__(self, name, value):
       if name in self.game_state_attributes:
