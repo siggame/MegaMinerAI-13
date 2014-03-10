@@ -1,5 +1,64 @@
-##Pycharm
+#Codegen output doesn't go in the repository
+*.pyc
+
+# shared objects don't go in the repository
+*.so
+
+# PyCharm data doesn't go in the repository
 .idea/
 
-##Python
-*.pyc
+#Game logs don't go in the repository
+*.gamelog
+*.glog
+
+#Pycharm IDE Info doesn't go in the repository.
+.idea/
+
+#Visual studio files don't go in the repository
+#Visual Studio files
+*.[Oo]bj
+[Bb]in
+[Bb]in/
+[Dd]ebug*/
+[Rr]elease*/
+*.exe
+*.pdb
+*.user
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.[Cc]ache
+*.ilk
+*.log
+*.lib
+*.sbr
+*.sdf
+ipch/
+obj/
+Ankh.NoLoad
+
+
+#Windows thumbnail files don't go in the repository
+Thumbs.db
+
+#tilde files don't go in the repository
+*~
+
+#visualizer qmake artifacts don't go in the repository
+*.o
+*.d
+*.a
+moc_*
+
+visualizer/Makefile
+
+#Build Logs don't go in the repository
+*build.log*
