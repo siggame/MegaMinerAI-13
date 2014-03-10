@@ -42,3 +42,9 @@ def derefArgs(*types):
         return f(self, *args)
     return wrapper
   return dec
+
+def variantToModelVariant(self, variant):
+    for modelVariant in self.objects.variants:
+      if modelVariant.variant == variant:
+        return modelVariant
+    return None

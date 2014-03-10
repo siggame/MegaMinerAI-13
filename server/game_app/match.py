@@ -8,6 +8,7 @@ import os
 import itertools
 import scribe
 import jsonLogger
+import random
 
 Scribe = scribe.Scribe
 
@@ -39,6 +40,10 @@ class Match(DefaultGameWorld):
     self.maxWalls = self.maxWalls
     self.scrapRate = self.scrapRate
     self.maxScrap = self.maxScrap
+    
+    self.hangartiles = []
+
+    self.grid = None
 
   #this is here to be wrapped
   def __del__(self):
@@ -70,6 +75,25 @@ class Match(DefaultGameWorld):
     else:
       self.spectators.remove(connection)
 
+  def createhangars(self):
+    hangarSize = random.range(self.minHangar, self.maxHangar)
+    centerX = int(self.mapWidth/4.0)
+    centerY = int(self.mapHeight/2.0)
+
+    for y in range(centerY-hangarSize/2, centerY+hangarSize/2):
+      #Player 1
+      for x in range(centerX-hangarSize/2, centerX+hangarSize/2):
+        self.grid[x][y][0].owner = 0
+        self.grid[x][y][0].health = self.maxHangarHealth
+        self.hangartiles[(x,y)] = self.grid[x][y][0]
+      #Player 2
+      for x in range(self.width-(centerX-hangarSize/2)+1, centerX+hangarSize/2):
+        self.grid[x][y][0].owner = 1
+        self.grid[x][y][0].health = self.maxHangarHealth
+        self.hangartiles[(x,y)] = self.grid[x][y][0]
+
+    return
+
   def start(self):
     if len(self.players) < 2:
       return "Game is not full"
@@ -79,6 +103,10 @@ class Match(DefaultGameWorld):
     #TODO: START STUFF
     self.turn = self.players[-1]
     self.turnNumber = -1
+    #'x', 'y', 'owner', 'turnsUntilAssembled', 'scrapAmount', 'health']
+    self.grid = [[[ self.addObject(Tile,[x, y, 2, 0, 0, 0]) ] for y in range(self.mapHeight)] for x in range(self.mapWidth)]
+
+    self.createhangars()
 
     statList = ["name", "variant", "cost", "maxAttacks", "maxHealth", "maxMovement", "range", "attack", "maxArmor", "scrapWorth"]
     variants = cfgVariants.values()
@@ -86,7 +114,7 @@ class Match(DefaultGameWorld):
     for t in variants:
       self.addObject(ModelVariant, [t[value] for value in statList])
 
-    self.speciesStrings = {variants.variant:variants.name for variants in self.objects.modelVariants}
+    self.varaintStrings = {variants.variant:variants.name for variants in self.objects.modelVariants}
 
     self.nextTurn()
     return True
@@ -144,10 +172,44 @@ class Match(DefaultGameWorld):
     return True
 
   def checkWinner(self):
-    #TODO: Make this check if a player won, and call declareWinner with a player if they did
-    if self.turnNumber >= self.turnLimit:
-       self.declareWinner(self.players[0], "Because I said so, this shold be removed")
+    #Get the players, is this necessary? If not, just remove these two lines :3
+    player1 = self.objects.players[0]
+    player2 = self.objects.players[1]
+    
+    #Determine if hangars are dead
+    allDead1 = True #true if player 1's hangar is dead
+    allDead2 = True #true if player 2's hangar is dead
+    for tile in self.hangartiles: #this line will likely change after Russley finishes his function
+      if tile.owner == 0 and tile.health > 0:
+        allDead1 = False
+      if tile.owner == 1 and tile.health > 0:
+        allDead2 = False
+    
+    #Crown winner
+    if allDead1:
+      declareWinner(self.players[1], "Player 1\'s hangar has been destroyed")
+      return
+    elif allDead2:
+      declareWinner(self.players[0], "Player 2\'s hangar has been destroyed")
+      return
+    elif self.turnNumber >= self.turnLimit:
+      total1 = 0
+      total2 = 0
+      for tile in self.hangartiles:
+        if tile.owner == 0:
+          total1 += tile.health
+        elif tile.owner == 1:
+          total2 += tile.health
 
+      #Winner has most health
+      if total1 > total2:
+        declareWinner(self.players[0], "Player 1\'s hangar has more total health.")
+      elif total1 < total2:
+        declareWinner(self.players[1], "Player 2\'s hangar has more total health.")
+      else:
+        declareWinner(self.players[0], "Player 1 wins because both are equally matched.")
+
+  return
 
   def declareWinner(self, winner, reason=''):
     print "Player", self.getPlayerIndex(self.winner), "wins game", self.id
