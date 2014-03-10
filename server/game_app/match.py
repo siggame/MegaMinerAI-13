@@ -76,7 +76,7 @@ class Match(DefaultGameWorld):
       self.spectators.remove(connection)
 
   def createhangars(self):
-    hangarSize = random.range(self.minHangar, self.maxHangar)
+    hangarSize = random.randrange(self.minHangar, self.maxHangar)
     centerX = int(self.mapWidth/4.0)
     centerY = int(self.mapHeight/2.0)
 
