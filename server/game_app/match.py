@@ -206,7 +206,7 @@ class Match(DefaultGameWorld):
         declareWinner(self.players[1], "Player 2\'s hangar has more total health.")
       else:
         declareWinner(self.players[0], "Player 1 wins because both are equally matched.")
-  	return
+    return
 
   def declareWinner(self, winner, reason=''):
     print "Player", self.getPlayerIndex(self.winner), "wins game", self.id
