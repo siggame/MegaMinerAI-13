@@ -188,10 +188,8 @@ class Match(DefaultGameWorld):
     #Crown winner
     if allDead1:
       declareWinner(self.players[1], "Player 1\'s hangar has been destroyed")
-      return
     elif allDead2:
       declareWinner(self.players[0], "Player 2\'s hangar has been destroyed")
-      return
     elif self.turnNumber >= self.turnLimit:
       total1 = 0
       total2 = 0
@@ -208,8 +206,7 @@ class Match(DefaultGameWorld):
         declareWinner(self.players[1], "Player 2\'s hangar has more total health.")
       else:
         declareWinner(self.players[0], "Player 1 wins because both are equally matched.")
-
-  return
+  	return
 
   def declareWinner(self, winner, reason=''):
     print "Player", self.getPlayerIndex(self.winner), "wins game", self.id
