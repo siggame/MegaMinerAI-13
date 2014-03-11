@@ -23,8 +23,8 @@ class Player(object):
   
   def nextTurn(self):
     if self.id == self.game.playerID:
-      if self.scrapAmount > self.maxScrap:
-        self.scrapAmount = self.maxScrap
+      if self.scrapAmount > self.game.maxScrap:
+        self.scrapAmount = self.game.maxScrap
       elif self.scrapAmount < 0:
         #badbadbadbadbadbad I love python's hashtag comments
         self.scrapAmount = 0
@@ -56,7 +56,7 @@ class Player(object):
             self.game.grid[newDroid.x][newDroid.y].append(newDroid)
       # Remove finished drops
       self.dropsInProgress[:] = [drop for drop in self.dropsInProgress if drop[2] != 0]
-      
+
     return True
 
   def talk(self, message):
