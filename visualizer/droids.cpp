@@ -6,6 +6,7 @@
 #include <utility>
 #include <time.h>
 #include <list>
+#include <glm/glm.hpp>
 
 namespace visualizer
 {
@@ -38,22 +39,15 @@ namespace visualizer
 
   void Droids::preDraw()
   {
-    const Input& input = gui->getInput();
+	//const Input& input = gui->getInput();
+
+	RenderGrid();
     
     // Handle player input here
   }
 
   void Droids::postDraw()
   {
-    if( renderer->fboSupport() )
-    {
-#if 0
-      renderer->useShader( programs["post"] ); 
-      renderer->swapFBO();
-      renderer->useShader( 0 );
-#endif
-
-    }
   }
 
 
@@ -84,6 +78,24 @@ namespace visualizer
     return list<int>();  // return the empty list
   }
 
+  void Droids::RenderGrid() const
+  {
+	  renderer->drawTexturedQuad(0,0,m_mapWidth,m_mapHeight,4.0f,"grid");
+
+	  // Draw horizontal lines
+	  renderer->setColor(Color(0.0f,0.0f,0.0f,1.0f));
+	  for(int i = 0; i < m_mapHeight; i++)
+	  {
+		  renderer->drawLine(0,i,m_mapWidth,i,1.0f);
+	  }
+
+	  // Draw vertical lines
+	  for(int i = 0; i < m_mapWidth; i++)
+	  {
+		  renderer->drawLine(i,0,i,m_mapHeight,1.0f);
+	  }
+  }
+
   void Droids::loadGamelog( std::string gamelog )
   {
     if(isRunning())
@@ -110,10 +122,12 @@ namespace visualizer
     }
     // END: Initial Setup
 
-    // Setup the renderer as a 4 x 4 map by default
-    // TODO: Change board size to something useful
-    renderer->setCamera( 0, 0, 4, 4 );
-    renderer->setGridDimensions( 4, 4 );
+	assert("Gamelog is empty" && !m_game->states.empty());
+
+	m_mapWidth = m_game->states[0].mapWidth;
+	m_mapHeight = m_game->states[0].mapHeight;
+	renderer->setCamera( 0, 0, m_mapWidth, m_mapHeight );
+	renderer->setGridDimensions( m_mapWidth, m_mapHeight );
  
     start();
   } // Droids::loadGamelog()
@@ -130,12 +144,12 @@ namespace visualizer
     for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
     {
       Frame turn;  // The frame that will be drawn
-      SmartPointer<Something> something = new Something();
-      something->addKeyFrame( new DrawSomething( something ) );
-      turn.addAnimatable( something );
+
+	  // Do stuff here
+
       animationEngine->buildAnimations(turn);
       addFrame(turn);
-      
+
       // Register the game and begin playing delayed due to multithreading
       if(state > 5)
       {

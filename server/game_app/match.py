@@ -41,7 +41,7 @@ class Match(DefaultGameWorld):
     self.scrapRate = self.scrapRate
     self.maxScrap = self.maxScrap
     
-    self.hangartiles = []
+    self.hangartiles = {}
 
     self.grid = None
 
@@ -76,7 +76,7 @@ class Match(DefaultGameWorld):
       self.spectators.remove(connection)
 
   def createhangars(self):
-    hangarSize = random.range(self.minHangar, self.maxHangar)
+    hangarSize = random.randrange(self.minHangar, self.maxHangar)
     centerX = int(self.mapWidth/4.0)
     centerY = int(self.mapHeight/2.0)
 
@@ -85,12 +85,12 @@ class Match(DefaultGameWorld):
       for x in range(centerX-hangarSize/2, centerX+hangarSize/2):
         self.grid[x][y][0].owner = 0
         self.grid[x][y][0].health = self.maxHangarHealth
-        self.hangartiles[(x,y)] = self.grid[x][y][0]
+        self.hangartiles[x,y] = self.grid[x][y][0]
       #Player 2
-      for x in range(self.width-(centerX-hangarSize/2)+1, centerX+hangarSize/2):
+      for x in range(self.mapWidth-(centerX-hangarSize/2)+1, centerX+hangarSize/2):
         self.grid[x][y][0].owner = 1
         self.grid[x][y][0].health = self.maxHangarHealth
-        self.hangartiles[(x,y)] = self.grid[x][y][0]
+        self.hangartiles[x,y] = self.grid[x][y][0]
 
     return
 
@@ -180,18 +180,16 @@ class Match(DefaultGameWorld):
     allDead1 = True #true if player 1's hangar is dead
     allDead2 = True #true if player 2's hangar is dead
     for tile in self.hangartiles: #this line will likely change after Russley finishes his function
-      if tile.owner == 0 and tile.health > 0:
+      if self.hangartiles[tile].owner == 0 and self.hangartiles[tile].health > 0:
         allDead1 = False
-      if tile.owner == 1 and tile.health > 0:
+      if self.hangartiles[tile].owner == 1 and self.hangartiles[tile].health > 0:
         allDead2 = False
     
     #Crown winner
     if allDead1:
-      declareWinner(self.players[1], "Player 1\'s hangar has been destroyed")
-      return
+      self.declareWinner(self.players[1], "Player 1\'s hangar has been destroyed")
     elif allDead2:
-      declareWinner(self.players[0], "Player 2\'s hangar has been destroyed")
-      return
+      self.declareWinner(self.players[0], "Player 2\'s hangar has been destroyed")
     elif self.turnNumber >= self.turnLimit:
       total1 = 0
       total2 = 0
@@ -203,13 +201,12 @@ class Match(DefaultGameWorld):
 
       #Winner has most health
       if total1 > total2:
-        declareWinner(self.players[0], "Player 1\'s hangar has more total health.")
+        self.declareWinner(self.players[0], "Player 1\'s hangar has more total health.")
       elif total1 < total2:
-        declareWinner(self.players[1], "Player 2\'s hangar has more total health.")
+        self.declareWinner(self.players[1], "Player 2\'s hangar has more total health.")
       else:
-        declareWinner(self.players[0], "Player 1 wins because both are equally matched.")
-
-  return
+        self.declareWinner(self.players[0], "Player 1 wins because both are equally matched.")
+    return
 
   def declareWinner(self, winner, reason=''):
     print "Player", self.getPlayerIndex(self.winner), "wins game", self.id
