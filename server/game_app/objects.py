@@ -11,7 +11,7 @@ class Player(object):
     self.time = time
     self.scrapAmount = scrapAmount
     self.updatedAt = game.turnNumber
-    self.dropsInProgress = dict() # key: tile. data: type (0-wall,1-turret)
+    self.dropsInProgress = [] # tuple: (tile, type, turnsUntilDrop) type:0-wall,1-turret
     self.assembleQueue = [] # List of new droid stats
 
   def toList(self):
@@ -22,7 +22,42 @@ class Player(object):
     return dict(id = self.id, playerName = self.playerName, time = self.time, scrapAmount = self.scrapAmount, )
   
   def nextTurn(self):
-    pass
+    if self.id == self.game.playerID:
+      if self.scrapAmount > self.maxScrap:
+        self.scrapAmount = self.maxScrap
+      elif self.scrapAmount < 0:
+        #badbadbadbadbadbad I love python's hashtag comments
+        self.scrapAmount = 0
+
+      # Spawn droids
+      for newDroidStats in self.assembleQueue:
+        newDroid = self.game.addObject(Droid, newDroidStats)
+        self.game.grid[newDroid.x][newDroid.y].append(newDroid)
+        self.game.grid[newDroid.x][newDroid.y][0].turnsUntilAssembled = 0
+      self.assembleQueue = []
+
+      # Update orbital drops
+      # TODO: Decide whether droids are able to move onto dropzones
+      for dropzone, dropType, turnsUntilDrop in self.dropsInProgress:
+        turnsUntilDrop -= 1
+        if turnsUntilDrop == 0:
+          dropzone.turnsUntilAssembled = 0
+          if len(self.game.grid[dropzone.x][dropzone.y]) > 1:
+            # Kill droids on dropzone
+            # TODO: Actually kill droid
+            self.game.grid[dropzone.x][dropzone.y][1].health = 0
+          if dropType == 0:
+            dropzone.owner = 3
+          if dropType == 1:
+            variant = self.game.variantToModelVariant(4)
+            # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'hackedTurnsLeft', 'hackets']
+            newDroidStats = [dropzone.x, dropzone.y, self.id, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, 0, 0]
+            newDroid = self.game.addObject(Droid, newDroidStats)
+            self.game.grid[newDroid.x][newDroid.y].append(newDroid)
+      # Remove finished drops
+      self.dropsInProgress[:] = [drop for drop in self.dropsInProgress if drop[2] != 0]
+      
+    return True
 
   def talk(self, message):
     #make sure this never works properly
@@ -46,18 +81,17 @@ class Player(object):
       return 'Turn {}: You cannot drop a structure onto another structure.'.format(self.game.turnNumber)
     if tile.turnsUntilAssembled > 0:
       return 'Turn {}: You cannot drop a structure onto tile that is assembling a droid.'.format(self.game.turnNumber)
-    if len(self.game.grid[x][y]) > 1:
-      return 'Turn {}: You cannot drop a structure onto a droid.'.format(self.game.turnNumber)
     
     if self.id == 0:
       xoff = 0
     else:
       xoff = self.game.mapWidth - 1
 
-    tile.turnsUntilAssembled = self.game.maxTurnsUntilDeploy * (abs(xoff - x) / float(self.game.mapWidth - 1))
+    turnsUntilDrop = 1 + (self.game.maxTurnsUntilDeploy - 1) * (abs(xoff - x) / float(self.game.mapWidth - 1))
+    tile.turnsUntilAssembled = 1
     self.scrapAmount -= cost
 
-    self.game.dropsInProgress[tile] = type
+    self.game.dropsInProgress.append((tile, type, turnsUntilDrop))
 
     return True
 
@@ -289,7 +323,7 @@ class Tile(Mappable):
     player.scrapAmount -= variant.cost
 
     # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'hackedTurnsLeft', 'hackets']
-    newDroidStats = [self.x, self.y, self.owner, type, 0, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, 0, 0]
+    newDroidStats = [self.x, self.y, self.owner, type, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, 0, 0]
     player.assembleQueue.append(newDroidStats)
     self.turnsUntilAssembled = 1
 
