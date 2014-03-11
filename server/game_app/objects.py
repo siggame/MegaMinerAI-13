@@ -11,7 +11,7 @@ class Player(object):
     self.time = time
     self.scrapAmount = scrapAmount
     self.updatedAt = game.turnNumber
-    self.dropsInProgress = [] # tuple: (tile, type, turnsUntilDrop) type:0-wall,1-turret
+    self.dropsInProgress = [] # list: [tile, type, turnsUntilDrop] type:0-wall,1-turret
     self.assembleQueue = [] # List of new droid stats
 
   def toList(self):
@@ -55,7 +55,7 @@ class Player(object):
             newDroid = self.game.addObject(Droid, newDroidStats)
             self.game.grid[newDroid.x][newDroid.y].append(newDroid)
       # Remove finished drops
-      self.dropsInProgress[:] = [drop for drop in self.dropsInProgress if drop[2] != 0]
+      self.dropsInProgress[:] = [[drop[0], drop[1], drop[2] - 1] for drop in self.dropsInProgress if drop[2] != 0]
 
     return True
 
@@ -91,7 +91,7 @@ class Player(object):
     tile.turnsUntilAssembled = 1
     self.scrapAmount -= cost
 
-    self.game.dropsInProgress.append((tile, type, turnsUntilDrop))
+    self.game.dropsInProgress.append([tile, type, turnsUntilDrop])
 
     return True
 
