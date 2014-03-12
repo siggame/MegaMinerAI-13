@@ -250,12 +250,12 @@ class Droid(Mappable):
         self.doDamage(self, target)
       elif self.attack > 0 and self.variant == hackerVariantVal:
         target.hackets += self.attack
-        if target.hackets > self.maxHackets:
-          target.hackedTurnsLeft = self.turnsToBeHacked
+        if target.hackets > self.game.maxHackets:
+          target.hackedTurnsLeft = self.game.turnsToBeHacked
 
     elif isinstance(target, Tile):
       #tile logic here
-      if target.variant == hackerVariantVal:
+      if self.variant == hackerVariantVal:
         return "Turn %i: Your %s cannot attack walls."%(self.game.turnNumber, variantName)
       elif target.health <= 0:
         return "Turn %i: Your %s can only operate on walls or hangars."%(self.game.turnNumber, variantName)
@@ -266,8 +266,8 @@ class Droid(Mappable):
       elif self.attack < 0:
         #heal the wall
         target.health -= self.attack
-        if target.health > self.maxWallHealth:
-          target.health = self.maxWallHealth
+        if target.health > self.game.maxWallHealth:
+          target.health = self.game.maxWallHealth
       elif self.attack > 0:
         target.health -= self.attack
 
