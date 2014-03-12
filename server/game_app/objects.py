@@ -238,16 +238,16 @@ class Droid(Mappable):
        return "Turn %i: Your %s cannot attack your %s."%(self.game.turnNumber, variantName, opponentName)
 
       if self.attack < 0:
-        #heal the armor by the attack amount
+        #heal the armor by the attack amount [attack is negative, subtracting will increase]
         target.armor -= self.attack
         if target.armor > target.maxArmor:
           target.armor = target.maxArmor
-        #reduce hackets
+        #reduce hackets [Attack is negative, adding will decrease]
         target.hackets += self.attack
         if target.hackets < 0:
           target.hackets = 0
       elif self.attack > 0 and self.variant != hackerVariantVal:
-        doDamage(self, target)
+        self.doDamage(self, target)
       elif self.attack > 0 and self.variant == hackerVariantVal:
         target.hackets += self.attack
         if target.hackets > self.maxHackets:
