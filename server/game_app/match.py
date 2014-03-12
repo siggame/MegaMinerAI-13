@@ -41,9 +41,9 @@ class Match(DefaultGameWorld):
     self.scrapRate = self.scrapRate
     self.maxScrap = self.maxScrap
     
-    self.hangartiles = {}
+    self.hangartiles = dict()
 
-    self.grid = None
+    self.grid = []
 
   #this is here to be wrapped
   def __del__(self):
@@ -85,12 +85,12 @@ class Match(DefaultGameWorld):
       for x in range(centerX-hangarSize/2, centerX+hangarSize/2):
         self.grid[x][y][0].owner = 0
         self.grid[x][y][0].health = self.maxHangarHealth
-        self.hangartiles[x,y] = self.grid[x][y][0]
+        self.hangartiles[(x, y)] = self.grid[x][y][0]
       #Player 2
-      for x in range(self.mapWidth-(centerX-hangarSize/2)+1, centerX+hangarSize/2):
+      for x in range(self.mapWidth-(centerX+hangarSize/2)+1, self.mapWidth-(centerX-hangarSize/2)+1):
         self.grid[x][y][0].owner = 1
         self.grid[x][y][0].health = self.maxHangarHealth
-        self.hangartiles[x,y] = self.grid[x][y][0]
+        self.hangartiles[(x, y)] = self.grid[x][y][0]
 
     return
 
@@ -179,12 +179,13 @@ class Match(DefaultGameWorld):
     #Determine if hangars are dead
     allDead1 = True #true if player 1's hangar is dead
     allDead2 = True #true if player 2's hangar is dead
-    for tile in self.hangartiles: #this line will likely change after Russley finishes his function
-      if self.hangartiles[tile].owner == 0 and self.hangartiles[tile].health > 0:
+
+    for tile in self.hangartiles.values(): #this line will likely change after Russley finishes his function
+      if tile.owner == 0 and tile.health > 0:
         allDead1 = False
-      if self.hangartiles[tile].owner == 1 and self.hangartiles[tile].health > 0:
+      if tile.owner == 1 and tile.health > 0:
         allDead2 = False
-    
+
     #Crown winner
     if allDead1:
       self.declareWinner(self.players[1], "Player 1\'s hangar has been destroyed")
@@ -193,7 +194,7 @@ class Match(DefaultGameWorld):
     elif self.turnNumber >= self.turnLimit:
       total1 = 0
       total2 = 0
-      for tile in self.hangartiles:
+      for tile in self.hangartiles.values():
         if tile.owner == 0:
           total1 += tile.health
         elif tile.owner == 1:
