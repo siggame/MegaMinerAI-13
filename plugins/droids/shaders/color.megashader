@@ -1,0 +1,7 @@
+input vec3 inputPosition
+input vec3 inputColor
+uniform mat4 world
+uniform mat4 view
+uniform mat4 proj
+shader v color.vs
+shader f color.fs
