@@ -76,11 +76,11 @@ class Player(object):
       cost = self.game.variantToModelVariant(4).cost
     if self.scrapAmount < cost:
       return 'Turn {}: You do not have enough scrap to drop. Have: () Need: ()'.format(self.game.turnNumber, self.scrapAmount, cost)
-    tile = getTile(x, y)
+    tile = self.getTile(x, y)
     if tile.health > 0:
       return 'Turn {}: You cannot drop a structure onto another structure.'.format(self.game.turnNumber)
     if tile.turnsUntilAssembled > 0:
-      return 'Turn {}: You cannot drop a structure onto tile that is assembling a droid.'.format(self.game.turnNumber)
+      return 'Turn {}: You cannot drop a structure onto a tile that is assembling a droid.'.format(self.game.turnNumber)
     
     if self.id == 0:
       xoff = 0
@@ -305,13 +305,18 @@ class Tile(Mappable):
   def assemble(self, type):
     player = self.game.objects.players[self.game.playerID]
 
+    #make sure turret isn't being assembled
+    turretVariantNum = 4
+
+    if type == turretVariantNum:
+      return 'Turn {}: You cannot assemble a turret; use orbital drop.'.format(self.game.turnNumber)
     if self.owner != self.game.playerID:
       return 'Turn {}: You cannot assemble a droid on a non hanger tile. ({},{})'.format(self.game.turnNumber, self.x, self.y)
     if len(self.game.grid[self.x][self.y]) > 1:
       return 'Turn {} You cannot assemble a droid on top of another droid. ({},{})'.format(self.game.turnNumber, self.x, self.y)
     if self.turnsUntilAssembled != 0:
        return 'Turn {} You cannot assemble a droid because you are already attempting to assemble here ({},{})'.format(self.game.turnNumber, self.x, self.y)
-    count = len([droid for droid in self.game.objects.droids if droid.owner == playerID])
+    count = len([droid for droid in self.game.objects.droids if droid.owner == self.playerID])
     if count >= self.game.maxDroids:
       return 'Turn {} You cannot assemble a droid because you already have the maximum number of droids ({})'.format(self.game.turnNumber, self.game.maxDroids)
     variant = self.game.variantToModelVariant(type)
