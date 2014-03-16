@@ -23,31 +23,35 @@ namespace visualizer
 
   void Droids::destroy()
   {
-    m_suicide=true;
-    wait();
-    animationEngine->registerGame(0, 0);
+	m_suicide=true;
+	wait();
+	animationEngine->registerGame(0, 0);
 
-    clear();
-    delete m_game;
-    m_game = 0;
-    
-    // Clear your memory here
-    
-    programs.clear();
+	clear();
+	delete m_game;
+	m_game = 0;
+
+	// Clear your memory here
+
+	programs.clear();
 
   } // Droids::~Droids()
 
   void Droids::preDraw()
   {
-	//const Input& input = gui->getInput();
+	renderer->push();
+	renderer->translate(GRID_OFFSET, GRID_OFFSET);
 
 	RenderGrid();
-    
+
+
     // Handle player input here
   }
 
   void Droids::postDraw()
   {
+
+	  renderer->pop();
   }
 
 
@@ -80,17 +84,27 @@ namespace visualizer
 
   void Droids::RenderGrid() const
   {
-	  renderer->drawTexturedQuad(0,0,m_mapWidth,m_mapHeight,4.0f,"grid");
+	  static float time = 0.0f;
+	  time += timeManager->getDt();
+
+	  renderer->setColor({1.0f,1.0f,1.0f,0.7f});
+	  renderer->drawRotatedTexturedQuad(-m_mapWidth,-m_mapHeight, m_mapWidth*3,m_mapHeight*3,2.2f, time, "grid");
+
+	  renderer->setColor({1.0f,1.0f,1.0f,0.4f});
+	  renderer->drawTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,2.2f,"grid");
+
+	  renderer->setColor({1.0f,1.0f,1.0f,0.7f});
+	  renderer->drawTexturedQuad(0,0,m_mapWidth,m_mapHeight,2.5f,"mars");
 
 	  // Draw horizontal lines
-	  renderer->setColor(Color(0.0f,0.0f,0.0f,1.0f));
-	  for(int i = 0; i < m_mapHeight; i++)
+	  renderer->setColor({0.0f,0.0f,0.0f,1.0f});
+	  for(int i = 0; i <= m_mapHeight; i++)
 	  {
 		  renderer->drawLine(0,i,m_mapWidth,i,1.0f);
 	  }
 
 	  // Draw vertical lines
-	  for(int i = 0; i < m_mapWidth; i++)
+	  for(int i = 0; i <= m_mapWidth; i++)
 	  {
 		  renderer->drawLine(i,0,i,m_mapHeight,1.0f);
 	  }
@@ -126,8 +140,10 @@ namespace visualizer
 
 	m_mapWidth = m_game->states[0].mapWidth;
 	m_mapHeight = m_game->states[0].mapHeight;
-	renderer->setCamera( 0, 0, m_mapWidth, m_mapHeight );
-	renderer->setGridDimensions( m_mapWidth, m_mapHeight );
+	cout << "Map Width: " << m_mapWidth << endl;
+	cout << "Map Height: " << m_mapHeight << endl;
+	renderer->setCamera( 0, 0, m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
+	renderer->setGridDimensions( m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
  
     start();
   } // Droids::loadGamelog()

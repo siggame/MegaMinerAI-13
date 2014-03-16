@@ -49,6 +49,8 @@ namespace visualizer
 			int m_mapWidth;
 			int m_mapHeight;
             bool m_suicide;
+
+			static const unsigned int GRID_OFFSET = 1;
     }; 
 
 } // visualizer
