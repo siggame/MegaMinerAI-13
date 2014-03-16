@@ -156,37 +156,64 @@ namespace visualizer
 
     animationEngine->registerGame(0, 0);
 
-    // Look through each turn in the gamelog
-    for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
-    {
-      Frame turn;  // The frame that will be drawn
+	// Look through each turn in the gamelog
+	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
+	{
+		Frame turn;  // The frame that will be drawn
 
-	  // Do stuff here
+		cout << "Turn " << state << " there are " << m_game->states[state].droids.size() << " droids" << endl;
 
-      animationEngine->buildAnimations(turn);
-      addFrame(turn);
+		for(auto droidIter : m_game->states[state].droids)
+		{
+			// Use different droid types
+			SmartPointer<MoveableSprite> pUnit = new MoveableSprite("hacker");
 
-      // Register the game and begin playing delayed due to multithreading
-      if(state > 5)
-      {
-        timeManager->setNumTurns(state - 5);
-        animationEngine->registerGame( this, this );
-        if(state == 6)
-        {
-          animationEngine->registerGame(this, this);
-          timeManager->setTurn(0);
-          timeManager->play();
-        }
-      }
-    }
-    
-    if(!m_suicide)
-    {
-      timeManager->setNumTurns( m_game->states.size() );
-      timeManager->play();
-    }
+			for(auto& animationIter : m_game->states[state].animations[droidIter.first])
+			{
+				if(animationIter->type == parser::MOVE)
+				{
+					// Move animation
+					parser::move& move = (parser::move&)*animationIter;
+					pUnit->m_Moves.push_back(MoveableSprite::Move(glm::vec2(move.toX, move.toY), glm::vec2(move.fromX, move.fromY)));
+				}
+				else if(animationIter->type == parser::ATTACK)
+				{
+					// Attack animation
+				}
+				else
+				{
+					// Other
+				}
+			}
 
-  } // Droids::run()
+			pUnit->addKeyFrame(new DrawSmoothMoveSprite(pUnit, glm::vec4(1.0f)));
+			turn.addAnimatable(pUnit);
+		}
+
+		animationEngine->buildAnimations(turn);
+		addFrame(turn);
+
+		// Register the game and begin playing delayed due to multithreading
+		if(state > 5)
+		{
+			timeManager->setNumTurns(state - 5);
+			animationEngine->registerGame( this, this );
+			if(state == 6)
+			{
+				animationEngine->registerGame(this, this);
+				timeManager->setTurn(0);
+				timeManager->play();
+			}
+		}
+	}
+
+	if(!m_suicide)
+	{
+		timeManager->setNumTurns( m_game->states.size() );
+		timeManager->play();
+	}
+
+} // Droids::run()
 
 } // visualizer
 
