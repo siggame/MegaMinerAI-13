@@ -47,6 +47,10 @@ public:
   int scrapRate();
   ///The maximum amount of scrap a player can have at once.
   int maxScrap();
+  ///The cost to place a wall, in scrap.
+  int wallCost();
+  ///The maximum amount of scrap a player can have at once.
+  int maxWallHealth();
   
   BaseAI(Connection* c);
   virtual ~BaseAI();

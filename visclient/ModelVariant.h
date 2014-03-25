@@ -40,6 +40,10 @@ class ModelVariant {
   int maxArmor();
   ///The amount of scrap the Droid drops.
   int scrapWorth();
+  ///The number of turns this unit will be hacked, if it is hacked.
+  int turnsToBeHacked();
+  ///The maximum number of hackets that can be sustained before hacked.
+  int hacketsMax();
 
   // Actions
 

@@ -98,5 +98,17 @@ class ModelVariant
     validify();
     return Client.INSTANCE.modelVariantGetScrapWorth(ptr);
   }
+  ///The number of turns this unit will be hacked, if it is hacked.
+  public int getTurnsToBeHacked()
+  {
+    validify();
+    return Client.INSTANCE.modelVariantGetTurnsToBeHacked(ptr);
+  }
+  ///The maximum number of hackets that can be sustained before hacked.
+  public int getHacketsMax()
+  {
+    validify();
+    return Client.INSTANCE.modelVariantGetHacketsMax(ptr);
+  }
 
 }

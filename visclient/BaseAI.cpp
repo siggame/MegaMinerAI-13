@@ -44,6 +44,14 @@ int BaseAI::maxScrap()
 {
   return getMaxScrap(c);
 }
+int BaseAI::wallCost()
+{
+  return getWallCost(c);
+}
+int BaseAI::maxWallHealth()
+{
+  return getMaxWallHealth(c);
+}
 
 bool BaseAI::startTurn()
 {

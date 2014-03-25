@@ -45,6 +45,9 @@ class Match(DefaultGameWorld):
 
     self.grid = []
 
+    self.wallCost = self.wallCost
+    self.maxWallHealth = self.maxWallHealth
+
   #this is here to be wrapped
   def __del__(self):
     pass
@@ -103,8 +106,8 @@ class Match(DefaultGameWorld):
     #TODO: START STUFF
     self.turn = self.players[-1]
     self.turnNumber = -1
-    #'x', 'y', 'owner', 'turnsUntilAssembled', 'scrapAmount', 'health']
-    self.grid = [[[ self.addObject(Tile,[x, y, 2, 0, 0, 0]) ] for y in range(self.mapHeight)] for x in range(self.mapWidth)]
+    #'x', 'y', 'owner', 'turnsUntilAssembled', 'typeToAssemble', 'health']
+    self.grid = [[[ self.addObject(Tile,[x, y, 2, 0, -1, 0]) ] for y in range(self.mapHeight)] for x in range(self.mapWidth)]
 
     self.createhangars()
 
@@ -158,6 +161,8 @@ class Match(DefaultGameWorld):
           gameNumber = self.gameNumber,
           scrapRate = self.scrapRate,
           maxScrap = self.maxScrap,
+          wallCost = self.wallCost,
+          maxWallHealth = self.maxWallHealth,
           Players = [i.toJson() for i in self.objects.values() if i.__class__ is Player],
           Mappables = [i.toJson() for i in self.objects.values() if i.__class__ is Mappable],
           Droids = [i.toJson() for i in self.objects.values() if i.__class__ is Droid],
@@ -249,9 +254,9 @@ class Match(DefaultGameWorld):
   def move(self, object, x, y):
     return object.move(x, y, )
 
-  @derefArgs(Droid, Droid)
-  def operate(self, object, target):
-    return object.operate(target, )
+  @derefArgs(Droid, Droid, None)
+  def operate(self, object, x, y):
+    return object.operate(x, y, )
 
   @derefArgs(Tile, None)
   def assemble(self, object, type):
@@ -284,7 +289,7 @@ class Match(DefaultGameWorld):
   def status(self):
     msg = ["status"]
 
-    msg.append(["game", self.mapWidth, self.mapHeight, self.turnNumber, self.maxDroids, self.maxWalls, self.playerID, self.gameNumber, self.scrapRate, self.maxScrap])
+    msg.append(["game", self.mapWidth, self.mapHeight, self.turnNumber, self.maxDroids, self.maxWalls, self.playerID, self.gameNumber, self.scrapRate, self.maxScrap, self.wallCost, self.maxWallHealth])
 
     typeLists = []
     typeLists.append(["Player"] + [i.toList() for i in self.objects.values() if i.__class__ is Player])

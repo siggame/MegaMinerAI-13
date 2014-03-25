@@ -63,11 +63,11 @@ class Tile extends Mappable
     validify();
     return Client.INSTANCE.tileGetTurnsUntilAssembled(ptr);
   }
-  ///The amount of scrap on this tile.
-  public int getScrapAmount()
+  ///The type of structure to assemble. If 0: Wall. If 1: Turret
+  public int getTypeToAssemble()
   {
     validify();
-    return Client.INSTANCE.tileGetScrapAmount(ptr);
+    return Client.INSTANCE.tileGetTypeToAssemble(ptr);
   }
   ///The health of the Hangar or Wall on this tile.
   public int getHealth()
