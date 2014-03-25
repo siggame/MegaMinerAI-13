@@ -111,7 +111,7 @@ class Match(DefaultGameWorld):
 
     self.createhangars()
 
-    statList = ["name", "variant", "cost", "maxAttacks", "maxHealth", "maxMovement", "range", "attack", "maxArmor", "scrapWorth"]
+    statList = ["name", "variant", "cost", "maxAttacks", "maxHealth", "maxMovement", "range", "attack", "maxArmor", "scrapWorth", "turnsToBeHacked", "hacketsMax"]
     variants = cfgVariants.values()
     variants.sort(key=lambda variant: variant['variant'])
     for t in variants:
