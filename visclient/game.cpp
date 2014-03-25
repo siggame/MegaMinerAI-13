@@ -61,6 +61,8 @@ DLLEXPORT Connection* createConnection()
   c->gameNumber = 0;
   c->scrapRate = 0;
   c->maxScrap = 0;
+  c->wallCost = 0;
+  c->maxWallHealth = 0;
   c->Players = NULL;
   c->PlayerCount = 0;
   c->Mappables = NULL;
@@ -257,11 +259,12 @@ DLLEXPORT int droidMove(_Droid* object, int x, int y)
   return 1;
 }
 
-DLLEXPORT int droidOperate(_Droid* object, _Droid* target)
+DLLEXPORT int droidOperate(_Droid* object, _Droid* x, int y)
 {
   stringstream expr;
   expr << "(game-operate " << object->id
-      << " " << target->id
+      << " " << x->id
+       << " " << y
        << ")";
   LOCK( &object->_c->mutex);
   send_string(object->_c->socket, expr.str().c_str());
@@ -358,9 +361,13 @@ void parseDroid(Connection* c, _Droid* object, sexp_t* expression)
   sub = sub->next;
   object->scrapWorth = atoi(sub->val);
   sub = sub->next;
+  object->turnsToBeHacked = atoi(sub->val);
+  sub = sub->next;
   object->hackedTurnsLeft = atoi(sub->val);
   sub = sub->next;
   object->hackets = atoi(sub->val);
+  sub = sub->next;
+  object->hacketsMax = atoi(sub->val);
   sub = sub->next;
 
 }
@@ -381,7 +388,7 @@ void parseTile(Connection* c, _Tile* object, sexp_t* expression)
   sub = sub->next;
   object->turnsUntilAssembled = atoi(sub->val);
   sub = sub->next;
-  object->scrapAmount = atoi(sub->val);
+  object->typeToAssemble = atoi(sub->val);
   sub = sub->next;
   object->health = atoi(sub->val);
   sub = sub->next;
@@ -417,6 +424,10 @@ void parseModelVariant(Connection* c, _ModelVariant* object, sexp_t* expression)
   object->maxArmor = atoi(sub->val);
   sub = sub->next;
   object->scrapWorth = atoi(sub->val);
+  sub = sub->next;
+  object->turnsToBeHacked = atoi(sub->val);
+  sub = sub->next;
+  object->hacketsMax = atoi(sub->val);
   sub = sub->next;
 
 }
@@ -514,6 +525,12 @@ DLLEXPORT int networkLoop(Connection* c)
           sub = sub->next;
 
           c->maxScrap = atoi(sub->val);
+          sub = sub->next;
+
+          c->wallCost = atoi(sub->val);
+          sub = sub->next;
+
+          c->maxWallHealth = atoi(sub->val);
           sub = sub->next;
 
         }
@@ -699,6 +716,14 @@ DLLEXPORT int getScrapRate(Connection* c)
 DLLEXPORT int getMaxScrap(Connection* c)
 {
   return c->maxScrap;
+}
+DLLEXPORT int getWallCost(Connection* c)
+{
+  return c->wallCost;
+}
+DLLEXPORT int getMaxWallHealth(Connection* c)
+{
+  return c->maxWallHealth;
 }
 
 }

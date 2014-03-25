@@ -130,4 +130,14 @@ public abstract class BaseAI
   {
     return Client.INSTANCE.getMaxScrap(connection);
   }
+  ///The cost to place a wall, in scrap.
+  int wallCost()
+  {
+    return Client.INSTANCE.getWallCost(connection);
+  }
+  ///The maximum amount of scrap a player can have at once.
+  int maxWallHealth()
+  {
+    return Client.INSTANCE.getMaxWallHealth(connection);
+  }
 }

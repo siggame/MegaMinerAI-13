@@ -168,12 +168,12 @@ class Droid(Mappable):
     return library.droidMove(self._ptr, x, y)
 
   ##Command to operate (repair, attack, hack) on another Droid.
-  def operate(self, target):
+  def operate(self, x, y):
     self.validify()
-    if not isinstance(target, Droid):
-      raise TypeError('target should be of [Droid]')
-    target.validify()
-    return library.droidOperate(self._ptr, target._ptr)
+    if not isinstance(x, Droid):
+      raise TypeError('x should be of [Droid]')
+    x.validify()
+    return library.droidOperate(self._ptr, x._ptr, y)
 
   #\cond
   def getId(self):
@@ -212,7 +212,7 @@ class Droid(Mappable):
     self.validify()
     return library.droidGetVariant(self._ptr)
   #\endcond
-  ##The variant of this Droid. This variant refers to list of DroidVariants.
+  ##The variant of this Droid. This variant refers to list of ModelVariants.
   variant = property(getVariant)
 
   #\cond
@@ -304,6 +304,14 @@ class Droid(Mappable):
   scrapWorth = property(getScrapWorth)
 
   #\cond
+  def getTurnsToBeHacked(self):
+    self.validify()
+    return library.droidGetTurnsToBeHacked(self._ptr)
+  #\endcond
+  ##The number of turns this unit will be hacked, if it is hacked.
+  turnsToBeHacked = property(getTurnsToBeHacked)
+
+  #\cond
   def getHackedTurnsLeft(self):
     self.validify()
     return library.droidGetHackedTurnsLeft(self._ptr)
@@ -318,6 +326,14 @@ class Droid(Mappable):
   #\endcond
   ##The amount of hacking progress that has been made.
   hackets = property(getHackets)
+
+  #\cond
+  def getHacketsMax(self):
+    self.validify()
+    return library.droidGetHacketsMax(self._ptr)
+  #\endcond
+  ##The maximum number of hackets that can be sustained before hacked.
+  hacketsMax = property(getHacketsMax)
 
 
   def __str__(self):
@@ -339,8 +355,10 @@ class Droid(Mappable):
     ret += "armor: %s\n" % self.getArmor()
     ret += "maxArmor: %s\n" % self.getMaxArmor()
     ret += "scrapWorth: %s\n" % self.getScrapWorth()
+    ret += "turnsToBeHacked: %s\n" % self.getTurnsToBeHacked()
     ret += "hackedTurnsLeft: %s\n" % self.getHackedTurnsLeft()
     ret += "hackets: %s\n" % self.getHackets()
+    ret += "hacketsMax: %s\n" % self.getHacketsMax()
     return ret
 
 ##Represents a single tile on the map.
@@ -411,12 +429,12 @@ class Tile(Mappable):
   turnsUntilAssembled = property(getTurnsUntilAssembled)
 
   #\cond
-  def getScrapAmount(self):
+  def getTypeToAssemble(self):
     self.validify()
-    return library.tileGetScrapAmount(self._ptr)
+    return library.tileGetTypeToAssemble(self._ptr)
   #\endcond
-  ##The amount of scrap on this tile.
-  scrapAmount = property(getScrapAmount)
+  ##The type of structure to assemble. If 0: Wall. If 1: Turret
+  typeToAssemble = property(getTypeToAssemble)
 
   #\cond
   def getHealth(self):
@@ -435,7 +453,7 @@ class Tile(Mappable):
     ret += "y: %s\n" % self.getY()
     ret += "owner: %s\n" % self.getOwner()
     ret += "turnsUntilAssembled: %s\n" % self.getTurnsUntilAssembled()
-    ret += "scrapAmount: %s\n" % self.getScrapAmount()
+    ret += "typeToAssemble: %s\n" % self.getTypeToAssemble()
     ret += "health: %s\n" % self.getHealth()
     return ret
 
@@ -549,6 +567,22 @@ class ModelVariant(GameObject):
   ##The amount of scrap the Droid drops.
   scrapWorth = property(getScrapWorth)
 
+  #\cond
+  def getTurnsToBeHacked(self):
+    self.validify()
+    return library.modelVariantGetTurnsToBeHacked(self._ptr)
+  #\endcond
+  ##The number of turns this unit will be hacked, if it is hacked.
+  turnsToBeHacked = property(getTurnsToBeHacked)
+
+  #\cond
+  def getHacketsMax(self):
+    self.validify()
+    return library.modelVariantGetHacketsMax(self._ptr)
+  #\endcond
+  ##The maximum number of hackets that can be sustained before hacked.
+  hacketsMax = property(getHacketsMax)
+
 
   def __str__(self):
     self.validify()
@@ -564,4 +598,6 @@ class ModelVariant(GameObject):
     ret += "attack: %s\n" % self.getAttack()
     ret += "maxArmor: %s\n" % self.getMaxArmor()
     ret += "scrapWorth: %s\n" % self.getScrapWorth()
+    ret += "turnsToBeHacked: %s\n" % self.getTurnsToBeHacked()
+    ret += "hacketsMax: %s\n" % self.getHacketsMax()
     return ret

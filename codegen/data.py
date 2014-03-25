@@ -78,7 +78,7 @@ Droid = Model('Droid',
     Variable('scrapWorth', int, 'The amount of scrap the Droid drops.'),
     Variable('turnsToBeHacked', int, 'The number of turns this unit will be hacked, if it is hacked.'),
     Variable('hackedTurnsLeft', int, 'The number of turns the Droid has remaining as hacked.'),
-    Variable('hackets', int, 'The amount of hacking progress that has been made.')
+    Variable('hackets', int, 'The amount of hacking progress that has been made.'),
     Variable('hacketsMax', int, 'The maximum number of hackets that can be sustained before hacked.'),
     ],
   doc='Represents a single Droid on the map.',

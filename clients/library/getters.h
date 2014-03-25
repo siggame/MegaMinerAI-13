@@ -39,8 +39,10 @@ DLLEXPORT int droidGetAttack(_Droid* ptr);
 DLLEXPORT int droidGetArmor(_Droid* ptr);
 DLLEXPORT int droidGetMaxArmor(_Droid* ptr);
 DLLEXPORT int droidGetScrapWorth(_Droid* ptr);
+DLLEXPORT int droidGetTurnsToBeHacked(_Droid* ptr);
 DLLEXPORT int droidGetHackedTurnsLeft(_Droid* ptr);
 DLLEXPORT int droidGetHackets(_Droid* ptr);
+DLLEXPORT int droidGetHacketsMax(_Droid* ptr);
 
 
 DLLEXPORT int tileGetId(_Tile* ptr);
@@ -48,7 +50,7 @@ DLLEXPORT int tileGetX(_Tile* ptr);
 DLLEXPORT int tileGetY(_Tile* ptr);
 DLLEXPORT int tileGetOwner(_Tile* ptr);
 DLLEXPORT int tileGetTurnsUntilAssembled(_Tile* ptr);
-DLLEXPORT int tileGetScrapAmount(_Tile* ptr);
+DLLEXPORT int tileGetTypeToAssemble(_Tile* ptr);
 DLLEXPORT int tileGetHealth(_Tile* ptr);
 
 
@@ -63,6 +65,8 @@ DLLEXPORT int modelVariantGetRange(_ModelVariant* ptr);
 DLLEXPORT int modelVariantGetAttack(_ModelVariant* ptr);
 DLLEXPORT int modelVariantGetMaxArmor(_ModelVariant* ptr);
 DLLEXPORT int modelVariantGetScrapWorth(_ModelVariant* ptr);
+DLLEXPORT int modelVariantGetTurnsToBeHacked(_ModelVariant* ptr);
+DLLEXPORT int modelVariantGetHacketsMax(_ModelVariant* ptr);
 
 
 

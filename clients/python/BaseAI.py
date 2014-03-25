@@ -94,5 +94,15 @@ class BaseAI:
     return library.getMaxScrap(self.connection)
   #\endcond
   maxScrap = property(getMaxScrap)
+  #\cond
+  def getWallCost(self):
+    return library.getWallCost(self.connection)
+  #\endcond
+  wallCost = property(getWallCost)
+  #\cond
+  def getMaxWallHealth(self):
+    return library.getMaxWallHealth(self.connection)
+  #\endcond
+  maxWallHealth = property(getMaxWallHealth)
   def __init__(self, connection):
     self.connection = connection

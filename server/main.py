@@ -146,12 +146,12 @@ class GameApp(AccountsAppMixin, BaseApp):
   @protocolmethod
   @errorBuffer
   @requireTurn
-  @requireTypes(None, int, int)
-  def gameOperate(self, droid, target):
+  @requireTypes(None, int, int, int)
+  def gameOperate(self, droid, x, y):
     """Command to operate (repair, attack, hack) on another Droid."""
     if self.game.turn is not self:
       return "Not your turn."
-    return self.game.operate(droid, target)
+    return self.game.operate(droid, x, y)
 
   @protocolmethod
   @errorBuffer

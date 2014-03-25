@@ -90,6 +90,11 @@ int Droid::scrapWorth()
   return ((_Droid*)ptr)->scrapWorth;
 }
 
+int Droid::turnsToBeHacked()
+{
+  return ((_Droid*)ptr)->turnsToBeHacked;
+}
+
 int Droid::hackedTurnsLeft()
 {
   return ((_Droid*)ptr)->hackedTurnsLeft;
@@ -100,15 +105,20 @@ int Droid::hackets()
   return ((_Droid*)ptr)->hackets;
 }
 
+int Droid::hacketsMax()
+{
+  return ((_Droid*)ptr)->hacketsMax;
+}
+
 
 bool Droid::move(int x, int y)
 {
   return droidMove( (_Droid*)ptr, x, y);
 }
 
-bool Droid::operate(Droid& target)
+bool Droid::operate(Droid& x, int y)
 {
-  return droidOperate( (_Droid*)ptr, (_Droid*) target.ptr);
+  return droidOperate( (_Droid*)ptr, (_Droid*) x.ptr, y);
 }
 
 
@@ -131,7 +141,9 @@ std::ostream& operator<<(std::ostream& stream,Droid ob)
   stream << "armor: " << ((_Droid*)ob.ptr)->armor  <<'\n';
   stream << "maxArmor: " << ((_Droid*)ob.ptr)->maxArmor  <<'\n';
   stream << "scrapWorth: " << ((_Droid*)ob.ptr)->scrapWorth  <<'\n';
+  stream << "turnsToBeHacked: " << ((_Droid*)ob.ptr)->turnsToBeHacked  <<'\n';
   stream << "hackedTurnsLeft: " << ((_Droid*)ob.ptr)->hackedTurnsLeft  <<'\n';
   stream << "hackets: " << ((_Droid*)ob.ptr)->hackets  <<'\n';
+  stream << "hacketsMax: " << ((_Droid*)ob.ptr)->hacketsMax  <<'\n';
   return stream;
 }

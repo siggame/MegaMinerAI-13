@@ -64,6 +64,16 @@ int ModelVariant::scrapWorth()
   return ((_ModelVariant*)ptr)->scrapWorth;
 }
 
+int ModelVariant::turnsToBeHacked()
+{
+  return ((_ModelVariant*)ptr)->turnsToBeHacked;
+}
+
+int ModelVariant::hacketsMax()
+{
+  return ((_ModelVariant*)ptr)->hacketsMax;
+}
+
 
 
 
@@ -80,5 +90,7 @@ std::ostream& operator<<(std::ostream& stream,ModelVariant ob)
   stream << "attack: " << ((_ModelVariant*)ob.ptr)->attack  <<'\n';
   stream << "maxArmor: " << ((_ModelVariant*)ob.ptr)->maxArmor  <<'\n';
   stream << "scrapWorth: " << ((_ModelVariant*)ob.ptr)->scrapWorth  <<'\n';
+  stream << "turnsToBeHacked: " << ((_ModelVariant*)ob.ptr)->turnsToBeHacked  <<'\n';
+  stream << "hacketsMax: " << ((_ModelVariant*)ob.ptr)->hacketsMax  <<'\n';
   return stream;
 }

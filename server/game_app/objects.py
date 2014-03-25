@@ -54,8 +54,8 @@ class Mappable(object):
       object.__setattr__(self, name, value)
 
 class Droid(Mappable):
-  game_state_attributes = ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'hackedTurnsLeft', 'hackets']
-  def __init__(self, game, id, x, y, owner, variant, attacksLeft, maxAttacks, healthLeft, maxHealth, movementLeft, maxMovement, range, attack, armor, maxArmor, scrapWorth, hackedTurnsLeft, hackets):
+  game_state_attributes = ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'turnsToBeHacked', 'hackedTurnsLeft', 'hackets', 'hacketsMax']
+  def __init__(self, game, id, x, y, owner, variant, attacksLeft, maxAttacks, healthLeft, maxHealth, movementLeft, maxMovement, range, attack, armor, maxArmor, scrapWorth, turnsToBeHacked, hackedTurnsLeft, hackets, hacketsMax):
     self.game = game
     self.id = id
     self.x = x
@@ -73,16 +73,18 @@ class Droid(Mappable):
     self.armor = armor
     self.maxArmor = maxArmor
     self.scrapWorth = scrapWorth
+    self.turnsToBeHacked = turnsToBeHacked
     self.hackedTurnsLeft = hackedTurnsLeft
     self.hackets = hackets
+    self.hacketsMax = hacketsMax
     self.updatedAt = game.turnNumber
 
   def toList(self):
-    return [self.id, self.x, self.y, self.owner, self.variant, self.attacksLeft, self.maxAttacks, self.healthLeft, self.maxHealth, self.movementLeft, self.maxMovement, self.range, self.attack, self.armor, self.maxArmor, self.scrapWorth, self.hackedTurnsLeft, self.hackets, ]
+    return [self.id, self.x, self.y, self.owner, self.variant, self.attacksLeft, self.maxAttacks, self.healthLeft, self.maxHealth, self.movementLeft, self.maxMovement, self.range, self.attack, self.armor, self.maxArmor, self.scrapWorth, self.turnsToBeHacked, self.hackedTurnsLeft, self.hackets, self.hacketsMax, ]
   
   # This will not work if the object has variables other than primitives
   def toJson(self):
-    return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, variant = self.variant, attacksLeft = self.attacksLeft, maxAttacks = self.maxAttacks, healthLeft = self.healthLeft, maxHealth = self.maxHealth, movementLeft = self.movementLeft, maxMovement = self.maxMovement, range = self.range, attack = self.attack, armor = self.armor, maxArmor = self.maxArmor, scrapWorth = self.scrapWorth, hackedTurnsLeft = self.hackedTurnsLeft, hackets = self.hackets, )
+    return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, variant = self.variant, attacksLeft = self.attacksLeft, maxAttacks = self.maxAttacks, healthLeft = self.healthLeft, maxHealth = self.maxHealth, movementLeft = self.movementLeft, maxMovement = self.maxMovement, range = self.range, attack = self.attack, armor = self.armor, maxArmor = self.maxArmor, scrapWorth = self.scrapWorth, turnsToBeHacked = self.turnsToBeHacked, hackedTurnsLeft = self.hackedTurnsLeft, hackets = self.hackets, hacketsMax = self.hacketsMax, )
   
   def nextTurn(self):
     pass
@@ -90,7 +92,7 @@ class Droid(Mappable):
   def move(self, x, y):
     pass
 
-  def operate(self, target):
+  def operate(self, x, y):
     pass
 
   def __setattr__(self, name, value):
@@ -99,24 +101,24 @@ class Droid(Mappable):
       object.__setattr__(self, name, value)
 
 class Tile(Mappable):
-  game_state_attributes = ['id', 'x', 'y', 'owner', 'turnsUntilAssembled', 'scrapAmount', 'health']
-  def __init__(self, game, id, x, y, owner, turnsUntilAssembled, scrapAmount, health):
+  game_state_attributes = ['id', 'x', 'y', 'owner', 'turnsUntilAssembled', 'typeToAssemble', 'health']
+  def __init__(self, game, id, x, y, owner, turnsUntilAssembled, typeToAssemble, health):
     self.game = game
     self.id = id
     self.x = x
     self.y = y
     self.owner = owner
     self.turnsUntilAssembled = turnsUntilAssembled
-    self.scrapAmount = scrapAmount
+    self.typeToAssemble = typeToAssemble
     self.health = health
     self.updatedAt = game.turnNumber
 
   def toList(self):
-    return [self.id, self.x, self.y, self.owner, self.turnsUntilAssembled, self.scrapAmount, self.health, ]
+    return [self.id, self.x, self.y, self.owner, self.turnsUntilAssembled, self.typeToAssemble, self.health, ]
   
   # This will not work if the object has variables other than primitives
   def toJson(self):
-    return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, turnsUntilAssembled = self.turnsUntilAssembled, scrapAmount = self.scrapAmount, health = self.health, )
+    return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, turnsUntilAssembled = self.turnsUntilAssembled, typeToAssemble = self.typeToAssemble, health = self.health, )
   
   def nextTurn(self):
     pass
@@ -130,8 +132,8 @@ class Tile(Mappable):
       object.__setattr__(self, name, value)
 
 class ModelVariant(object):
-  game_state_attributes = ['id', 'name', 'variant', 'cost', 'maxAttacks', 'maxHealth', 'maxMovement', 'range', 'attack', 'maxArmor', 'scrapWorth']
-  def __init__(self, game, id, name, variant, cost, maxAttacks, maxHealth, maxMovement, range, attack, maxArmor, scrapWorth):
+  game_state_attributes = ['id', 'name', 'variant', 'cost', 'maxAttacks', 'maxHealth', 'maxMovement', 'range', 'attack', 'maxArmor', 'scrapWorth', 'turnsToBeHacked', 'hacketsMax']
+  def __init__(self, game, id, name, variant, cost, maxAttacks, maxHealth, maxMovement, range, attack, maxArmor, scrapWorth, turnsToBeHacked, hacketsMax):
     self.game = game
     self.id = id
     self.name = name
@@ -144,14 +146,16 @@ class ModelVariant(object):
     self.attack = attack
     self.maxArmor = maxArmor
     self.scrapWorth = scrapWorth
+    self.turnsToBeHacked = turnsToBeHacked
+    self.hacketsMax = hacketsMax
     self.updatedAt = game.turnNumber
 
   def toList(self):
-    return [self.id, self.name, self.variant, self.cost, self.maxAttacks, self.maxHealth, self.maxMovement, self.range, self.attack, self.maxArmor, self.scrapWorth, ]
+    return [self.id, self.name, self.variant, self.cost, self.maxAttacks, self.maxHealth, self.maxMovement, self.range, self.attack, self.maxArmor, self.scrapWorth, self.turnsToBeHacked, self.hacketsMax, ]
   
   # This will not work if the object has variables other than primitives
   def toJson(self):
-    return dict(id = self.id, name = self.name, variant = self.variant, cost = self.cost, maxAttacks = self.maxAttacks, maxHealth = self.maxHealth, maxMovement = self.maxMovement, range = self.range, attack = self.attack, maxArmor = self.maxArmor, scrapWorth = self.scrapWorth, )
+    return dict(id = self.id, name = self.name, variant = self.variant, cost = self.cost, maxAttacks = self.maxAttacks, maxHealth = self.maxHealth, maxMovement = self.maxMovement, range = self.range, attack = self.attack, maxArmor = self.maxArmor, scrapWorth = self.scrapWorth, turnsToBeHacked = self.turnsToBeHacked, hacketsMax = self.hacketsMax, )
   
   def nextTurn(self):
     pass
@@ -163,6 +167,39 @@ class ModelVariant(object):
 
 
 # The following are animations and do not need to have any logic added
+class AttackAnimation:
+  def __init__(self, actingID, targetID):
+    self.actingID = actingID
+    self.targetID = targetID
+
+  def toList(self):
+    return ["attack", self.actingID, self.targetID, ]
+
+  def toJson(self):
+    return dict(type = "attack", actingID = self.actingID, targetID = self.targetID)
+
+class HackAnimation:
+  def __init__(self, actingID, targetID):
+    self.actingID = actingID
+    self.targetID = targetID
+
+  def toList(self):
+    return ["hack", self.actingID, self.targetID, ]
+
+  def toJson(self):
+    return dict(type = "hack", actingID = self.actingID, targetID = self.targetID)
+
+class RepairAnimation:
+  def __init__(self, actingID, targetID):
+    self.actingID = actingID
+    self.targetID = targetID
+
+  def toList(self):
+    return ["repair", self.actingID, self.targetID, ]
+
+  def toJson(self):
+    return dict(type = "repair", actingID = self.actingID, targetID = self.targetID)
+
 class MoveAnimation:
   def __init__(self, actingID, fromX, fromY, toX, toY):
     self.actingID = actingID
@@ -177,16 +214,15 @@ class MoveAnimation:
   def toJson(self):
     return dict(type = "move", actingID = self.actingID, fromX = self.fromX, fromY = self.fromY, toX = self.toX, toY = self.toY)
 
-class AttackAnimation:
-  def __init__(self, actingID, targetID):
-    self.actingID = actingID
-    self.targetID = targetID
+class OrbitalDropAnimation:
+  def __init__(self, sourceID):
+    self.sourceID = sourceID
 
   def toList(self):
-    return ["attack", self.actingID, self.targetID, ]
+    return ["orbitalDrop", self.sourceID, ]
 
   def toJson(self):
-    return dict(type = "attack", actingID = self.actingID, targetID = self.targetID)
+    return dict(type = "orbitalDrop", sourceID = self.sourceID)
 
 class SpawnAnimation:
   def __init__(self, sourceID, unitID):
@@ -198,36 +234,4 @@ class SpawnAnimation:
 
   def toJson(self):
     return dict(type = "spawn", sourceID = self.sourceID, unitID = self.unitID)
-
-class HackAnimation:
-  def __init__(self, actingID, targetID):
-    self.actingID = actingID
-    self.targetID = targetID
-
-  def toList(self):
-    return ["hack", self.actingID, self.targetID, ]
-
-  def toJson(self):
-    return dict(type = "hack", actingID = self.actingID, targetID = self.targetID)
-
-class OrbitalDropAnimation:
-  def __init__(self, sourceID):
-    self.sourceID = sourceID
-
-  def toList(self):
-    return ["orbitalDrop", self.sourceID, ]
-
-  def toJson(self):
-    return dict(type = "orbitalDrop", sourceID = self.sourceID)
-
-class RepairAnimation:
-  def __init__(self, actingID, targetID):
-    self.actingID = actingID
-    self.targetID = targetID
-
-  def toList(self):
-    return ["repair", self.actingID, self.targetID, ]
-
-  def toJson(self):
-    return dict(type = "repair", actingID = self.actingID, targetID = self.targetID)
 

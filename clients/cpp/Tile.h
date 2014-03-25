@@ -24,8 +24,8 @@ class Tile : public Mappable {
   int owner();
   ///The number of turns until a structure is assembled.
   int turnsUntilAssembled();
-  ///The amount of scrap on this tile.
-  int scrapAmount();
+  ///The type of structure to assemble. If 0: Wall. If 1: Turret
+  int typeToAssemble();
   ///The health of the Hangar or Wall on this tile.
   int health();
 

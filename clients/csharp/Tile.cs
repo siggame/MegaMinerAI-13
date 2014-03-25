@@ -111,14 +111,14 @@ public class Tile: Mappable
   }
 
   /// <summary>
-  /// The amount of scrap on this tile.
+  /// The type of structure to assemble. If 0: Wall. If 1: Turret
   /// </summary>
-  public int ScrapAmount
+  public int TypeToAssemble
   {
     get
     {
       validify();
-      int value = Client.tileGetScrapAmount(ptr);
+      int value = Client.tileGetTypeToAssemble(ptr);
       return value;
     }
   }
