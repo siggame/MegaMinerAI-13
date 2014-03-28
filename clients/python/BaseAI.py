@@ -104,5 +104,10 @@ class BaseAI:
     return library.getMaxWallHealth(self.connection)
   #\endcond
   maxWallHealth = property(getMaxWallHealth)
+  #\cond
+  def getDropTime(self):
+    return library.getDropTime(self.connection)
+  #\endcond
+  dropTime = property(getDropTime)
   def __init__(self, connection):
     self.connection = connection

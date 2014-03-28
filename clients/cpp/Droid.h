@@ -7,7 +7,6 @@
 #include "structures.h"
 
 #include "Mappable.h"
-class Droid;
 
 ///Represents a single Droid on the map.
 class Droid : public Mappable {
@@ -60,7 +59,7 @@ class Droid : public Mappable {
   ///Make the Droid move to the respective x and y location.
   bool move(int x, int y);
   ///Command to operate (repair, attack, hack) on another Droid.
-  bool operate(Droid& x, int y);
+  bool operate(int x, int y);
 
   // Properties
 

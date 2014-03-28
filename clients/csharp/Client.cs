@@ -30,7 +30,7 @@ public class Client {
   [DllImport("client")]
   public static extern int droidMove(IntPtr self, int x, int y);
   [DllImport("client")]
-  public static extern int droidOperate(IntPtr self, IntPtr x, int y);
+  public static extern int droidOperate(IntPtr self, int x, int y);
   [DllImport("client")]
   public static extern int tileAssemble(IntPtr self, int type);
 #endregion
@@ -58,6 +58,8 @@ public class Client {
   public static extern int getWallCost(IntPtr connection);
   [DllImport("client")]
   public static extern int getMaxWallHealth(IntPtr connection);
+  [DllImport("client")]
+  public static extern int getDropTime(IntPtr connection);
 
   [DllImport("client")]
   public static extern IntPtr getPlayer(IntPtr connection, int num);

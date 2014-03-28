@@ -3,7 +3,6 @@
 #include "Droid.h"
 #include "game.h"
 
-#include "Droid.h"
 
 namespace client
 {
@@ -119,9 +118,9 @@ int Droid::move(int x, int y)
   return droidMove( (_Droid*)ptr, x, y);
 }
 
-int Droid::operate(Droid& x, int y)
+int Droid::operate(int x, int y)
 {
-  return droidOperate( (_Droid*)ptr, (_Droid*) x.ptr, y);
+  return droidOperate( (_Droid*)ptr, x, y);
 }
 
 

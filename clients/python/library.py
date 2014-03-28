@@ -51,7 +51,7 @@ library.droidMove.restype = c_int
 library.droidMove.argtypes = [c_void_p, c_int, c_int]
 
 library.droidOperate.restype = c_int
-library.droidOperate.argtypes = [c_void_p, c_void_p, c_int]
+library.droidOperate.argtypes = [c_void_p, c_int, c_int]
 
 library.tileAssemble.restype = c_int
 library.tileAssemble.argtypes = [c_void_p, c_int]
@@ -91,6 +91,9 @@ library.getWallCost.argtypes = [c_void_p]
 
 library.getMaxWallHealth.restype = c_int
 library.getMaxWallHealth.argtypes = [c_void_p]
+
+library.getDropTime.restype = c_int
+library.getDropTime.argtypes = [c_void_p]
 
 library.getPlayer.restype = c_void_p
 library.getPlayer.argtypes = [c_void_p, c_int]

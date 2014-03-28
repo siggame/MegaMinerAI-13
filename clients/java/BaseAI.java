@@ -140,4 +140,9 @@ public abstract class BaseAI
   {
     return Client.INSTANCE.getMaxWallHealth(connection);
   }
+  ///The amount of turns it takes to orbitally drop per tile away from the player's respective edge.
+  int dropTime()
+  {
+    return Client.INSTANCE.getDropTime(connection);
+  }
 }

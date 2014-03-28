@@ -3,7 +3,6 @@
 #include "Droid.h"
 #include "game.h"
 
-#include "Droid.h"
 
 Droid::Droid(_Droid* pointer)
 {
@@ -116,9 +115,9 @@ bool Droid::move(int x, int y)
   return droidMove( (_Droid*)ptr, x, y);
 }
 
-bool Droid::operate(Droid& x, int y)
+bool Droid::operate(int x, int y)
 {
-  return droidOperate( (_Droid*)ptr, (_Droid*) x.ptr, y);
+  return droidOperate( (_Droid*)ptr, x, y);
 }
 
 

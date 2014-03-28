@@ -31,11 +31,10 @@ class Droid extends Mappable
     return (Client.INSTANCE.droidMove(ptr, x, y) == 0) ? false : true;
   }
   ///Command to operate (repair, attack, hack) on another Droid.
-  boolean operate(Droid x, int y)
+  boolean operate(int x, int y)
   {
     validify();
-    x.validify();
-    return (Client.INSTANCE.droidOperate(ptr, x.ptr, y) == 0) ? false : true;
+    return (Client.INSTANCE.droidOperate(ptr, x, y) == 0) ? false : true;
   }
 
     //getters

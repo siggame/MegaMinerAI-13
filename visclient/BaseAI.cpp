@@ -52,6 +52,10 @@ int BaseAI::maxWallHealth()
 {
   return getMaxWallHealth(c);
 }
+int BaseAI::dropTime()
+{
+  return getDropTime(c);
+}
 
 bool BaseAI::startTurn()
 {

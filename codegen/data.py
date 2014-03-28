@@ -22,6 +22,7 @@ globals = [
   Variable('maxScrap', int, 'The maximum amount of scrap a player can have at once.'),
   Variable('wallCost', int, 'The cost to place a wall, in scrap.'),
   Variable('maxWallHealth', int, 'The maximum amount of scrap a player can have at once.'),
+  Variable('dropTime', int, 'The amount of turns it takes to orbitally drop per tile away from the player\'s respective edge.'),
 ]
 
 playerData = [
@@ -82,15 +83,14 @@ Droid = Model('Droid',
     Variable('hacketsMax', int, 'The maximum number of hackets that can be sustained before hacked.'),
     ],
   doc='Represents a single Droid on the map.',
-    functions=[
+  functions=[
     Function('move',[Variable('x', int), Variable('y', int)],
     doc='Make the Droid move to the respective x and y location.'),
-    ],
 
-  )
-
-Droid.addFunctions([Function("operate", [ Variable('x', Droid), Variable('y', int)],
-    doc='Command to operate (repair, attack, hack) on another Droid.')])
+    Function('operate', [Variable('x', int), Variable('y', int)],
+    doc='Command to operate (repair, attack, hack) on another Droid.'),
+  ],
+)
 
 #MODELVARIANT
 ModelVariant = Model('ModelVariant',

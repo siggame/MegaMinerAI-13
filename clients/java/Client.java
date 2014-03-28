@@ -21,7 +21,7 @@ public interface Client extends Library {
   int playerTalk(Pointer object, String message);
   int playerOrbitalDrop(Pointer object, int x, int y, int type);
   int droidMove(Pointer object, int x, int y);
-  int droidOperate(Pointer object, Pointer x, int y);
+  int droidOperate(Pointer object, int x, int y);
   int tileAssemble(Pointer object, int type);
 
     //accessors
@@ -36,6 +36,7 @@ public interface Client extends Library {
   int getMaxScrap(Pointer connection);
   int getWallCost(Pointer connection);
   int getMaxWallHealth(Pointer connection);
+  int getDropTime(Pointer connection);
 
   Pointer getPlayer(Pointer connection, int num);
   int getPlayerCount(Pointer connection);

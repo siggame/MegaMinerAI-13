@@ -381,39 +381,6 @@ class ModelVariant(object):
 
 
 # The following are animations and do not need to have any logic added
-class AttackAnimation:
-  def __init__(self, actingID, targetID):
-    self.actingID = actingID
-    self.targetID = targetID
-
-  def toList(self):
-    return ["attack", self.actingID, self.targetID, ]
-
-  def toJson(self):
-    return dict(type = "attack", actingID = self.actingID, targetID = self.targetID)
-
-class HackAnimation:
-  def __init__(self, actingID, targetID):
-    self.actingID = actingID
-    self.targetID = targetID
-
-  def toList(self):
-    return ["hack", self.actingID, self.targetID, ]
-
-  def toJson(self):
-    return dict(type = "hack", actingID = self.actingID, targetID = self.targetID)
-
-class RepairAnimation:
-  def __init__(self, actingID, targetID):
-    self.actingID = actingID
-    self.targetID = targetID
-
-  def toList(self):
-    return ["repair", self.actingID, self.targetID, ]
-
-  def toJson(self):
-    return dict(type = "repair", actingID = self.actingID, targetID = self.targetID)
-
 class MoveAnimation:
   def __init__(self, actingID, fromX, fromY, toX, toY):
     self.actingID = actingID
@@ -428,16 +395,6 @@ class MoveAnimation:
   def toJson(self):
     return dict(type = "move", actingID = self.actingID, fromX = self.fromX, fromY = self.fromY, toX = self.toX, toY = self.toY)
 
-class OrbitalDropAnimation:
-  def __init__(self, sourceID):
-    self.sourceID = sourceID
-
-  def toList(self):
-    return ["orbitalDrop", self.sourceID, ]
-
-  def toJson(self):
-    return dict(type = "orbitalDrop", sourceID = self.sourceID)
-
 class SpawnAnimation:
   def __init__(self, sourceID, unitID):
     self.sourceID = sourceID
@@ -448,4 +405,47 @@ class SpawnAnimation:
 
   def toJson(self):
     return dict(type = "spawn", sourceID = self.sourceID, unitID = self.unitID)
+
+class HackAnimation:
+  def __init__(self, actingID, targetID):
+    self.actingID = actingID
+    self.targetID = targetID
+
+  def toList(self):
+    return ["hack", self.actingID, self.targetID, ]
+
+  def toJson(self):
+    return dict(type = "hack", actingID = self.actingID, targetID = self.targetID)
+
+class OrbitalDropAnimation:
+  def __init__(self, sourceID):
+    self.sourceID = sourceID
+
+  def toList(self):
+    return ["orbitalDrop", self.sourceID, ]
+
+  def toJson(self):
+    return dict(type = "orbitalDrop", sourceID = self.sourceID)
+
+class RepairAnimation:
+  def __init__(self, actingID, targetID):
+    self.actingID = actingID
+    self.targetID = targetID
+
+  def toList(self):
+    return ["repair", self.actingID, self.targetID, ]
+
+  def toJson(self):
+    return dict(type = "repair", actingID = self.actingID, targetID = self.targetID)
+
+class AttackAnimation:
+  def __init__(self, actingID, targetID):
+    self.actingID = actingID
+    self.targetID = targetID
+
+  def toList(self):
+    return ["attack", self.actingID, self.targetID, ]
+
+  def toJson(self):
+    return dict(type = "attack", actingID = self.actingID, targetID = self.targetID)
 
