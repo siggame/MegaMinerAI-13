@@ -65,6 +65,7 @@ DLLEXPORT Connection* createConnection()
   c->maxScrap = 0;
   c->wallCost = 0;
   c->maxWallHealth = 0;
+  c->dropTime = 0;
   c->Players = NULL;
   c->PlayerCount = 0;
   c->Mappables = NULL;
@@ -269,11 +270,11 @@ DLLEXPORT int droidMove(_Droid* object, int x, int y)
   return 1;
 }
 
-DLLEXPORT int droidOperate(_Droid* object, _Droid* x, int y)
+DLLEXPORT int droidOperate(_Droid* object, int x, int y)
 {
   stringstream expr;
   expr << "(game-operate " << object->id
-      << " " << x->id
+       << " " << x
        << " " << y
        << ")";
   LOCK( &object->_c->mutex);
@@ -543,6 +544,9 @@ DLLEXPORT int networkLoop(Connection* c)
           c->maxWallHealth = atoi(sub->val);
           sub = sub->next;
 
+          c->dropTime = atoi(sub->val);
+          sub = sub->next;
+
         }
         else if(string(sub->val) == "Player")
         {
@@ -760,4 +764,8 @@ DLLEXPORT int getWallCost(Connection* c)
 DLLEXPORT int getMaxWallHealth(Connection* c)
 {
   return c->maxWallHealth;
+}
+DLLEXPORT int getDropTime(Connection* c)
+{
+  return c->dropTime;
 }

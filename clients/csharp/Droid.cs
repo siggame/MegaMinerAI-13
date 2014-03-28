@@ -45,11 +45,10 @@ public class Droid: Mappable
   /// <summary>
   /// Command to operate (repair, attack, hack) on another Droid.
   /// </summary>
-  public bool operate(Droid x, int y)
+  public bool operate(int x, int y)
   {
     validify();
-    x.validify();
-    return (Client.droidOperate(ptr, x.ptr, y) == 0) ? false : true;
+    return (Client.droidOperate(ptr, x, y) == 0) ? false : true;
   }
   #endregion
 

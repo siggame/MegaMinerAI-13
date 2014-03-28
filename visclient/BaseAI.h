@@ -54,6 +54,8 @@ public:
   int wallCost();
   ///The maximum amount of scrap a player can have at once.
   int maxWallHealth();
+  ///The amount of turns it takes to orbitally drop per tile away from the player's respective edge.
+  int dropTime();
   
   BaseAI(Connection* c);
   virtual ~BaseAI();

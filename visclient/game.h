@@ -45,6 +45,7 @@ struct Connection
   int maxScrap;
   int wallCost;
   int maxWallHealth;
+  int dropTime;
 
   _Player* Players;
   int PlayerCount;
@@ -83,7 +84,7 @@ extern "C"
   ///Make the Droid move to the respective x and y location.
   DLLEXPORT int droidMove(_Droid* object, int x, int y);
   ///Command to operate (repair, attack, hack) on another Droid.
-  DLLEXPORT int droidOperate(_Droid* object, _Droid* x, int y);
+  DLLEXPORT int droidOperate(_Droid* object, int x, int y);
   ///Attempt to assemble a Droid at this location.
   DLLEXPORT int tileAssemble(_Tile* object, int type);
 
@@ -104,6 +105,7 @@ DLLEXPORT int getScrapRate(Connection* c);
 DLLEXPORT int getMaxScrap(Connection* c);
 DLLEXPORT int getWallCost(Connection* c);
 DLLEXPORT int getMaxWallHealth(Connection* c);
+DLLEXPORT int getDropTime(Connection* c);
 
 DLLEXPORT _Player* getPlayer(Connection* c, int num);
 DLLEXPORT int getPlayerCount(Connection* c);

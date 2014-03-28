@@ -11,7 +11,6 @@
 namespace client
 {
 
-class Droid;
 
 ///Represents a single Droid on the map.
 class Droid : public Mappable {
@@ -64,7 +63,7 @@ class Droid : public Mappable {
   ///Make the Droid move to the respective x and y location.
   int move(int x, int y);
   ///Command to operate (repair, attack, hack) on another Droid.
-  int operate(Droid& x, int y);
+  int operate(int x, int y);
 
   // Properties
 

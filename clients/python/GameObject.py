@@ -170,10 +170,7 @@ class Droid(Mappable):
   ##Command to operate (repair, attack, hack) on another Droid.
   def operate(self, x, y):
     self.validify()
-    if not isinstance(x, Droid):
-      raise TypeError('x should be of [Droid]')
-    x.validify()
-    return library.droidOperate(self._ptr, x._ptr, y)
+    return library.droidOperate(self._ptr, x, y)
 
   #\cond
   def getId(self):

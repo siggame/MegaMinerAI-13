@@ -41,6 +41,7 @@ class Match(DefaultGameWorld):
     self.maxScrap = None
     self.wallCost = None
     self.maxWallHealth = None
+    self.dropTime = None
 
   #this is here to be wrapped
   def __del__(self):
@@ -121,6 +122,7 @@ class Match(DefaultGameWorld):
           maxScrap = self.maxScrap,
           wallCost = self.wallCost,
           maxWallHealth = self.maxWallHealth,
+          dropTime = self.dropTime,
           Players = [i.toJson() for i in self.objects.values() if i.__class__ is Player],
           Mappables = [i.toJson() for i in self.objects.values() if i.__class__ is Mappable],
           Droids = [i.toJson() for i in self.objects.values() if i.__class__ is Droid],
@@ -180,7 +182,7 @@ class Match(DefaultGameWorld):
   def move(self, object, x, y):
     return object.move(x, y, )
 
-  @derefArgs(Droid, Droid, None)
+  @derefArgs(Droid, None, None)
   def operate(self, object, x, y):
     return object.operate(x, y, )
 
@@ -215,7 +217,7 @@ class Match(DefaultGameWorld):
   def status(self):
     msg = ["status"]
 
-    msg.append(["game", self.mapWidth, self.mapHeight, self.turnNumber, self.maxDroids, self.maxWalls, self.playerID, self.gameNumber, self.scrapRate, self.maxScrap, self.wallCost, self.maxWallHealth])
+    msg.append(["game", self.mapWidth, self.mapHeight, self.turnNumber, self.maxDroids, self.maxWalls, self.playerID, self.gameNumber, self.scrapRate, self.maxScrap, self.wallCost, self.maxWallHealth, self.dropTime])
 
     typeLists = []
     typeLists.append(["Player"] + [i.toList() for i in self.objects.values() if i.__class__ is Player])
