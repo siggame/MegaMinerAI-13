@@ -214,7 +214,7 @@ class Droid(Mappable):
 
   def operate(self, x, y):
     #TODO USE X AND Y VALUES INSTEAD
-    target = self.game.grid[x][y]
+    target = self.game.grid[x][y][1]
     variantName = self.game.variantString[self.variant]
     #make sure valid for operating on either a droid or tile
     if not (0 <= x < self.game.mapWidth and 0 <= y < self.game.mapHeight):
@@ -258,7 +258,7 @@ class Droid(Mappable):
           target.hackedTurnsLeft = self.game.turnsToBeHacked
 
     else:
-      target = self.getTile(x,y)
+      target = self.game.grid[x][y][0]
       #tile logic here
       if self.variant == hackerVariantVal:
         return "Turn %i: Your %s cannot attack walls."%(self.game.turnNumber, variantName)
