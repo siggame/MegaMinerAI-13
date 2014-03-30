@@ -177,14 +177,13 @@ class Droid(Mappable):
       return 'Turn {}: Your unit {} cannot move off the map. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif len(self.game.grid[x][y]) > 1:
       return 'Turn {}: Your unit {} is trying to run into something. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
-    elif self.game.getTile(x, y).health > 0 and self.game.getTile(x, y).owner != self.game.playerID:
+    tile = self.game.getTile(x, y)
+    if tile.health > 0 and tile.owner != self.game.playerID and tile.type != 2:
       return 'Turn {}: Your unit {} is trying to run into either a wall or enemy base. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
-    elif self.game.getTile(x, y).isSpawning == 1:
+    elif tile.isSpawning == 1:
       return 'Turn {}: Your unit {} is trying to move onto a spawn tile that is spawning a unit. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif abs(self.x-x) + abs(self.y-y) != 1:
       return 'Turn {}: Your unit {} can only move one unit away. ({}.{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
-
-    prevTile = self.game.getTile(self.x, self.y)
 
     self.game.grid[self.x][self.y].remove(self)
 
@@ -193,9 +192,6 @@ class Droid(Mappable):
     self.y = y
     self.movementLeft -= 1
     self.game.grid[self.x][self.y].append(self)
-
-
-    tile = self.game.getTile(x, y)
 
     return True
 
