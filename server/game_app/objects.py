@@ -209,8 +209,6 @@ class Droid(Mappable):
     target.health -= damage
 
   def operate(self, x, y):
-    #TODO USE X AND Y VALUES INSTEAD
-    target = self.game.grid[x][y][1]
     variantName = self.game.variantString[self.variant]
     #make sure valid for operating on either a droid or tile
     if not (0 <= x < self.game.mapWidth and 0 <= y < self.game.mapHeight):
@@ -225,7 +223,9 @@ class Droid(Mappable):
     #separate this out so it makes more sense/easier to change
     hackerVariantVal = 3
 
-    if target is not None:
+    #length of 2 = droid on tile
+    if len(self.game.grid[x][y]) == 2:
+      target = self.game.grid[x][y][1]
       #droid logic here
       opponentName = self.game.variantString[target.variant]
       if self.owner != self.game.playerID and self.hackedTurnsLeft <= 0:
