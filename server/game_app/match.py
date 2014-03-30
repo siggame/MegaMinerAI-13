@@ -33,7 +33,6 @@ class Match(DefaultGameWorld):
     self.turnNumber = -1
     self.playerID = -1
     self.gameNumber = id
-<<<<<<< HEAD
 
     self.mapWidth = self.mapWidth
     self.mapHeight = self.mapHeight
