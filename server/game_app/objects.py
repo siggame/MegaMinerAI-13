@@ -11,7 +11,7 @@ class Player(object):
     self.time = time
     self.scrapAmount = scrapAmount
     self.updatedAt = game.turnNumber
-    self.dropsInProgress = [] # list: [tile, type, turnsUntilDrop] type:0-wall,1-turret
+    self.dropsInProgress = [] # list of tiles
     self.assembleQueue = [] # List of new droid stats
 
   def toList(self):
@@ -38,24 +38,25 @@ class Player(object):
 
       # Update orbital drops
       # TODO: Decide whether droids are able to move onto dropzones
-      for dropzone, dropType, turnsUntilDrop in self.dropsInProgress:
-        turnsUntilDrop -= 1
-        if turnsUntilDrop == 0:
-          dropzone.turnsUntilAssembled = 0
+      for dropzone in self.dropsInProgress:
+        dropzone.turnsUntilAssembled -= 1
+        if dropzone.turnsUntilAssembled == 0:
           if len(self.game.grid[dropzone.x][dropzone.y]) > 1:
             # Kill droids on dropzone
-            # TODO: Actually kill droid
             self.game.grid[dropzone.x][dropzone.y][1].health = 0
-          if dropType == 0:
-            dropzone.owner = 3
-          if dropType == 1:
+            self.game.grid[dropzone.x][dropzone.y][1].handleDeath()
+          if dropzone.typeToAssemble == 0:
+            dropzone.owner = self.id
+            dropzone.health = self.game.maxWallHealth
+          elif dropzone.typeToAssemble == 1:
             variant = self.game.variantToModelVariant(4)
             # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'hackedTurnsLeft', 'hackets']
-            newDroidStats = [dropzone.x, dropzone.y, self.id, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, 0, 0]
+            # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'turnsToBeHacked', 'hackedTurnsLeft', 'hackets', 'hacketsMax']
+            newDroidStats = [dropzone.x, dropzone.y, self.id, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
             newDroid = self.game.addObject(Droid, newDroidStats)
             self.game.grid[newDroid.x][newDroid.y].append(newDroid)
       # Remove finished drops
-      self.dropsInProgress[:] = [[drop[0], drop[1], drop[2] - 1] for drop in self.dropsInProgress if drop[2] != 0]
+      self.dropsInProgress[:] = [drop for drop in self.dropsInProgress if drop.turnsUntilAssembled != 0]
 
     return True
 
@@ -76,22 +77,23 @@ class Player(object):
       cost = self.game.variantToModelVariant(4).cost
     if self.scrapAmount < cost:
       return 'Turn {}: You do not have enough scrap to drop. Have: () Need: ()'.format(self.game.turnNumber, self.scrapAmount, cost)
-    tile = self.getTile(x, y)
+    tile = self.game.getTile(x, y)
     if tile.health > 0:
       return 'Turn {}: You cannot drop a structure onto another structure.'.format(self.game.turnNumber)
     if tile.turnsUntilAssembled > 0:
       return 'Turn {}: You cannot drop a structure onto a tile that is assembling a droid.'.format(self.game.turnNumber)
-    
-    if self.id == 0:
-      xoff = 0
-    else:
-      xoff = self.game.mapWidth - 1
 
-    turnsUntilDrop = 1 + (self.game.maxTurnsUntilDeploy - 1) * (abs(xoff - x) / float(self.game.mapWidth - 1))
-    tile.turnsUntilAssembled = 1
+    xoff = -1
+    if self.id == 1:
+      xoff = self.game.mapWidth
+
+    #turnsUntilDrop = 1 + (self.game.maxTurnsUntilDeploy - 1) * (abs(xoff - x) / float(self.game.mapWidth - 1))
+    turnsUntilDrop = abs(xoff - x) * self.game.dropTime
+    tile.turnsUntilAssembled = turnsUntilDrop
+    tile.typeToAssemble = type
     self.scrapAmount -= cost
 
-    self.game.dropsInProgress.append([tile, type, turnsUntilDrop])
+    self.game.dropsInProgress.append(tile)
 
     return True
 
@@ -160,7 +162,12 @@ class Droid(Mappable):
   # This will not work if the object has variables other than primitives
   def toJson(self):
     return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, variant = self.variant, attacksLeft = self.attacksLeft, maxAttacks = self.maxAttacks, healthLeft = self.healthLeft, maxHealth = self.maxHealth, movementLeft = self.movementLeft, maxMovement = self.maxMovement, range = self.range, attack = self.attack, armor = self.armor, maxArmor = self.maxArmor, scrapWorth = self.scrapWorth, turnsToBeHacked = self.turnsToBeHacked, hackedTurnsLeft = self.hackedTurnsLeft, hackets = self.hackets, hacketsMax = self.hacketsMax, )
-  
+
+  def handleDeath(self):
+    if self.healthLeft <= 0:
+      self.game.grid[self.x][self.y].remove(self)
+      self.game.removeObject(self)
+
   def nextTurn(self):
     if self.owner == (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
       self.movementLeft = self.maxMovement
@@ -172,6 +179,8 @@ class Droid(Mappable):
       # This droid is being hacked
       elif self.hackets > 0:
         self.hackets -= 1 # Hackets gradually decrease (ANTIVIRUS FTW)
+
+    self.handleDeath()
 
     return True
 
@@ -189,9 +198,9 @@ class Droid(Mappable):
     elif len(self.game.grid[x][y]) > 1:
       return 'Turn {}: Your droid {} is trying to run into something. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     tile = self.game.getTile(x, y)
-    if tile.health > 0 and tile.owner != self.game.playerID and tile.type != 2:
+    if tile.health > 0 and (tile.owner != self.game.playerID or tile.typeToAssemble != 2):
       return 'Turn {}: Your droid {} is trying to run into either a wall or enemy base. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
-    elif tile.isSpawning == 1:
+    elif tile.turnsUntilAssembled > 0 and tile.type == 2:
       return 'Turn {}: Your droid {} is trying to move onto a spawn tile that is spawning a droid. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif abs(self.x-x) + abs(self.y-y) != 1:
       return 'Turn {}: Your droid {} can only move one unit away. ({}.{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
@@ -323,25 +332,28 @@ class Tile(Mappable):
 
     if type == turretVariantNum:
       return 'Turn {}: You cannot assemble a turret; use orbital drop.'.format(self.game.turnNumber)
-    if self.owner != self.game.playerID:
-      return 'Turn {}: You cannot assemble a droid on a non hanger tile. ({},{})'.format(self.game.turnNumber, self.x, self.y)
-    if len(self.game.grid[self.x][self.y]) > 1:
+    elif self.typeToAssemble != 2:
+      return 'Turn {}: You cannot assemble on a non-hanger tile'.format(self.game.turnNumber)
+    elif self.owner != self.game.playerID:
+      return 'Turn {}: You cannot assemble a droid on an enemy tile. ({},{})'.format(self.game.turnNumber, self.x, self.y)
+    elif len(self.game.grid[self.x][self.y]) > 1:
       return 'Turn {} You cannot assemble a droid on top of another droid. ({},{})'.format(self.game.turnNumber, self.x, self.y)
-    if self.turnsUntilAssembled != 0:
+    elif self.turnsUntilAssembled != 0:
        return 'Turn {} You cannot assemble a droid because you are already attempting to assemble here ({},{})'.format(self.game.turnNumber, self.x, self.y)
-    count = len([droid for droid in self.game.objects.droids if droid.owner == self.playerID])
+    count = len([droid for droid in self.game.objects.droids if droid.owner == self.game.playerID])
     if count >= self.game.maxDroids:
       return 'Turn {} You cannot assemble a droid because you already have the maximum number of droids ({})'.format(self.game.turnNumber, self.game.maxDroids)
     variant = self.game.variantToModelVariant(type)
     if variant is None:
       return 'Turn {}: You cannot spawn a droid with this variant ({}).'.format(self.game.turnNumber, type)
-    if player.scrapAmount < variant.cost:
+    elif player.scrapAmount < variant.cost:
       return 'Turn {}: You do not have enough resources({}) to spawn this unit({}).'.format(self.game.turnNumber, player.scrapAmount, variant.cost)
 
     player.scrapAmount -= variant.cost
 
     # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'hackedTurnsLeft', 'hackets']
-    newDroidStats = [self.x, self.y, self.owner, type, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, 0, 0]
+    # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'turnsToBeHacked', 'hackedTurnsLeft', 'hackets', 'hacketsMax']
+    newDroidStats = [self.x, self.y, self.owner, type, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
     player.assembleQueue.append(newDroidStats)
     self.turnsUntilAssembled = 1
 

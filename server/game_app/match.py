@@ -90,11 +90,13 @@ class Match(DefaultGameWorld):
         self.grid[x][y][0].owner = 0
         self.grid[x][y][0].health = self.maxHangarHealth
         self.hangartiles[(x, y)] = self.grid[x][y][0]
+        self.grid[x][y][0].typeToAssemble = 2
       #Player 2
       for x in range(self.mapWidth-(centerX+hangarSize/2)+1, self.mapWidth-(centerX-hangarSize/2)+1):
         self.grid[x][y][0].owner = 1
         self.grid[x][y][0].health = self.maxHangarHealth
         self.hangartiles[(x, y)] = self.grid[x][y][0]
+        self.grid[x][y][0].typeToAssemble = 2
 
     return
 
