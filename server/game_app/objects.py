@@ -219,7 +219,7 @@ class Droid(Mappable):
   def doDamage(self, attacker, target):
     damage = 3
     if target.armor > 0:
-      damage = attacker.attack/target.armor
+      damage = int(attacker.attack * ((target.maxArmor - target.armor) / float(target.maxArmor)))
       target.armor -= attacker.attack
       if target.armor < 0:
         target.armor = 0
@@ -268,8 +268,8 @@ class Droid(Mappable):
         self.doDamage(self, target)
       elif self.attack > 0 and self.variant == hackerVariantVal:
         target.hackets += self.attack
-        if target.hackets > self.game.maxHackets:
-          target.hackedTurnsLeft = self.game.turnsToBeHacked
+        if target.hackets > target.maxHackets:
+          target.hackedTurnsLeft = target.turnsToBeHacked
           target.hackets = 0
 
     else:
