@@ -176,7 +176,7 @@ class Droid(Mappable):
     return True
 
   def move(self, x, y):
-    if self.owner != self.game.playerID and self.hackedTurnsLeft == 0:
+    if (self.owner == self.game.playerID) == (self.hackedTurnsLeft > 0):
       return 'Turn {}: You cannot use the other player\'s unit when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.healthLeft <= 0:
       return 'Turn {}: Your unit {} does not have any health left. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
