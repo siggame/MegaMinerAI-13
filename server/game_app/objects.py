@@ -162,7 +162,7 @@ class Droid(Mappable):
     return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, variant = self.variant, attacksLeft = self.attacksLeft, maxAttacks = self.maxAttacks, healthLeft = self.healthLeft, maxHealth = self.maxHealth, movementLeft = self.movementLeft, maxMovement = self.maxMovement, range = self.range, attack = self.attack, armor = self.armor, maxArmor = self.maxArmor, scrapWorth = self.scrapWorth, turnsToBeHacked = self.turnsToBeHacked, hackedTurnsLeft = self.hackedTurnsLeft, hackets = self.hackets, hacketsMax = self.hacketsMax, )
   
   def nextTurn(self):
-    if self.owner == (self.game.playerID != (self.hackedTurnsLeft > 0)):
+    if self.owner == (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
       self.movementLeft = self.maxMovement
       self.attacksLeft = self.maxAttacks
 
@@ -171,12 +171,12 @@ class Droid(Mappable):
         self.hackedTurnsLeft -= 1
       # This droid is being hacked
       elif self.hackets > 0:
-        self.hackets -= 1 # Hackets gradually decrease
+        self.hackets -= 1 # Hackets gradually decrease (ANTIVIRUS FTW)
 
     return True
 
   def move(self, x, y):
-    if self.owner != (self.game.playerID != (self.hackedTurnsLeft > 0)):
+    if self.owner != (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
       return 'Turn {}: You cannot use the other player\'s droid when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.healthLeft <= 0:
       return 'Turn {}: Your droid {} does not have any health left. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
@@ -224,7 +224,7 @@ class Droid(Mappable):
     #make sure valid for operating on either a droid or tile
     if not (0 <= x < self.game.mapWidth and 0 <= y < self.game.mapHeight):
       return "Turn %i: You may only attack in-bounds."%(self.game.turnNumber)
-    elif (self.owner == self.game.playerID) == (self.hackedTurnsLeft > 0):
+    elif self.owner != (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
       return 'Turn {}: You cannot use the other player\'s droid when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.attacksLeft == 0:
       return "Turn %i: Your %s has no attacks left."%(self.game.turnNumber, variantName)
@@ -239,11 +239,11 @@ class Droid(Mappable):
       target = self.game.grid[x][y][1]
       #droid logic here
       opponentName = self.game.variantString[target.variant]
-      if self.attack < 0 and target.owner != self.game.playerID:
+      if self.attack < 0 and target.owner != (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
         return "Turn %i: Your %s cannot heal your opponent's %s."%(self.game.turnNumber, variantName, opponentName)
       elif self.taxiDist(self, target.x, target.y) > self.range:
         return "Turn %i: The opponent's %s is too far away from your %s."%(self.game.turnNumber, opponentName, variantName)
-      elif self.attack > 0 and target.owner == self.game.playerID:
+      elif self.attack > 0 and target.owner == (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
        return "Turn %i: Your %s cannot attack your %s."%(self.game.turnNumber, variantName, opponentName)
 
       if self.attack < 0:
@@ -281,6 +281,10 @@ class Droid(Mappable):
           target.health = self.game.maxWallHealth
       elif self.attack > 0:
         target.health -= self.attack
+        if target.health <= 0:
+          target.health = 0
+          if target.type == 0: # Wall
+            target.owner = 2
 
 
   def __setattr__(self, name, value):
