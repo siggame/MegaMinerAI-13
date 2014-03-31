@@ -227,6 +227,9 @@ class Droid(Mappable):
       damage = attacker.attack
 
     target.health -= damage
+    #handle death
+    if target.health <= 0:
+      target.handleDeath()
 
   def operate(self, x, y):
     variantName = self.game.variantString[self.variant]
