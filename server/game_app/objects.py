@@ -162,7 +162,18 @@ class Droid(Mappable):
     return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, variant = self.variant, attacksLeft = self.attacksLeft, maxAttacks = self.maxAttacks, healthLeft = self.healthLeft, maxHealth = self.maxHealth, movementLeft = self.movementLeft, maxMovement = self.maxMovement, range = self.range, attack = self.attack, armor = self.armor, maxArmor = self.maxArmor, scrapWorth = self.scrapWorth, turnsToBeHacked = self.turnsToBeHacked, hackedTurnsLeft = self.hackedTurnsLeft, hackets = self.hackets, hacketsMax = self.hacketsMax, )
   
   def nextTurn(self):
-    pass
+    if (self.owner == self.game.playerID) != (self.hackedTurnsLeft > 0):
+      self.movementLeft = self.maxMovement
+      self.attacksLeft = self.maxAttacks
+
+      # This droid is hacked
+      if self.hackedTurnsLeft > 0:
+        self.hackedTurnsLeft -= 1
+      # This droid is being hacked
+      elif self.hackets > 0:
+        self.hackets -= 1 # Hackets gradually decrease
+
+    return True
 
   def move(self, x, y):
     if self.owner != self.game.playerID and self.hackedTurnsLeft == 0:
