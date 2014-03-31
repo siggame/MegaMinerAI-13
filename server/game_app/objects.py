@@ -162,7 +162,7 @@ class Droid(Mappable):
     return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, variant = self.variant, attacksLeft = self.attacksLeft, maxAttacks = self.maxAttacks, healthLeft = self.healthLeft, maxHealth = self.maxHealth, movementLeft = self.movementLeft, maxMovement = self.maxMovement, range = self.range, attack = self.attack, armor = self.armor, maxArmor = self.maxArmor, scrapWorth = self.scrapWorth, turnsToBeHacked = self.turnsToBeHacked, hackedTurnsLeft = self.hackedTurnsLeft, hackets = self.hackets, hacketsMax = self.hacketsMax, )
   
   def nextTurn(self):
-    if (self.owner == self.game.playerID) != (self.hackedTurnsLeft > 0):
+    if self.owner == (self.game.playerID != (self.hackedTurnsLeft > 0)):
       self.movementLeft = self.maxMovement
       self.attacksLeft = self.maxAttacks
 
@@ -176,7 +176,7 @@ class Droid(Mappable):
     return True
 
   def move(self, x, y):
-    if (self.owner == self.game.playerID) == (self.hackedTurnsLeft > 0):
+    if self.owner != (self.game.playerID != (self.hackedTurnsLeft > 0)):
       return 'Turn {}: You cannot use the other player\'s droid when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.healthLeft <= 0:
       return 'Turn {}: Your droid {} does not have any health left. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
