@@ -295,6 +295,10 @@ class Droid(Mappable):
           if target.type == 0: # Wall
             target.owner = 2
 
+    self.attacksLeft -= 1
+
+    return True
+
 
   def __setattr__(self, name, value):
       if name in self.game_state_attributes:
