@@ -177,24 +177,24 @@ class Droid(Mappable):
 
   def move(self, x, y):
     if (self.owner == self.game.playerID) == (self.hackedTurnsLeft > 0):
-      return 'Turn {}: You cannot use the other player\'s unit when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
+      return 'Turn {}: You cannot use the other player\'s droid when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.healthLeft <= 0:
-      return 'Turn {}: Your unit {} does not have any health left. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
+      return 'Turn {}: Your droid {} does not have any health left. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.movementLeft <= 0:
-      return 'Turn {}: Your unit {} does not have any movements left. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
+      return 'Turn {}: Your droid {} does not have any movements left. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.owner == self.game.playerID and self.hackedTurnsLeft > 0:
-      return 'Turn {}: You cannot use your unit while it\'s hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
+      return 'Turn {}: You cannot use your droid while it\'s hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif not (0 <= x < self.game.mapWidth) or not (0 <= y < self.game.mapHeight):
-      return 'Turn {}: Your unit {} cannot move off the map. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
+      return 'Turn {}: Your droid {} cannot move off the map. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif len(self.game.grid[x][y]) > 1:
-      return 'Turn {}: Your unit {} is trying to run into something. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
+      return 'Turn {}: Your droid {} is trying to run into something. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     tile = self.game.getTile(x, y)
     if tile.health > 0 and tile.owner != self.game.playerID and tile.type != 2:
-      return 'Turn {}: Your unit {} is trying to run into either a wall or enemy base. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
+      return 'Turn {}: Your droid {} is trying to run into either a wall or enemy base. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif tile.isSpawning == 1:
-      return 'Turn {}: Your unit {} is trying to move onto a spawn tile that is spawning a unit. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
+      return 'Turn {}: Your droid {} is trying to move onto a spawn tile that is spawning a droid. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif abs(self.x-x) + abs(self.y-y) != 1:
-      return 'Turn {}: Your unit {} can only move one unit away. ({}.{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
+      return 'Turn {}: Your droid {} can only move one unit away. ({}.{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
 
     self.game.grid[self.x][self.y].remove(self)
 
@@ -224,11 +224,11 @@ class Droid(Mappable):
     #make sure valid for operating on either a droid or tile
     if not (0 <= x < self.game.mapWidth and 0 <= y < self.game.mapHeight):
       return "Turn %i: You may only attack in-bounds."%(self.game.turnNumber)
-    elif self.owner == self.game.playerID and self.hackedTurnsLeft > 0:
-      return "Turn %i: You cannot control your %s while it is hacked."%(self.game.turnNumber, variantName)
+    elif (self.owner == self.game.playerID) == (self.hackedTurnsLeft > 0):
+      return 'Turn {}: You cannot use the other player\'s droid when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.attacksLeft == 0:
       return "Turn %i: Your %s has no attacks left."%(self.game.turnNumber, variantName)
-    elif self.healthLeft < 0:
+    elif self.healthLeft <= 0:
       return "Turn %i: Your %s does not have any health left."%(self.game.turnNumber, variantName)
 
     #separate this out so it makes more sense/easier to change
@@ -239,9 +239,7 @@ class Droid(Mappable):
       target = self.game.grid[x][y][1]
       #droid logic here
       opponentName = self.game.variantString[target.variant]
-      if self.owner != self.game.playerID and self.hackedTurnsLeft <= 0:
-        return "Turn %i: You cannot control your opponent's %s when it isn't hacked."%(self.game.turnNumber, opponentName)
-      elif self.attack < 0 and target.owner != self.game.playerID:
+      if self.attack < 0 and target.owner != self.game.playerID:
         return "Turn %i: Your %s cannot heal your opponent's %s."%(self.game.turnNumber, variantName, opponentName)
       elif self.taxiDist(self, target.x, target.y) > self.range:
         return "Turn %i: The opponent's %s is too far away from your %s."%(self.game.turnNumber, opponentName, variantName)
@@ -263,6 +261,7 @@ class Droid(Mappable):
         target.hackets += self.attack
         if target.hackets > self.game.maxHackets:
           target.hackedTurnsLeft = self.game.turnsToBeHacked
+          target.hackets = 0
 
     else:
       target = self.game.grid[x][y][0]
