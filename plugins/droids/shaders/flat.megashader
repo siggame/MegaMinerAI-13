@@ -1,0 +1,9 @@
+input vec3 pos
+input vec3 tan
+input vec3 bitan
+uniform mat4 world
+uniform mat4 view
+uniform mat4 proj
+uniform vec4 flatColor
+shader v flat.vs
+shader f flat.fs
