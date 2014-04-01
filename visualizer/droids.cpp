@@ -84,17 +84,34 @@ namespace visualizer
 
   void Droids::RenderGrid() const
   {
-	  static float time = 0.0f;
+      const float gustLength = 2.0f;
+      static float time = 0.0f;
+      static float nextGust = rand() % 4 + 2.0f;
+
 	  time += timeManager->getDt();
 
-	  renderer->setColor({1.0f,1.0f,1.0f,0.7f});
-	  renderer->drawRotatedTexturedQuad(-m_mapWidth,-m_mapHeight, m_mapWidth*3,m_mapHeight*3,2.2f, time, "grid");
+      renderer->setColor({0.7,0.7, 0.7, 1.0f});
+      renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,0,0, 16/1.5, 9/1.5,"cliffside");
 
-	  renderer->setColor({1.0f,1.0f,1.0f,0.4f});
-	  renderer->drawTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,2.2f,"grid");
+      renderer->setColor({1.0f,1.0f,1.0f,1.0f});
+      renderer->drawSubTexturedQuad(0,0,m_mapWidth,m_mapHeight, 0, 0, 2, 1,"desolate");
 
-	  renderer->setColor({1.0f,1.0f,1.0f,0.7f});
-	  renderer->drawTexturedQuad(0,0,m_mapWidth,m_mapHeight,2.5f,"mars");
+      if(time > nextGust + gustLength)
+      {
+          nextGust = time + rand() % 4 + 4.0f;
+      }
+
+      if(time > nextGust)
+      {
+        float alphaValue = 0.15f * sin( ((time - nextGust)/ gustLength) * 3.141592f );
+        renderer->setColor({1.0f, 1.0f, 1.0f, alphaValue});
+      }
+      else
+      {
+        renderer->setColor({1.0f, 1.0f, 1.0f,0.0f});
+      }
+
+      renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, 0);
 
 	  // Draw horizontal lines
 	  renderer->setColor({0.0f,0.0f,0.0f,1.0f});
@@ -161,34 +178,11 @@ namespace visualizer
 	{
 		Frame turn;  // The frame that will be drawn
 
-		cout << "Turn " << state << " there are " << m_game->states[state].droids.size() << " droids" << endl;
+        //cout << "Turn " << state << " there are " << m_game->states[state].droids.size() << " droids" << endl;
 
-		for(auto droidIter : m_game->states[state].droids)
-		{
-			// Use different droid types
-			SmartPointer<MoveableSprite> pUnit = new MoveableSprite("hacker");
+        PrepareUnits(state, turn);
+        PrepareStructures(state, turn);
 
-			for(auto& animationIter : m_game->states[state].animations[droidIter.first])
-			{
-				if(animationIter->type == parser::MOVE)
-				{
-					// Move animation
-					parser::move& move = (parser::move&)*animationIter;
-					pUnit->m_Moves.push_back(MoveableSprite::Move(glm::vec2(move.toX, move.toY), glm::vec2(move.fromX, move.fromY)));
-				}
-				else if(animationIter->type == parser::ATTACK)
-				{
-					// Attack animation
-				}
-				else
-				{
-					// Other
-				}
-			}
-
-			pUnit->addKeyFrame(new DrawSmoothMoveSprite(pUnit, glm::vec4(1.0f)));
-			turn.addAnimatable(pUnit);
-		}
 
 		animationEngine->buildAnimations(turn);
 		addFrame(turn);
@@ -213,7 +207,125 @@ namespace visualizer
 		timeManager->play();
 	}
 
-} // Droids::run()
+  } // Droids::run()
+
+  void Droids::PrepareUnits(const int& frameNum, Frame& turn) const
+  {
+      std::string texture;
+      parser::GameState& currentState = m_game->states[frameNum];
+
+      for(auto& it: currentState.droids)
+      {
+          parser::Droid& unit = it.second;
+          switch(unit.variant)
+          {
+            case DROID_CLAW:
+              texture = "claw";
+              break;
+            case DROID_ARCHER:
+              texture = "archer";
+              break;
+            case DROID_REPAIRER:
+              texture = "repairer";
+              break;
+            case DROID_HACKER:
+              texture = "hacker";
+              break;
+            case DROID_TURRET:
+              texture = "turret";
+              break;
+            case DROID_TERMINATOR:
+              texture = "terminator";
+              break;
+            default:
+              std::cout << "ouch\n";
+          }
+
+          const auto& iter = currentState.animations.find(unit.id);
+          if(iter != currentState.animations.end())
+          {
+              std::vector<SmartPointer<parser::Animation> >& animList = iter->second;
+              SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
+              for(auto& anim: animList)
+              {
+                  switch(anim->type)
+                  {
+                      case parser::MOVE:
+                      {
+                          parser::move& move = (parser::move&)*anim;
+                          sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(move.toX, move.toY), glm::vec2(move.fromX, move.fromY)));
+                          break;
+                      }
+                      case parser::SPAWN:
+                      {
+                          break;
+                      }
+                      case parser::HACK:
+                      {
+                          break;
+                      }
+                      case parser::ORBITALDROP:
+                      {
+                          break;
+                      }
+                      case parser::REPAIR:
+                      {
+                          break;
+                      }
+                      case parser::ATTACK:
+                      {
+                          break;
+                      }
+                      default:
+                      break;
+                  }
+              }
+
+              turn.addAnimatable(sprite);
+          }
+          else
+          {
+              SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), texture);
+              sprite->addKeyFrame(new DrawSprite(sprite, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
+              turn.addAnimatable(sprite);
+          }
+          std::cout << "unit made.\n";
+      }
+  }
+
+  void Droids::PrepareStructures(const int &frameNum, Frame &turn) const
+  {
+      parser::GameState& currentState = m_game->states[frameNum];
+
+      for(auto& it : currentState.tiles)
+      {
+          parser::Tile& tile = it.second;
+
+          /*
+          std::string texture;
+          if(tile.owner != 2)
+          {
+              std::cout << "tile owner: " << tile.owner << std::endl;
+              switch(tile.type)
+              {
+                case STRUCTURE_WALL:
+                  texture = "wall";
+                  break;
+                case STRUCTURE_HANGER:
+                  texture = "hanger";
+                  break;
+                default:
+                  //std::cout << "ouch";
+                  break;
+              }
+
+              SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(tile.x, tile.y), glm::vec2(1.0f,1.0f), texture);
+              sprite->addKeyFrame(new DrawSprite(sprite, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
+              turn.addAnimatable(sprite);
+          }
+          */
+      }
+  }
 
 } // visualizer
 
