@@ -351,6 +351,136 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
   LOCK( &object->_c->mutex);
   send_string(object->_c->socket, expr.str().c_str());
   UNLOCK( &object->_c->mutex);
+  
+  Connection* c = object->_c;
+  
+  // Check bounds
+  if (x < 0 || x >= getMapWidth(c) || y < 0 || y >= getMapHeight(c))
+    return 0;
+  // Check ownership
+  if (object->owner != (getPlayerID(c) ^ (object->hackedTurnsLeft > 0)))
+    return 0;
+  // Check attacks left
+  if (object->attacksLeft <= 0)
+    return 0;
+  // Check if dead
+  if (object->healthLeft <= 0)
+    return 0;
+  // Check distance
+  if (abs(x - object->x) + abs(y - object->y) > object->range)
+    return 0;
+  
+  bool attacked_droid = false;
+  
+  // Check if attacking droid
+  for (int i = 0; i < getDroidCount(c); ++i)
+  {
+    _Droid* target = getDroid(c, i);
+    if (target->x == x && target->y == y)
+    {
+      // Check for heal
+      if (object->attack < 0)
+      {
+        // Check target ownership
+        if (target->owner != (getPlayerID(c) ^ (target->hackedTurnsLeft > 0)))
+          return 0;
+        
+        // Repair armor
+        target->armor -= object->attack;
+        if (target->armor > target->maxArmor)
+          target->armor = target->maxArmor;
+          
+        // Reduce hackets
+        target->hackets += object->attack;
+        if (target->hackets < 0)
+          target->hackets = 0;
+      }
+      else
+      {
+        // Check target ownership
+        if (target->owner == (getPlayerID(c) ^ (target->hackedTurnsLeft > 0)))
+          return 0;
+      
+        // Check for hacker
+        if (object->variant == 3)
+        {
+          target->hackets += object->attack;
+          if (target->hackets > target->maxHackets)
+          {
+            target->hackedTurnsLeft = target->turnsToBeHacked;
+            target->hackets = 0;
+          }
+        }
+        else
+        {
+          int damage;
+          if (target->armor > 0)
+          {
+            damage = static_cast<int>(object->attack * ((target->maxArmor - target->armor) / static_cast<double>(target->maxArmor)));
+            target->armor -= object->attack;
+            if (target->armor < 0)
+              target->armor = 0;
+          }
+          else
+          {
+            damage = object->attack;
+          }
+          
+          target->healthLeft -= damage;
+        }
+      }
+      
+      attacked_droid = true;
+      break;
+    }
+  }
+  
+  // Attack tile
+  if (!attacked_droid)
+  {
+    _Tile* tile = getTile(c, x * getMapHeight(c) + y);
+    
+    // Check for hacker
+    if (object->variant == 3)
+      return 0;
+    // Check for structure
+    if (tile->health <= 0)
+      return 0;
+    // Check for heal
+    if (object->attack < 0)
+    {
+      // Check target ownership
+      if (target->owner != (getPlayerID(c) ^ (target->hackedTurnsLeft > 0)))
+        return 0;
+      target->health -= object->attack;
+      if (target->typeToAssemble == 0)
+      {
+        if (target->health > getMaxWallHealth(c))
+          target->health = getMaxWallHealth(c);
+      }
+      else
+      {
+        if (target->health > getMaxHangarHealth(c))
+          target->health = getMaxHangarHealth(c);
+      }
+    }
+    else
+    {
+      // Check target ownership
+      if (target->owner == (getPlayerID(c) ^ (target->hackedTurnsLeft > 0)))
+        return 0;
+      target->health -= object->attack;
+      if (target->health <= 0)
+      {
+        target->health = 0;
+        if (target->typeToAssemble == 0)
+          target->owner = 2;
+      }
+    }
+  }
+  
+  object->attacksLeft--;
+  
   return 1;
 }
 

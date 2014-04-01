@@ -295,10 +295,14 @@ class Droid(Mappable):
       elif target.owner != self.game.playerID and self.attack < 0:
         return "Turn %i: Your %s cannot heal the opponent's hangar."%(self.game.turnNumber, variantName)
       elif self.attack < 0:
-        #heal the wall
+        # Heal the wall or hanger
         target.health -= self.attack
-        if target.health > self.game.maxWallHealth:
-          target.health = self.game.maxWallHealth
+        if target.type == 0:
+          if target.health > self.game.maxWallHealth:
+            target.health = self.game.maxWallHealth
+        elif target.type == 2:
+          if target.health > self.game.maxHangarHealth
+            target.health = self.game.maxHangarHealth
       elif self.attack > 0:
         target.health -= self.attack
         if target.health <= 0:
