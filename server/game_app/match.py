@@ -34,13 +34,10 @@ class Match(DefaultGameWorld):
     self.mapHeight = None
     self.turnNumber = None
     self.maxDroids = None
-    self.maxWalls = None
     self.playerID = None
     self.gameNumber = id
     self.scrapRate = None
     self.maxScrap = None
-    self.wallCost = None
-    self.maxWallHealth = None
     self.dropTime = None
 
   #this is here to be wrapped
@@ -115,13 +112,10 @@ class Match(DefaultGameWorld):
           mapHeight = self.mapHeight,
           turnNumber = self.turnNumber,
           maxDroids = self.maxDroids,
-          maxWalls = self.maxWalls,
           playerID = self.playerID,
           gameNumber = self.gameNumber,
           scrapRate = self.scrapRate,
           maxScrap = self.maxScrap,
-          wallCost = self.wallCost,
-          maxWallHealth = self.maxWallHealth,
           dropTime = self.dropTime,
           Players = [i.toJson() for i in self.objects.values() if i.__class__ is Player],
           Mappables = [i.toJson() for i in self.objects.values() if i.__class__ is Mappable],
@@ -175,8 +169,8 @@ class Match(DefaultGameWorld):
     return object.talk(message, )
 
   @derefArgs(Player, None, None, None)
-  def orbitalDrop(self, object, x, y, type):
-    return object.orbitalDrop(x, y, type, )
+  def orbitalDrop(self, object, x, y, variant):
+    return object.orbitalDrop(x, y, variant, )
 
   @derefArgs(Droid, None, None)
   def move(self, object, x, y):
@@ -185,10 +179,6 @@ class Match(DefaultGameWorld):
   @derefArgs(Droid, None, None)
   def operate(self, object, x, y):
     return object.operate(x, y, )
-
-  @derefArgs(Tile, None)
-  def assemble(self, object, type):
-    return object.assemble(type, )
 
 
   def sendIdent(self, players):
@@ -217,7 +207,7 @@ class Match(DefaultGameWorld):
   def status(self):
     msg = ["status"]
 
-    msg.append(["game", self.mapWidth, self.mapHeight, self.turnNumber, self.maxDroids, self.maxWalls, self.playerID, self.gameNumber, self.scrapRate, self.maxScrap, self.wallCost, self.maxWallHealth, self.dropTime])
+    msg.append(["game", self.mapWidth, self.mapHeight, self.turnNumber, self.maxDroids, self.playerID, self.gameNumber, self.scrapRate, self.maxScrap, self.dropTime])
 
     typeLists = []
     typeLists.append(["Player"] + [i.toList() for i in self.objects.values() if i.__class__ is Player])

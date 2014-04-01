@@ -21,7 +21,7 @@ class Player(object):
   def talk(self, message):
     pass
 
-  def orbitalDrop(self, x, y, type):
+  def orbitalDrop(self, x, y, variant):
     pass
 
   def __setattr__(self, name, value):
@@ -101,29 +101,25 @@ class Droid(Mappable):
       object.__setattr__(self, name, value)
 
 class Tile(Mappable):
-  game_state_attributes = ['id', 'x', 'y', 'owner', 'turnsUntilAssembled', 'typeToAssemble', 'health']
-  def __init__(self, game, id, x, y, owner, turnsUntilAssembled, typeToAssemble, health):
+  game_state_attributes = ['id', 'x', 'y', 'owner', 'turnsUntilAssembled', 'variantToAssemble']
+  def __init__(self, game, id, x, y, owner, turnsUntilAssembled, variantToAssemble):
     self.game = game
     self.id = id
     self.x = x
     self.y = y
     self.owner = owner
     self.turnsUntilAssembled = turnsUntilAssembled
-    self.typeToAssemble = typeToAssemble
-    self.health = health
+    self.variantToAssemble = variantToAssemble
     self.updatedAt = game.turnNumber
 
   def toList(self):
-    return [self.id, self.x, self.y, self.owner, self.turnsUntilAssembled, self.typeToAssemble, self.health, ]
+    return [self.id, self.x, self.y, self.owner, self.turnsUntilAssembled, self.variantToAssemble, ]
   
   # This will not work if the object has variables other than primitives
   def toJson(self):
-    return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, turnsUntilAssembled = self.turnsUntilAssembled, typeToAssemble = self.typeToAssemble, health = self.health, )
+    return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, turnsUntilAssembled = self.turnsUntilAssembled, variantToAssemble = self.variantToAssemble, )
   
   def nextTurn(self):
-    pass
-
-  def assemble(self, type):
     pass
 
   def __setattr__(self, name, value):
@@ -167,6 +163,28 @@ class ModelVariant(object):
 
 
 # The following are animations and do not need to have any logic added
+class SpawnAnimation:
+  def __init__(self, sourceID, unitID):
+    self.sourceID = sourceID
+    self.unitID = unitID
+
+  def toList(self):
+    return ["spawn", self.sourceID, self.unitID, ]
+
+  def toJson(self):
+    return dict(type = "spawn", sourceID = self.sourceID, unitID = self.unitID)
+
+class RepairAnimation:
+  def __init__(self, actingID, targetID):
+    self.actingID = actingID
+    self.targetID = targetID
+
+  def toList(self):
+    return ["repair", self.actingID, self.targetID, ]
+
+  def toJson(self):
+    return dict(type = "repair", actingID = self.actingID, targetID = self.targetID)
+
 class MoveAnimation:
   def __init__(self, actingID, fromX, fromY, toX, toY):
     self.actingID = actingID
@@ -180,17 +198,6 @@ class MoveAnimation:
 
   def toJson(self):
     return dict(type = "move", actingID = self.actingID, fromX = self.fromX, fromY = self.fromY, toX = self.toX, toY = self.toY)
-
-class SpawnAnimation:
-  def __init__(self, sourceID, unitID):
-    self.sourceID = sourceID
-    self.unitID = unitID
-
-  def toList(self):
-    return ["spawn", self.sourceID, self.unitID, ]
-
-  def toJson(self):
-    return dict(type = "spawn", sourceID = self.sourceID, unitID = self.unitID)
 
 class HackAnimation:
   def __init__(self, actingID, targetID):
@@ -212,17 +219,6 @@ class OrbitalDropAnimation:
 
   def toJson(self):
     return dict(type = "orbitalDrop", sourceID = self.sourceID)
-
-class RepairAnimation:
-  def __init__(self, actingID, targetID):
-    self.actingID = actingID
-    self.targetID = targetID
-
-  def toList(self):
-    return ["repair", self.actingID, self.targetID, ]
-
-  def toJson(self):
-    return dict(type = "repair", actingID = self.actingID, targetID = self.targetID)
 
 class AttackAnimation:
   def __init__(self, actingID, targetID):
