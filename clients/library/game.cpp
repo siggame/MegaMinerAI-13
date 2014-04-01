@@ -10,6 +10,7 @@
 #include <sstream>
 #include <fstream>
 #include <memory>
+#include <cmath>
 
 #include "game.h"
 #include "network.h"
@@ -252,6 +253,36 @@ DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int type)
   LOCK( &object->_c->mutex);
   send_string(object->_c->socket, expr.str().c_str());
   UNLOCK( &object->_c->mutex);
+  
+  Connection* c = object->_c;
+  
+  // Check bounds
+  if (x < 0 || x > getMapWidth(c) || y < 0 || y > getMapHeight(c))
+    return 0;
+  // Check drop type
+  if (type != 0 && type != 1)
+    return 0;
+  
+  int cost = type == 0 ? getWallCost(c) : getModelVariant(c, 4)->cost;
+  
+  // Check cost
+  if (getPlayer(c, getPlayerID(c))->scrapAmount < cost)
+    return 0;
+    
+  _Tile* tile = getTile(c, x * getMapHeight(c) + y);
+    
+  if (tile->health > 0)
+    return 0;
+  if (tile->turnsUntilAssembled > 0)
+    return 0;
+    
+  int xoff = getPlayerID(c) ? getMapWidth(c) : -1;
+  
+  tile->turnsUntilAssembled = abs(xoff - x) * getDropTime(c);
+  tile->typeToAssemble = type;
+  
+  getPlayer(c, getPlayerID(c))->scrapAmount -= cost;
+  
   return 1;
 }
 
