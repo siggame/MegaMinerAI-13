@@ -1,0 +1,12 @@
+SUP NERDS
+
+This is my test AI. It has lots of asserts for things that I think should
+always be true when the AI is running. So it may not work all the time, but
+if it fails that's probably not good because it's pretty conservative stuff.
+
+It leverages by seastar library which is a A* implementation in C/C++ and
+is accessed using a linked library. (https://github.com/scj7t4/seastar)
+
+It also uses my vexulizer library to visualize the game. This is a curses
+tool for debugging the AI, so it might go crazy >.> 
+(https://github.com/scj7t4/Vexulizer)
