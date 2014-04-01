@@ -201,8 +201,6 @@ class Droid(Mappable):
       return 'Turn {}: Your droid {} does not have any health left. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.movementLeft <= 0:
       return 'Turn {}: Your droid {} does not have any movements left. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
-    elif self.owner == self.game.playerID and self.hackedTurnsLeft > 0:
-      return 'Turn {}: You cannot use your droid while it\'s hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif not (0 <= x < self.game.mapWidth) or not (0 <= y < self.game.mapHeight):
       return 'Turn {}: Your droid {} cannot move off the map. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif len(self.game.grid[x][y]) > 1:

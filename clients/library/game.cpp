@@ -257,7 +257,7 @@ DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int type)
   Connection* c = object->_c;
   
   // Check bounds
-  if (x < 0 || x > getMapWidth(c) || y < 0 || y > getMapHeight(c))
+  if (x < 0 || x >= getMapWidth(c) || y < 0 || y >= getMapHeight(c))
     return 0;
   // Check drop type
   if (type != 0 && type != 1)
@@ -298,6 +298,46 @@ DLLEXPORT int droidMove(_Droid* object, int x, int y)
   LOCK( &object->_c->mutex);
   send_string(object->_c->socket, expr.str().c_str());
   UNLOCK( &object->_c->mutex);
+  
+  Connection* c = object->_c;
+  
+  // Ownership check
+  if (object->owner != (getPlayerID(c) ^ (object->hackedTurnsLeft > 0)))
+    return 0;
+  // Alive?
+  if (object->healthLeft <= 0)
+    return 0;
+  // Movement left
+  if (object->movementLeft <= 0)
+    return 0;
+  // Check bounds
+  if (x < 0 || x >= getMapWidth(c) || y < 0 || y >= getMapHeight(c))
+    return 0;
+  
+  _Tile* tile = getTile(c, x * getMapHeight(c) + y);
+  
+  // Check collision with structures
+  if (tile->health > 0 && (tile->owner != getPlayerID(c) || tile->typeToAssemble != 2))
+    return 0;
+  // Check collision with assembling droids
+  if (tile->turnsUntilAssembled > 0 && tile->typeToAssemble == 2)
+    return 0;
+  // Check distance
+  if (abs(x - object->x) + abs(y - object->y) != 1)
+    return 0;
+    
+  // Check collision with droids
+  for (int i = 0; i < getDroidCount(c); ++i)
+  {
+    if (getDroid(c, i)->x == x && getDroid(c, i)->y == y)
+      return 0;
+  }
+  
+  object->x = x;
+  object->y = y;
+  
+  object->movementLeft--;
+  
   return 1;
 }
 
