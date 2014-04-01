@@ -2,6 +2,9 @@
 from BaseAI import BaseAI
 from GameObject import *
 
+from make_kittens import *
+from cat_vision import *
+
 class AI(BaseAI):
   """The class implementing gameplay logic."""
   @staticmethod
@@ -23,6 +26,12 @@ class AI(BaseAI):
   ##This function is called each time it is your turn
   ##Return true to end your turn, return false to ask the server for updated information
   def run(self):
+
+
+    make_kittens(self)
+
+    show_cat(cat_see(self))
+
     return 1
 
   def __init__(self, conn):
