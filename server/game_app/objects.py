@@ -23,6 +23,8 @@ class Player(object):
   
   def nextTurn(self):
     if self.id == self.game.playerID:
+      self.scrapAmount += self.game.scrapRate
+
       if self.scrapAmount > self.game.maxScrap:
         self.scrapAmount = self.game.maxScrap
       elif self.scrapAmount < 0:
@@ -167,6 +169,14 @@ class Droid(Mappable):
     if self.healthLeft <= 0:
       self.game.grid[self.x][self.y].remove(self)
       self.game.removeObject(self)
+      # Transfer scrap
+      if self.x < self.game.mapWidth / 2:
+        playerNum = 0
+      else:
+        playerNum = 1
+      self.game.objects.players[playerNum].scrapAmount += self.scrapWorth
+      if self.game.objects.players[playerNum].scrapAmount > self.game.maxScrap:
+        self.game.objects.players[playerNum].scrapAmont = 0
 
   def nextTurn(self):
     if self.owner == (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
