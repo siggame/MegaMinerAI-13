@@ -81,19 +81,20 @@ class Match(DefaultGameWorld):
     centerX = int(self.mapWidth/4.0)
     centerY = int(self.mapHeight/2.0)
 
+    #hangar variant = 7
+    variant = self.game.variantToModelVariant(7)
+
     for y in range(centerY-hangarSize/2, centerY+hangarSize/2):
       #Player 1
       for x in range(centerX-hangarSize/2, centerX+hangarSize/2):
-        self.grid[x][y][0].owner = 0
-        self.grid[x][y][0].health = self.maxHangarHealth
-        self.hangartiles[(x, y)] = self.grid[x][y][0]
-        self.grid[x][y][0].typeToAssemble = 2
+        newDroidStats = [x, y, 0, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        newDroid = self.game.addObject(Droid, newDroidStats)
+        self.grid[x][y].append(newDroid)
       #Player 2
       for x in range(self.mapWidth-(centerX+hangarSize/2)+1, self.mapWidth-(centerX-hangarSize/2)+1):
-        self.grid[x][y][0].owner = 1
-        self.grid[x][y][0].health = self.maxHangarHealth
-        self.hangartiles[(x, y)] = self.grid[x][y][0]
-        self.grid[x][y][0].typeToAssemble = 2
+        newDroidStats = [x, y, 1, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        newDroid = self.game.addObject(Droid, newDroidStats)
+        self.grid[x][y].append(newDroid)
 
     return
 
