@@ -59,13 +59,10 @@ DLLEXPORT Connection* createConnection()
   c->mapHeight = 0;
   c->turnNumber = 0;
   c->maxDroids = 0;
-  c->maxWalls = 0;
   c->playerID = 0;
   c->gameNumber = 0;
   c->scrapRate = 0;
   c->maxScrap = 0;
-  c->wallCost = 0;
-  c->maxWallHealth = 0;
   c->dropTime = 0;
   c->Players = NULL;
   c->PlayerCount = 0;
@@ -242,13 +239,13 @@ DLLEXPORT int playerTalk(_Player* object, char* message)
   return 1;
 }
 
-DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int type)
+DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int variant)
 {
   stringstream expr;
   expr << "(game-orbital-drop " << object->id
        << " " << x
        << " " << y
-       << " " << type
+       << " " << variant
        << ")";
   LOCK( &object->_c->mutex);
   send_string(object->_c->socket, expr.str().c_str());
@@ -485,18 +482,6 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
 }
 
 
-DLLEXPORT int tileAssemble(_Tile* object, int type)
-{
-  stringstream expr;
-  expr << "(game-assemble " << object->id
-       << " " << type
-       << ")";
-  LOCK( &object->_c->mutex);
-  send_string(object->_c->socket, expr.str().c_str());
-  UNLOCK( &object->_c->mutex);
-  return 1;
-}
-
 
 
 //Utility functions for parsing data
@@ -600,9 +585,7 @@ void parseTile(Connection* c, _Tile* object, sexp_t* expression)
   sub = sub->next;
   object->turnsUntilAssembled = atoi(sub->val);
   sub = sub->next;
-  object->typeToAssemble = atoi(sub->val);
-  sub = sub->next;
-  object->health = atoi(sub->val);
+  object->variantToAssemble = atoi(sub->val);
   sub = sub->next;
 
 }
@@ -724,9 +707,6 @@ DLLEXPORT int networkLoop(Connection* c)
           c->maxDroids = atoi(sub->val);
           sub = sub->next;
 
-          c->maxWalls = atoi(sub->val);
-          sub = sub->next;
-
           c->playerID = atoi(sub->val);
           sub = sub->next;
 
@@ -737,12 +717,6 @@ DLLEXPORT int networkLoop(Connection* c)
           sub = sub->next;
 
           c->maxScrap = atoi(sub->val);
-          sub = sub->next;
-
-          c->wallCost = atoi(sub->val);
-          sub = sub->next;
-
-          c->maxWallHealth = atoi(sub->val);
           sub = sub->next;
 
           c->dropTime = atoi(sub->val);
@@ -938,10 +912,6 @@ DLLEXPORT int getMaxDroids(Connection* c)
 {
   return c->maxDroids;
 }
-DLLEXPORT int getMaxWalls(Connection* c)
-{
-  return c->maxWalls;
-}
 DLLEXPORT int getPlayerID(Connection* c)
 {
   return c->playerID;
@@ -957,14 +927,6 @@ DLLEXPORT int getScrapRate(Connection* c)
 DLLEXPORT int getMaxScrap(Connection* c)
 {
   return c->maxScrap;
-}
-DLLEXPORT int getWallCost(Connection* c)
-{
-  return c->wallCost;
-}
-DLLEXPORT int getMaxWallHealth(Connection* c)
-{
-  return c->maxWallHealth;
 }
 DLLEXPORT int getDropTime(Connection* c)
 {

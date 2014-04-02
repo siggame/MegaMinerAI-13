@@ -37,8 +37,6 @@ public:
   int turnNumber();
   ///The maximum number of Droids allowed per player.
   int maxDroids();
-  ///The maximum number of walls allowed per player.
-  int maxWalls();
   ///The id of the current player.
   int playerID();
   ///What number game this is for the server.
@@ -47,10 +45,6 @@ public:
   int scrapRate();
   ///The maximum amount of scrap a player can have at once.
   int maxScrap();
-  ///The cost to place a wall, in scrap.
-  int wallCost();
-  ///The maximum amount of scrap a player can have at once.
-  int maxWallHealth();
   ///The amount of turns it takes to orbitally drop per tile away from the player's respective edge.
   int dropTime();
   

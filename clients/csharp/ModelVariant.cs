@@ -184,7 +184,7 @@ public class ModelVariant
   }
 
   /// <summary>
-  /// The number of turns this unit will be hacked, if it is hacked.
+  /// The number of turns this unit will be hacked, if it is hacked. If 0, the droid cannot be hacked.
   /// </summary>
   public int TurnsToBeHacked
   {
@@ -197,7 +197,7 @@ public class ModelVariant
   }
 
   /// <summary>
-  /// The maximum number of hackets that can be sustained before hacked.
+  /// The maximum number of hackets that can be sustained before hacked. If 0, the Droid cannot be hacked.
   /// </summary>
   public int HacketsMax
   {

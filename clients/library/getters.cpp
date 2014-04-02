@@ -128,13 +128,9 @@ DLLEXPORT int tileGetTurnsUntilAssembled(_Tile* ptr)
 {
   return ptr->turnsUntilAssembled;
 }
-DLLEXPORT int tileGetTypeToAssemble(_Tile* ptr)
+DLLEXPORT int tileGetVariantToAssemble(_Tile* ptr)
 {
-  return ptr->typeToAssemble;
-}
-DLLEXPORT int tileGetHealth(_Tile* ptr)
-{
-  return ptr->health;
+  return ptr->variantToAssemble;
 }
 DLLEXPORT int modelVariantGetId(_ModelVariant* ptr)
 {

@@ -127,11 +127,11 @@ class GameApp(AccountsAppMixin, BaseApp):
   @errorBuffer
   @requireTurn
   @requireTypes(None, int, int, int, int)
-  def gameOrbitalDrop(self, player, x, y, type):
-    """Allows a player to spawn a structure."""
+  def gameOrbitalDrop(self, player, x, y, variant):
+    """Allows a player to spawn a Droid."""
     if self.game.turn is not self:
       return "Not your turn."
-    return self.game.orbitalDrop(player, x, y, type)
+    return self.game.orbitalDrop(player, x, y, variant)
 
   @protocolmethod
   @errorBuffer
@@ -152,16 +152,6 @@ class GameApp(AccountsAppMixin, BaseApp):
     if self.game.turn is not self:
       return "Not your turn."
     return self.game.operate(droid, x, y)
-
-  @protocolmethod
-  @errorBuffer
-  @requireTurn
-  @requireTypes(None, int, int)
-  def gameAssemble(self, tile, type):
-    """Attempt to assemble a Droid at this location."""
-    if self.game.turn is not self:
-      return "Not your turn."
-    return self.game.assemble(tile, type)
 
 
   @protocolmethod
