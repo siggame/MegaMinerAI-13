@@ -191,7 +191,7 @@ class Droid(Mappable):
       return 'Turn {}: Your droid {} cannot move off the map. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif len(self.game.grid[x][y]) > 1:
       return 'Turn {}: Your droid {} is trying to run into something. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
-    if abs(self.x-x) + abs(self.y-y) != 1:
+    elif abs(self.x-x) + abs(self.y-y) != 1:
       return 'Turn {}: Your droid {} can only move one unit away. ({}.{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
 
     self.game.grid[self.x][self.y].remove(self)
