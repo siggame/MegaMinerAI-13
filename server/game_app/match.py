@@ -81,19 +81,20 @@ class Match(DefaultGameWorld):
     centerX = int(self.mapWidth/4.0)
     centerY = int(self.mapHeight/2.0)
 
-    #hangar variant = 7
-    variant = self.game.variantToModelVariant(7)
+    #TODO: Actually load hangar stats
 
     for y in range(centerY-hangarSize/2, centerY+hangarSize/2):
       #Player 1
       for x in range(centerX-hangarSize/2, centerX+hangarSize/2):
-        newDroidStats = [x, y, 0, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
-        newDroid = self.game.addObject(Droid, newDroidStats)
+        #newDroidStats = [x, y, 0, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        newDroidStats= [x,y, 0, 7, 0, 0, 200, 200, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0]
+        newDroid = self.addObject(Droid, newDroidStats)
         self.grid[x][y].append(newDroid)
       #Player 2
       for x in range(self.mapWidth-(centerX+hangarSize/2)+1, self.mapWidth-(centerX-hangarSize/2)+1):
-        newDroidStats = [x, y, 1, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
-        newDroid = self.game.addObject(Droid, newDroidStats)
+        #newDroidStats = [x, y, 1, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        newDroidStats = [x,y, 0, 7, 0, 0, 200, 200, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0]
+        newDroid = self.addObject(Droid, newDroidStats)
         self.grid[x][y].append(newDroid)
 
     return
@@ -110,15 +111,15 @@ class Match(DefaultGameWorld):
     #['x', 'y', 'owner', 'turnsUntilAssembled', 'variantToAssemble']
     self.grid = [[[ self.addObject(Tile,[x, y, 2, 0, -1]) ] for y in range(self.mapHeight)] for x in range(self.mapWidth)]
 
-    self.createhangars()
-
     statList = ['name', 'variant', 'cost', 'maxAttacks', 'maxHealth', 'maxMovement', 'range', 'attack', 'maxArmor', 'scrapWorth', 'turnsToBeHacked', 'hacketsMax']
     variants = cfgVariants.values()
     variants.sort(key=lambda variant: variant['variant'])
     for t in variants:
       self.addObject(ModelVariant, [t[value] for value in statList])
 
-    self.varaintStrings = {variants.variant:variants.name for variants in self.objects.modelVariants}
+    self.createhangars()
+
+    self.variantStrings = {variants.variant:variants.name for variants in self.objects.modelVariants}
 
     self.nextTurn()
     return True
