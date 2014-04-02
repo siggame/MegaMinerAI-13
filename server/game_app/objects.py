@@ -61,6 +61,9 @@ class Player(object):
       return 'Turn {}: You cannot drop onto a location off of the map. ({},{})'.format(self.game.turnNumber, x, y)
     if variant == HangarVariant:
       return 'Turn {}: You cannot drop a Hangar.'.format(self.game.turnNumber)
+    variantCheck = self.game.variantToModelVariant(variant)
+    if variantCheck is None:
+      return 'Turn {}: {} is not a valid variant number.'.format(self.game.turnNumber, variant)
     cost = self.game.variantToModelVariant(variant).cost
     if self.scrapAmount < cost:
       return 'Turn {}: You do not have enough scrap to drop. Have: {} Need: {}'.format(self.game.turnNumber, self.scrapAmount, cost)
@@ -78,10 +81,10 @@ class Player(object):
     #turnsUntilDrop = 1 + (self.game.maxTurnsUntilDeploy - 1) * (abs(xoff - x) / float(self.game.mapWidth - 1))
     turnsUntilDrop = abs(xoff - x) * self.game.dropTime
     tile.turnsUntilAssembled = turnsUntilDrop
-    tile.typeToAssemble = type
+    tile.variantToAssemble = variant
     self.scrapAmount -= cost
 
-    self.game.dropsInProgress.append(tile)
+    self.dropsInProgress.append(tile)
 
     return True
 

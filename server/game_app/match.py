@@ -49,6 +49,12 @@ class Match(DefaultGameWorld):
   def __del__(self):
     pass
 
+  def variantToModelVariant(self, type):
+    for variant in self.objects.modelVariants:
+      if variant.variant == type:
+        return variant
+    return None
+
   def addPlayer(self, connection, type="player"):
     connection.type = type
     if len(self.players) >= 2 and type == "player":
@@ -81,7 +87,8 @@ class Match(DefaultGameWorld):
     centerX = int(self.mapWidth/4.0)
     centerY = int(self.mapHeight/2.0)
 
-    #TODO: Actually load hangar stats
+    #Hangar = 7
+    variant = self.variantToModelVariant(7)
 
     for y in range(centerY-hangarSize/2, centerY+hangarSize/2):
       #Player 1
