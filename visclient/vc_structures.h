@@ -62,8 +62,7 @@ struct _Tile
   int y;
   int owner;
   int turnsUntilAssembled;
-  int typeToAssemble;
-  int health;
+  int variantToAssemble;
 };
 struct _ModelVariant
 {

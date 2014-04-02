@@ -19,23 +19,19 @@ public interface Client extends Library {
 
     //commands
   int playerTalk(Pointer object, String message);
-  int playerOrbitalDrop(Pointer object, int x, int y, int type);
+  int playerOrbitalDrop(Pointer object, int x, int y, int variant);
   int droidMove(Pointer object, int x, int y);
   int droidOperate(Pointer object, int x, int y);
-  int tileAssemble(Pointer object, int type);
 
     //accessors
   int getMapWidth(Pointer connection);
   int getMapHeight(Pointer connection);
   int getTurnNumber(Pointer connection);
   int getMaxDroids(Pointer connection);
-  int getMaxWalls(Pointer connection);
   int getPlayerID(Pointer connection);
   int getGameNumber(Pointer connection);
   int getScrapRate(Pointer connection);
   int getMaxScrap(Pointer connection);
-  int getWallCost(Pointer connection);
-  int getMaxWallHealth(Pointer connection);
   int getDropTime(Pointer connection);
 
   Pointer getPlayer(Pointer connection, int num);
@@ -86,8 +82,7 @@ public interface Client extends Library {
   int tileGetY(Pointer ptr);
   int tileGetOwner(Pointer ptr);
   int tileGetTurnsUntilAssembled(Pointer ptr);
-  int tileGetTypeToAssemble(Pointer ptr);
-  int tileGetHealth(Pointer ptr);
+  int tileGetVariantToAssemble(Pointer ptr);
 
   int modelVariantGetId(Pointer ptr);
   String modelVariantGetName(Pointer ptr);

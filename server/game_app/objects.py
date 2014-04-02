@@ -66,14 +66,13 @@ class Player(object):
     #make sure this never works properly
     pass
 
-  def orbitalDrop(self, x, y, type):
-    # type == 0 for wall
-    # type == 1 for turret
+  #TODO: Fix so it uses variant instead of type. Make sure Hangars cannot be spawned.
+  def orbitalDrop(self, x, y, variant):
     if not (0 <= x < self.game.mapWidth) or not (0 <= y < self.game.mapHeight):
       return 'Turn {}: You cannot drop onto a location off of the map. ({},{})'.format(self.game.turnNumber, x, y)
-    if type != 0 and type != 1:
+    if variant != 0 and variant != 1:
       return 'Turn {}: You cannot drop a structure of type {}. Must be 0 or 1.'.format(self.game.turnNumber, type)
-    if type == 0:
+    if variant == 0:
       cost = self.game.wallCost
     else:
       cost = self.game.variantToModelVariant(4).cost
@@ -194,6 +193,7 @@ class Droid(Mappable):
 
     return True
 
+  #TODO: Update move function to match new tiles
   def move(self, x, y):
     if self.owner != (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
       return 'Turn {}: You cannot use the other player\'s droid when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
@@ -241,6 +241,7 @@ class Droid(Mappable):
     if target.health <= 0:
       target.handleDeath()
 
+  #TODO: Make sure walls and hangars cannot be hacked. Can be repaired.
   def operate(self, x, y):
     variantName = self.game.variantString[self.variant]
     #make sure valid for operating on either a droid or tile
@@ -319,65 +320,33 @@ class Droid(Mappable):
       object.__setattr__(self, name, value)
 
 class Tile(Mappable):
-  game_state_attributes = ['id', 'x', 'y', 'owner', 'turnsUntilAssembled', 'typeToAssemble', 'health']
-  def __init__(self, game, id, x, y, owner, turnsUntilAssembled, typeToAssemble, health):
+  game_state_attributes = ['id', 'x', 'y', 'owner', 'turnsUntilAssembled', 'variantToAssemble']
+  def __init__(self, game, id, x, y, owner, turnsUntilAssembled, variantToAssemble):
     self.game = game
     self.id = id
     self.x = x
     self.y = y
     self.owner = owner
     self.turnsUntilAssembled = turnsUntilAssembled
-    self.typeToAssemble = typeToAssemble
-    self.health = health
+    self.variantToAssemble = variantToAssemble
     self.updatedAt = game.turnNumber
 
   def toList(self):
-    return [self.id, self.x, self.y, self.owner, self.turnsUntilAssembled, self.typeToAssemble, self.health, ]
+    return [self.id, self.x, self.y, self.owner, self.turnsUntilAssembled, self.variantToAssemble, ]
   
   # This will not work if the object has variables other than primitives
   def toJson(self):
-    return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, turnsUntilAssembled = self.turnsUntilAssembled, typeToAssemble = self.typeToAssemble, health = self.health, )
-  
+    return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, turnsUntilAssembled = self.turnsUntilAssembled, variantToAssemble = self.variantToAssemble, )
+
   def nextTurn(self):
-    pass
-
-  def assemble(self, type):
-    player = self.game.objects.players[self.game.playerID]
-
-    #make sure turret isn't being assembled
-    turretVariantNum = 4
-
-    if type == turretVariantNum:
-      return 'Turn {}: You cannot assemble a turret; use orbital drop.'.format(self.game.turnNumber)
-    elif self.typeToAssemble != 2:
-      return 'Turn {}: You cannot assemble on a non-hanger tile'.format(self.game.turnNumber)
-    elif self.owner != self.game.playerID:
-      return 'Turn {}: You cannot assemble a droid on an enemy tile. ({},{})'.format(self.game.turnNumber, self.x, self.y)
-    elif len(self.game.grid[self.x][self.y]) > 1:
-      return 'Turn {} You cannot assemble a droid on top of another droid. ({},{})'.format(self.game.turnNumber, self.x, self.y)
-    elif self.turnsUntilAssembled != 0:
-       return 'Turn {} You cannot assemble a droid because you are already attempting to assemble here ({},{})'.format(self.game.turnNumber, self.x, self.y)
-    count = len([droid for droid in self.game.objects.droids if droid.owner == self.game.playerID])
-    if count >= self.game.maxDroids:
-      return 'Turn {} You cannot assemble a droid because you already have the maximum number of droids ({})'.format(self.game.turnNumber, self.game.maxDroids)
-    variant = self.game.variantToModelVariant(type)
-    if variant is None:
-      return 'Turn {}: You cannot spawn a droid with this variant ({}).'.format(self.game.turnNumber, type)
-    elif player.scrapAmount < variant.cost:
-      return 'Turn {}: You do not have enough resources({}) to spawn this unit({}).'.format(self.game.turnNumber, player.scrapAmount, variant.cost)
-
-    player.scrapAmount -= variant.cost
-
-    # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'hackedTurnsLeft', 'hackets']
-    # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'turnsToBeHacked', 'hackedTurnsLeft', 'hackets', 'hacketsMax']
-    newDroidStats = [self.x, self.y, self.owner, type, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
-    player.assembleQueue.append(newDroidStats)
-    self.turnsUntilAssembled = 1
-
-    # NOTE: we are providing 0 for droid.id
-    self.game.addAnimation(SpawnAnimation(self.id, 0))
-
-    return True
+    #Decrease Turns Until Assembled
+    if self.turnsUntilAssembled > 1:
+      self.turnsUntilAssembled -= 1
+    #Add To Spawn List If About To Spawn
+    elif self.turnsUntilAssembled == 1:
+        #TODO: Add to spawning list
+        pass
+    return
 
   def __setattr__(self, name, value):
       if name in self.game_state_attributes:
@@ -420,6 +389,28 @@ class ModelVariant(object):
 
 
 # The following are animations and do not need to have any logic added
+class SpawnAnimation:
+  def __init__(self, sourceID, unitID):
+    self.sourceID = sourceID
+    self.unitID = unitID
+
+  def toList(self):
+    return ["spawn", self.sourceID, self.unitID, ]
+
+  def toJson(self):
+    return dict(type = "spawn", sourceID = self.sourceID, unitID = self.unitID)
+
+class RepairAnimation:
+  def __init__(self, actingID, targetID):
+    self.actingID = actingID
+    self.targetID = targetID
+
+  def toList(self):
+    return ["repair", self.actingID, self.targetID, ]
+
+  def toJson(self):
+    return dict(type = "repair", actingID = self.actingID, targetID = self.targetID)
+
 class MoveAnimation:
   def __init__(self, actingID, fromX, fromY, toX, toY):
     self.actingID = actingID
@@ -433,17 +424,6 @@ class MoveAnimation:
 
   def toJson(self):
     return dict(type = "move", actingID = self.actingID, fromX = self.fromX, fromY = self.fromY, toX = self.toX, toY = self.toY)
-
-class SpawnAnimation:
-  def __init__(self, sourceID, unitID):
-    self.sourceID = sourceID
-    self.unitID = unitID
-
-  def toList(self):
-    return ["spawn", self.sourceID, self.unitID, ]
-
-  def toJson(self):
-    return dict(type = "spawn", sourceID = self.sourceID, unitID = self.unitID)
 
 class HackAnimation:
   def __init__(self, actingID, targetID):
@@ -465,17 +445,6 @@ class OrbitalDropAnimation:
 
   def toJson(self):
     return dict(type = "orbitalDrop", sourceID = self.sourceID)
-
-class RepairAnimation:
-  def __init__(self, actingID, targetID):
-    self.actingID = actingID
-    self.targetID = targetID
-
-  def toList(self):
-    return ["repair", self.actingID, self.targetID, ]
-
-  def toJson(self):
-    return dict(type = "repair", actingID = self.actingID, targetID = self.targetID)
 
 class AttackAnimation:
   def __init__(self, actingID, targetID):

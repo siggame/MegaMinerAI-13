@@ -30,23 +30,19 @@ class Match(DefaultGameWorld):
       self.dictLog = dict(gameName = "Droids", turns = [])
     self.addPlayer(self.scribe, "spectator")
 
+
     self.turnNumber = -1
     self.playerID = -1
     self.gameNumber = id
+    
+    self.hangartiles = dict()
+    self.grid = []
 
     self.mapWidth = self.mapWidth
     self.mapHeight = self.mapHeight
     self.maxDroids = self.maxDroids
-    self.maxWalls = self.maxWalls
     self.scrapRate = self.scrapRate
     self.maxScrap = self.maxScrap
-    
-    self.hangartiles = dict()
-
-    self.grid = []
-
-    self.wallCost = self.wallCost
-    self.maxWallHealth = self.maxWallHealth
     self.dropTime = self.dropTime
 
   #this is here to be wrapped
@@ -79,6 +75,7 @@ class Match(DefaultGameWorld):
     else:
       self.spectators.remove(connection)
 
+  #TODO: FIX CREATION OF HANGARS
   def createhangars(self):
     hangarSize = random.randrange(self.minHangar, self.maxHangar)
     centerX = int(self.mapWidth/4.0)
@@ -109,12 +106,12 @@ class Match(DefaultGameWorld):
     #TODO: START STUFF
     self.turn = self.players[-1]
     self.turnNumber = -1
-    #'x', 'y', 'owner', 'turnsUntilAssembled', 'typeToAssemble', 'health']
-    self.grid = [[[ self.addObject(Tile,[x, y, 2, 0, -1, 0]) ] for y in range(self.mapHeight)] for x in range(self.mapWidth)]
+    #['x', 'y', 'owner', 'turnsUntilAssembled', 'variantToAssemble']
+    self.grid = [[[ self.addObject(Tile,[x, y, 2, 0, -1]) ] for y in range(self.mapHeight)] for x in range(self.mapWidth)]
 
     self.createhangars()
 
-    statList = ["name", "variant", "cost", "maxAttacks", "maxHealth", "maxMovement", "range", "attack", "maxArmor", "scrapWorth", "turnsToBeHacked", "hacketsMax"]
+    statList = ['name', 'variant', 'cost', 'maxAttacks', 'maxHealth', 'maxMovement', 'range', 'attack', 'maxArmor', 'scrapWorth', 'turnsToBeHacked', 'hacketsMax']
     variants = cfgVariants.values()
     variants.sort(key=lambda variant: variant['variant'])
     for t in variants:
@@ -159,13 +156,10 @@ class Match(DefaultGameWorld):
           mapHeight = self.mapHeight,
           turnNumber = self.turnNumber,
           maxDroids = self.maxDroids,
-          maxWalls = self.maxWalls,
           playerID = self.playerID,
           gameNumber = self.gameNumber,
           scrapRate = self.scrapRate,
           maxScrap = self.maxScrap,
-          wallCost = self.wallCost,
-          maxWallHealth = self.maxWallHealth,
           dropTime = self.dropTime,
           Players = [i.toJson() for i in self.objects.values() if i.__class__ is Player],
           Mappables = [i.toJson() for i in self.objects.values() if i.__class__ is Mappable],
@@ -180,6 +174,7 @@ class Match(DefaultGameWorld):
     self.animations = ["animations"]
     return True
 
+  #TODO: Fix checkwinner function. Hangars are now Droids, not tiles.
   def checkWinner(self):
     #Get the players, is this necessary? If not, just remove these two lines :3
     player1 = self.objects.players[0]
@@ -251,8 +246,8 @@ class Match(DefaultGameWorld):
     return object.talk(message, )
 
   @derefArgs(Player, None, None, None)
-  def orbitalDrop(self, object, x, y, type):
-    return object.orbitalDrop(x, y, type, )
+  def orbitalDrop(self, object, x, y, variant):
+    return object.orbitalDrop(x, y, variant, )
 
   @derefArgs(Droid, None, None)
   def move(self, object, x, y):
@@ -261,10 +256,6 @@ class Match(DefaultGameWorld):
   @derefArgs(Droid, None, None)
   def operate(self, object, x, y):
     return object.operate(x, y, )
-
-  @derefArgs(Tile, None)
-  def assemble(self, object, type):
-    return object.assemble(type, )
 
 
   def sendIdent(self, players):
@@ -293,7 +284,7 @@ class Match(DefaultGameWorld):
   def status(self):
     msg = ["status"]
 
-    msg.append(["game", self.mapWidth, self.mapHeight, self.turnNumber, self.maxDroids, self.maxWalls, self.playerID, self.gameNumber, self.scrapRate, self.maxScrap, self.wallCost, self.maxWallHealth, self.dropTime])
+    msg.append(["game", self.mapWidth, self.mapHeight, self.turnNumber, self.maxDroids, self.playerID, self.gameNumber, self.scrapRate, self.maxScrap, self.dropTime])
 
     typeLists = []
     typeLists.append(["Player"] + [i.toList() for i in self.objects.values() if i.__class__ is Player])

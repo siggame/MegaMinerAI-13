@@ -35,11 +35,11 @@ class Player
     validify();
     return (Client.INSTANCE.playerTalk(ptr, message) == 0) ? false : true;
   }
-  ///Allows a player to spawn a structure.
-  boolean orbitalDrop(int x, int y, int type)
+  ///Allows a player to spawn a Droid.
+  boolean orbitalDrop(int x, int y, int variant)
   {
     validify();
-    return (Client.INSTANCE.playerOrbitalDrop(ptr, x, y, type) == 0) ? false : true;
+    return (Client.INSTANCE.playerOrbitalDrop(ptr, x, y, variant) == 0) ? false : true;
   }
 
     //getters

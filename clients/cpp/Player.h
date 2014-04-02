@@ -25,8 +25,8 @@ class Player {
   // Actions
   ///Allows a player to display messages on the screen
   bool talk(char* message);
-  ///Allows a player to spawn a structure.
-  bool orbitalDrop(int x, int y, int type);
+  ///Allows a player to spawn a Droid.
+  bool orbitalDrop(int x, int y, int variant);
 
   // Properties
 

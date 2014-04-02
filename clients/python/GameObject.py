@@ -38,10 +38,10 @@ class Player(GameObject):
     self.validify()
     return library.playerTalk(self._ptr, message)
 
-  ##Allows a player to spawn a structure.
-  def orbitalDrop(self, x, y, type):
+  ##Allows a player to spawn a Droid.
+  def orbitalDrop(self, x, y, variant):
     self.validify()
-    return library.playerOrbitalDrop(self._ptr, x, y, type)
+    return library.playerOrbitalDrop(self._ptr, x, y, variant)
 
   #\cond
   def getId(self):
@@ -305,7 +305,7 @@ class Droid(Mappable):
     self.validify()
     return library.droidGetTurnsToBeHacked(self._ptr)
   #\endcond
-  ##The number of turns this unit will be hacked, if it is hacked.
+  ##The number of turns this unit will be hacked, if it is hacked. If 0, the droid cannot be hacked.
   turnsToBeHacked = property(getTurnsToBeHacked)
 
   #\cond
@@ -329,7 +329,7 @@ class Droid(Mappable):
     self.validify()
     return library.droidGetHacketsMax(self._ptr)
   #\endcond
-  ##The maximum number of hackets that can be sustained before hacked.
+  ##The maximum number of hackets that can be sustained before hacked. If 0, the Droid cannot be hacked.
   hacketsMax = property(getHacketsMax)
 
 
@@ -380,11 +380,6 @@ class Tile(Mappable):
         return True
     raise ExistentialError()
   #\endcond
-  ##Attempt to assemble a Droid at this location.
-  def assemble(self, type):
-    self.validify()
-    return library.tileAssemble(self._ptr, type)
-
   #\cond
   def getId(self):
     self.validify()
@@ -414,7 +409,7 @@ class Tile(Mappable):
     self.validify()
     return library.tileGetOwner(self._ptr)
   #\endcond
-  ##The owner of the tile. If 0: Player 1; If 1: Player 2; 
+  ##Owner of spawning droid. 0 - Player 1, 1 - Player 2, 2 - No spawning droid.
   owner = property(getOwner)
 
   #\cond
@@ -422,24 +417,16 @@ class Tile(Mappable):
     self.validify()
     return library.tileGetTurnsUntilAssembled(self._ptr)
   #\endcond
-  ##The number of turns until a structure is assembled.
+  ##The number of turns until a Droid is assembled.
   turnsUntilAssembled = property(getTurnsUntilAssembled)
 
   #\cond
-  def getTypeToAssemble(self):
+  def getVariantToAssemble(self):
     self.validify()
-    return library.tileGetTypeToAssemble(self._ptr)
+    return library.tileGetVariantToAssemble(self._ptr)
   #\endcond
-  ##The type of structure to assemble. If 0: Wall. If 1: Turret
-  typeToAssemble = property(getTypeToAssemble)
-
-  #\cond
-  def getHealth(self):
-    self.validify()
-    return library.tileGetHealth(self._ptr)
-  #\endcond
-  ##The health of the Hangar or Wall on this tile.
-  health = property(getHealth)
+  ##The variant of Droid to assemble.
+  variantToAssemble = property(getVariantToAssemble)
 
 
   def __str__(self):
@@ -450,8 +437,7 @@ class Tile(Mappable):
     ret += "y: %s\n" % self.getY()
     ret += "owner: %s\n" % self.getOwner()
     ret += "turnsUntilAssembled: %s\n" % self.getTurnsUntilAssembled()
-    ret += "typeToAssemble: %s\n" % self.getTypeToAssemble()
-    ret += "health: %s\n" % self.getHealth()
+    ret += "variantToAssemble: %s\n" % self.getVariantToAssemble()
     return ret
 
 ##Represents Variant of Droid.
@@ -569,7 +555,7 @@ class ModelVariant(GameObject):
     self.validify()
     return library.modelVariantGetTurnsToBeHacked(self._ptr)
   #\endcond
-  ##The number of turns this unit will be hacked, if it is hacked.
+  ##The number of turns this unit will be hacked, if it is hacked. If 0, the droid cannot be hacked.
   turnsToBeHacked = property(getTurnsToBeHacked)
 
   #\cond
@@ -577,7 +563,7 @@ class ModelVariant(GameObject):
     self.validify()
     return library.modelVariantGetHacketsMax(self._ptr)
   #\endcond
-  ##The maximum number of hackets that can be sustained before hacked.
+  ##The maximum number of hackets that can be sustained before hacked. If 0, the Droid cannot be hacked.
   hacketsMax = property(getHacketsMax)
 
 
