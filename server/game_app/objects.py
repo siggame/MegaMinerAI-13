@@ -54,7 +54,6 @@ class Player(object):
     #make sure this never works properly
     pass
 
-  #TODO: Fix so it uses variant instead of type. Make sure Hangars cannot be spawned.
   def orbitalDrop(self, x, y, variant):
     HangarVariant = 7
     if not (0 <= x < self.game.mapWidth) or not (0 <= y < self.game.mapHeight):
@@ -63,7 +62,7 @@ class Player(object):
       return 'Turn {}: You cannot drop a Hangar.'.format(self.game.turnNumber)
     cost = self.game.variantToModelVariant(variant).cost
     if self.scrapAmount < cost:
-      return 'Turn {}: You do not have enough scrap to drop. Have: () Need: ()'.format(self.game.turnNumber, self.scrapAmount, cost)
+      return 'Turn {}: You do not have enough scrap to drop. Have: {} Need: {}'.format(self.game.turnNumber, self.scrapAmount, cost)
     tile = self.game.getTile(x, y)
     if tile.turnsUntilAssembled > 0:
       return 'Turn {}: You cannot drop a droid onto a tile that is assembling a droid.'.format(self.game.turnNumber)
