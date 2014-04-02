@@ -13,7 +13,9 @@ UNIT_ARCHER = 1
 UNIT_ENGINEER = 2
 UNIT_HACKER = 3
 UNIT_TURRET = 4 # This is a unit type?
-UNIT_TERMINATOR = 5 
+UNIT_WALL = 5
+UNIT_TERMINATOR = 6 
+UNIT_HANGAR = 7
 
 NEUTRAL_PLAYER = 2
 
@@ -49,7 +51,8 @@ class AI(BaseAI):
     for tile in self.tiles:
         assert tile.getScrapAmount() > 0
         assert tile.getTurnsUntilAssembled() >= 0
-        assert (tile.getOwner() == NEUTRAL_PLAYER and tile.getTurnsUntilAssembled() == 0) or tile.owner != NEUTRAL_PLAYER
+        assert (tile.getOwner() == NEUTRAL_PLAYER and tile.getTurnsUntilAssembled() == 0) \
+            or tile.owner != NEUTRAL_PLAYER
 
   def distance(self, c1, c2):
     return abs(c1[0]-c2[0])+abs(c1[1]-c2[1])
@@ -107,51 +110,62 @@ class AI(BaseAI):
     self.mycontrol = self.mydroids_g + self.enemydroids_h
     self.enemycontrol = self.mydroids_h + self.enemydroids_g    
 
+    # Units that can move
+    mf = lambda x: x.getMaxMovement() > 0
+    self.mymoveables = filter(mf, self.mycontrol)
+    self.enemycontrol = filter(mf, self.enemycontrol)
+
+    # Units that can't move.
+    hf = lambda x: x.getTurnsToBeHacked() > 0
+    self.enemyhackables = filter(hf, self.enemydroids)
+    self.myhackables = filter(hf, self.mydroids)
+
     # Tiles
     self.mytiles = [ x for x in self.tiles if x.getOwner() == myid ]
     self.enemytiles = [ x for x in self.tiles if x.getOwner() == enemyid ]
 
-    #Base tiles
-    wf = lambda x: x.getTypeToAssemble() == 2
-    self.mybases = filter(wf,self.mytiles)
-    self.enemybases = filter(wf,self.enemybases)
+    #Hangar Units
+    wf = lambda x: x.getVariant() == UNIT_HANGAR
+    self.mybases = filter(wf,self.mydroids)
+    self.enemybases = filter(wf,self.enemydroids)
+    assert len(self.mybases) > 0
+    assert len(self.enemybases) > 0
 
     #Built walls
-    wf = lambda x: x.getTurnsUntilAssembled() == 0 and x.getTypeToAssemble() == TILE_WALL and x.getHealth() > 0
-    self.mywalls = filter(wf, self.mytiles)
-    self.enemywalls = filter(wf, self.enemytiles)
+    wf = lambda x: x.getVariant() == UNIT_WALL
+    self.mywalls = filter(wf, self.mydroids)
+    self.enemywalls = filter(wf, self.enemydroids)
 
     #Built Turrets
-    wf = lambda x: x.getTurnsUntilAssembled() == 0 and x.getTypeToAssemble() == TILE_TURRET and x.getHealth() > 0
-    self.myturrets = filter(wf, self.mytiles)
-    self.enemyturrets = filter(wf, self.enemytiles)
+    wf = lambda x: x.getVariant() == UNIT_TURRET
+    self.myturrets = filter(wf, self.mydroids)
+    self.enemyturrets = filter(wf, self.enemydroids)
 
     #Building wall tile
-    wf = lambda x: x.getTurnsUntilAssembled() > 0 and x.getTypeToAssemble() == TILE_WALL
+    wf = lambda x: x.getTurnsUntilAssembled() > 0 and x.getTypeToAssemble() == UNIT_WALL
     self.mywalls_b = filter(wf, self.mytiles)
     self.enemywalls_b = filter(wf, self.enemytiles)
+
     #Building (next turn)
-    wf = lambda x: x.getTurnsUntilAssembled() == 1 and x.getTypeToAssemble() == TILE_WALL
+    wf = lambda x: x.getTurnsUntilAssembled() == 1 and x.getTypeToAssemble() == UNIT_WALL
     self.mywalls_n = filter(wf, self.mytiles)
     self.enemywalls_n = filter(wf, self.enemytiles)
    
     #Building turret tile
-    wf = lambda x: x.getTurnsUntilAssembled() > 0 and x.getTypeToAssemble() == TILE_TURRET
+    wf = lambda x: x.getTurnsUntilAssembled() > 0 and x.getTypeToAssemble() == UNIT_TURRET
     self.myturrets_b = filter(wf, self.mytiles)
     self.enemyturrets_b = filter(wf, self.enemytiles)
+
     #Building (next turn)
-    wf = lambda x: x.getTurnsUntilAssembled() == 1 and x.getTypeToAssemble() == TILE_TURRET
+    wf = lambda x: x.getTurnsUntilAssembled() == 1 and x.getTypeToAssemble() == UNIT_TURRET
     self.myturrets_n = filter(wf, self.mytiles)
     self.enemyturrests_n = filter(wf, self.enemytiles) 
 
     # Neutral tiles
-    self.neutraltiles = [ x for x in self.tiles if x.getOwner() == 2]
-    wf = lambda x: x.getTurnsUntilAssembled() == 0 and x.getTypeToAssemble() == TILE_WALL and x.getHealth() > 0
-    self.neutralwalls = filter(wf, self.neutraltiles)
-    wf = lambda x: x.getTurnsUntilAssembled() == 0 and x.getTypeToAssemble() == TILE_TURRET and x.getHealth() > 0
-    self.neutralturrets = filter(wf, self.neutraltiles)
-    assert len(self.neutralturrets) == 0 
-
+    self.opentiles = [ x for x in self.tiles if x.getTurnsUntilAssembled() == 0 ]
+    self.droppingtiles = [ x for x in self.tiles if x.getTurnsUntilAssembled() > 0 ]
+    self.nexttiles = [ x for x in self.tiles if x.getTurnsUntilAssembled() == 1 ]
+    
     # Dicts, (x,y) -> tiles and units
     self.tilesxy = {}
     for tile in self.tiles:
@@ -159,44 +173,38 @@ class AI(BaseAI):
     self.unitsxy = {}
     for unit in self.droids:
         self.unitsxy[(unit.getX(),unit.getY())] = unit
-     
+
     # Seastar layers
-    LAYER_MY_CONTROL = 1
-    LAYER_ENEMY_CONTROL = 2
-    LAYER_NEUTRAL_WALLS = 4
-    LAYER_ENEMY_WALLS = 8
-    LAYER_MY_WALLS = 16
-    LAYER_NEXT_WALLS = 32
-    LAYER_NEUTRAL_TURRETS = 64
-    LAYER_ENEMY_TURRETS = 128
-    LAYER_MY_TURRETS = 256
-    LAYER_NEXT_TURRETS = 512
-    LAYER_ENEMY_BASES = 1024
-    LAYER_MY_BASES = 2048
-    LAYER_BUILDING_UNITS = 4096
+    layers = {
+    'MY_CONTROL':1,
+    'ENEMY_CONTROL':2,
+    'DROP_NEXT':4,
+    'ENEMY_WALLS':8,
+    'MY_WALLS':16,
+    'ENEMY_TURRETS':128,
+    'MY_TURRETS':256,
+    'ENEMY_BASES':1024,
+    'MY_BASES':2048,
+    }
 
     # Bitwise or to combine layers into a mask
-    BLOCKING = LAYER_ENEMY_CONTROL | LAYER_NEUTRAL_WALLS | \
-        LAYER_ENEMY_WALLS | LAYER_MY_WALLS | LAYER_NEXT_WALLS | LAYER_NEUTRAL_TURRETS | \
-        LAYER_ENEMY_TURRETS | LAYER_MY_TURRETS | LAYER_NEXT_TURRETS | \
-        LAYER_ENEMY_BASES | LAYER_BUILDING_UNITS 
+    BLOCKING = 0
+    for k in layers:
+        BLOCKING |= layers[k]
+ 
     self.sea.set_blocking(BLOCKING)
     self.sea.reset_obstacles()
     
     # Seastar: Add layers
-    self.sea.add_mappables(self.mycontrol, LAYER_MY_DROIDS)
-    self.sea.add_mappables(self.enemycontrol, LAYER_ENEMY_DROIDS)    
-    self.sea.add_mappables(self.neutralwalls, LAYER_NEUTRAL_WALLS)    
-    self.sea.add_mappables(self.enemywalls, LAYER_ENEMY_WALLS)    
-    self.sea.add_mappables(self.mywalls, LAYER_MY_WALLS)    
-    self.sea.add_mappables(self.mywalls_n+self.enemywalls_n, LAYER_NEXT_WALLS)    
-    self.sea.add_mappables(self.neutralturrets, LAYER_NEUTRAL_TURRETS)    
-    self.sea.add_mappables(self.enemyturrets, LAYER_ENEMY_TURRETS)    
-    self.sea.add_mappables(self.myturrets, LAYER_MY_TURRETS)    
-    self.sea.add_mappables(self.myturrets_n+self.my_enemyturrets_n, LAYER_NEXT_TURRETS)    
-    self.sea.add_mappables(self.enemybases, LAYER_ENEMY_BASES)    
-    self.sea.add_mappables(self.mybases, LAYER_MY_BASES)
-    self.sea.add_obstacles(self.building, LAYER_BUILDING_UNITS)   
+    self.sea.add_mappables(self.mycontrol, layers['MY_DROIDS'])
+    self.sea.add_mappables(self.enemycontrol, layers['ENEMY_DROIDS'])    
+    self.sea.add_mappables(self.nexttiles, layers['DROP_NEXT'])    
+    self.sea.add_mappables(self.enemywalls, layers['ENEMY_WALLS'])    
+    self.sea.add_mappables(self.mywalls, layers['MY_WALLS'])    
+    self.sea.add_mappables(self.enemyturrets, layers['ENEMY_TURRETS'])    
+    self.sea.add_mappables(self.myturrets, layers['MY_TURRETS'])    
+    self.sea.add_mappables(self.enemybases, layers['ENEMY_BASES'])    
+    self.sea.add_mappables(self.mybases, layers['MY_BASES'])
 
     #Push the game state into the vexulizer.
     self.vex.snapshot(self)
@@ -207,11 +215,6 @@ class AI(BaseAI):
   def run(self):
     update_state()
 
-    # Tiles don't seem to have a maxHealth property (??)
-    # Verify tiles don't have negative health at the start of a turn
-    for tile in self.tiles:
-        assert tiles.getHealth() >= 0
-
     # Mappables
     assert len(self.mappables) > 0 # This was a problem in reef
 
@@ -220,36 +223,34 @@ class AI(BaseAI):
 
     if True:
         initial_scrap = self.me.getScrapAmount()
-        # Validate that you can only spawn units on the base tiles:
-        for tile in neutraltiles:
-            tile.assemble(self.modelVariants[0].getId())
+        # Validate that you can't spawn where another unit curently dropping
+        for tile in self.droppingtiles:
+            self.me.orbitalDrop(tile.getX(), tile.getY(), self.modelVariants[0].getId())
             assert initial_scrap == self.me.getScrapAmount()
-        
+            assert tile.getTurnsUntilAssembled == 0
+    
     if True:
-        # Validate you can't orbital drop onto a tile you already own.
-        initial_scrap = self.me.getScrapAmount()
-        for tile in mytiles:
-            tile.orbitalDrop(tile.getX(), tile.getY(), TILE_WALL)
-            assert initial_scrap == self.me.getScrapAmount()
-            tile.orbitalDrop(tile.getX(), tile.getY(), TILE_TURRET)
-            assert initial_scrap == self.me.getScrapAmount()
-  
+        #Validate you can't drop base tiles
+        for tile in self.opentiles:
+            self.me.orbitalDrop(tile.getX(), tile.getY(), UNIT_HANGAR)
+            assert tile.getTurnsUntilAssembled == 0
+
     self.building = set()
     while self.me.getScrapAmount() >= min([ variant.getCost() for variant in self.modelVariants ]):
         initial_scrap = self.me.getScrapAmount()
-        #Simple AI, pick a unit type, (Other than turret, and drop those)
+        #Simple AI, pick a unit type, (Other than hangar), and drop those
         for variant in self.modelVariants:
-            if variant.getVariant() == UNIT_TURRET:
+            if variant.getVariant() == UNIT_HANGAR:
                 continue
             if variant.getCost() > self.me.getScrapAmount():
                 continue
-            for tile in self.mybases:
+            for tile in self.opentiles:
                 if (tile.getX(), tile.getY()) in self.unitsxy:
                     continue
                 if (tile.getX(), tile.getY()) in self.building:
                     continue
                 #If we've made it this far, we can spawn the variant
-                tile.assemble(variant.getVariant())
+                self.me.orbitalDrop(tile.getX(), tile.getY(), variant.getVariant())
                 self.building.add( (tile.getX(), tile.getY()) )
                 assert initial_scrap > self.me.getScrapAmount()
                 break
@@ -269,7 +270,12 @@ class AI(BaseAI):
             self.follow_path(unit,path)
         tomove.pop(unit.getId(),None)
         update_state()
-         
+  
+    regular_targets =  self.enemycontrol + self.enemybases
+    for unit in self.mycontrol:
+        while self.attack_set(unit, regular_targets):
+            pass
+      
     return 1
 
   def __init__(self, conn):
