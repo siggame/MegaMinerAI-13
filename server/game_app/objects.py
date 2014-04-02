@@ -35,6 +35,7 @@ class Player(object):
       for dropzone in self.dropsInProgress:
         dropzone.turnsUntilAssembled -= 1
         if dropzone.turnsUntilAssembled == 0:
+          dropzone.owner = 2
           if len(self.game.grid[dropzone.x][dropzone.y]) > 1:
             # Kill droids on dropzone
             self.game.grid[dropzone.x][dropzone.y][1].health = 0
