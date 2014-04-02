@@ -250,36 +250,40 @@ DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int variant)
   LOCK( &object->_c->mutex);
   send_string(object->_c->socket, expr.str().c_str());
   UNLOCK( &object->_c->mutex);
-  
+
   Connection* c = object->_c;
-  
+
+  /*
+
   // Check bounds
   if (x < 0 || x >= getMapWidth(c) || y < 0 || y >= getMapHeight(c))
     return 0;
   // Check drop type
   if (type != 0 && type != 1)
     return 0;
-  
+
   int cost = type == 0 ? getWallCost(c) : getModelVariant(c, 4)->cost;
-  
+
   // Check cost
   if (getPlayer(c, getPlayerID(c))->scrapAmount < cost)
     return 0;
-    
+
   _Tile* tile = getTile(c, x * getMapHeight(c) + y);
-    
+
   if (tile->health > 0)
     return 0;
   if (tile->turnsUntilAssembled > 0)
     return 0;
-    
+
   int xoff = getPlayerID(c) ? getMapWidth(c) : -1;
-  
+
   tile->turnsUntilAssembled = abs(xoff - x) * getDropTime(c);
   tile->typeToAssemble = type;
-  
+
   getPlayer(c, getPlayerID(c))->scrapAmount -= cost;
-  
+
+  */
+
   return 1;
 }
 
@@ -295,9 +299,10 @@ DLLEXPORT int droidMove(_Droid* object, int x, int y)
   LOCK( &object->_c->mutex);
   send_string(object->_c->socket, expr.str().c_str());
   UNLOCK( &object->_c->mutex);
-  
+
   Connection* c = object->_c;
-  
+
+  /*
   // Ownership check
   if (object->owner != (getPlayerID(c) ^ (object->hackedTurnsLeft > 0)))
     return 0;
@@ -310,9 +315,9 @@ DLLEXPORT int droidMove(_Droid* object, int x, int y)
   // Check bounds
   if (x < 0 || x >= getMapWidth(c) || y < 0 || y >= getMapHeight(c))
     return 0;
-  
+
   _Tile* tile = getTile(c, x * getMapHeight(c) + y);
-  
+
   // Check collision with structures
   if (tile->health > 0 && (tile->owner != getPlayerID(c) || tile->typeToAssemble != 2))
     return 0;
@@ -322,19 +327,20 @@ DLLEXPORT int droidMove(_Droid* object, int x, int y)
   // Check distance
   if (abs(x - object->x) + abs(y - object->y) != 1)
     return 0;
-    
+
   // Check collision with droids
   for (int i = 0; i < getDroidCount(c); ++i)
   {
     if (getDroid(c, i)->x == x && getDroid(c, i)->y == y)
       return 0;
   }
-  
+
   object->x = x;
   object->y = y;
-  
+
   object->movementLeft--;
-  
+  */
+
   return 1;
 }
 
@@ -348,9 +354,11 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
   LOCK( &object->_c->mutex);
   send_string(object->_c->socket, expr.str().c_str());
   UNLOCK( &object->_c->mutex);
-  
+
   Connection* c = object->_c;
-  
+
+  /*
+
   // Check bounds
   if (x < 0 || x >= getMapWidth(c) || y < 0 || y >= getMapHeight(c))
     return 0;
@@ -366,9 +374,9 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
   // Check distance
   if (abs(x - object->x) + abs(y - object->y) > object->range)
     return 0;
-  
+
   bool attacked_droid = false;
-  
+
   // Check if attacking droid
   for (int i = 0; i < getDroidCount(c); ++i)
   {
@@ -381,12 +389,12 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
         // Check target ownership
         if (target->owner != (getPlayerID(c) ^ (target->hackedTurnsLeft > 0)))
           return 0;
-        
+
         // Repair armor
         target->armor -= object->attack;
         if (target->armor > target->maxArmor)
           target->armor = target->maxArmor;
-          
+
         // Reduce hackets
         target->hackets += object->attack;
         if (target->hackets < 0)
@@ -397,7 +405,7 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
         // Check target ownership
         if (target->owner == (getPlayerID(c) ^ (target->hackedTurnsLeft > 0)))
           return 0;
-      
+
         // Check for hacker
         if (object->variant == 3)
         {
@@ -422,21 +430,21 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
           {
             damage = object->attack;
           }
-          
+
           target->healthLeft -= damage;
         }
       }
-      
+
       attacked_droid = true;
       break;
     }
   }
-  
+
   // Attack tile
   if (!attacked_droid)
   {
     _Tile* tile = getTile(c, x * getMapHeight(c) + y);
-    
+
     // Check for hacker
     if (object->variant == 3)
       return 0;
@@ -475,9 +483,10 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
       }
     }
   }
-  
+
   object->attacksLeft--;
-  
+  */
+
   return 1;
 }
 
