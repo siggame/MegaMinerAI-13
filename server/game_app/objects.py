@@ -21,7 +21,6 @@ class Player(object):
   def toJson(self):
     return dict(id = self.id, playerName = self.playerName, time = self.time, scrapAmount = self.scrapAmount, )
 
-  #TODO Fix orbital drops to work with anything
   def nextTurn(self):
     if self.id == self.game.playerID:
       self.scrapAmount += self.game.scrapRate
@@ -32,15 +31,7 @@ class Player(object):
         #badbadbadbadbadbad I love python's hashtag comments
         self.scrapAmount = 0
 
-      # Spawn droids
-      for newDroidStats in self.assembleQueue:
-        newDroid = self.game.addObject(Droid, newDroidStats)
-        self.game.grid[newDroid.x][newDroid.y].append(newDroid)
-        self.game.grid[newDroid.x][newDroid.y][0].turnsUntilAssembled = 0
-      self.assembleQueue = []
-
       # Update orbital drops
-      # TODO: Decide whether droids are able to move onto dropzones
       for dropzone in self.dropsInProgress:
         dropzone.turnsUntilAssembled -= 1
         if dropzone.turnsUntilAssembled == 0:
@@ -48,16 +39,12 @@ class Player(object):
             # Kill droids on dropzone
             self.game.grid[dropzone.x][dropzone.y][1].health = 0
             self.game.grid[dropzone.x][dropzone.y][1].handleDeath()
-          if dropzone.typeToAssemble == 0:
-            dropzone.owner = self.id
-            dropzone.health = self.game.maxWallHealth
-          elif dropzone.typeToAssemble == 1:
-            variant = self.game.variantToModelVariant(4)
-            # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'hackedTurnsLeft', 'hackets']
-            # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'turnsToBeHacked', 'hackedTurnsLeft', 'hackets', 'hacketsMax']
-            newDroidStats = [dropzone.x, dropzone.y, self.id, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
-            newDroid = self.game.addObject(Droid, newDroidStats)
-            self.game.grid[newDroid.x][newDroid.y].append(newDroid)
+          variant = self.game.variantToModelVariant(dropzone.variantToAssemble)
+          # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'hackedTurnsLeft', 'hackets']
+          # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'turnsToBeHacked', 'hackedTurnsLeft', 'hackets', 'hacketsMax']
+          newDroidStats = [dropzone.x, dropzone.y, self.id, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+          newDroid = self.game.addObject(Droid, newDroidStats)
+          self.game.grid[newDroid.x][newDroid.y].append(newDroid)
       # Remove finished drops
       self.dropsInProgress[:] = [drop for drop in self.dropsInProgress if drop.turnsUntilAssembled != 0]
 
@@ -175,7 +162,7 @@ class Droid(Mappable):
         playerNum = 1
       self.game.objects.players[playerNum].scrapAmount += self.scrapWorth
       if self.game.objects.players[playerNum].scrapAmount > self.game.maxScrap:
-        self.game.objects.players[playerNum].scrapAmont = 0
+        self.game.objects.players[playerNum].scrapAmont = self.game.maxScrap
 
   def nextTurn(self):
     if self.owner == (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
@@ -302,7 +289,7 @@ class Droid(Mappable):
           if target.health > self.game.maxWallHealth:
             target.health = self.game.maxWallHealth
         elif target.type == 2:
-          if target.health > self.game.maxHangarHealth
+          if target.health > self.game.maxHangarHealth:
             target.health = self.game.maxHangarHealth
       elif self.attack > 0:
         target.health -= self.attack
