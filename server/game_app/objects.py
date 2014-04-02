@@ -21,7 +21,6 @@ class Player(object):
   def toJson(self):
     return dict(id = self.id, playerName = self.playerName, time = self.time, scrapAmount = self.scrapAmount, )
 
-  #TODO Fix orbital drops to work with anything
   def nextTurn(self):
     if self.id == self.game.playerID:
       self.scrapAmount += self.game.scrapRate
@@ -164,7 +163,7 @@ class Droid(Mappable):
         playerNum = 1
       self.game.objects.players[playerNum].scrapAmount += self.scrapWorth
       if self.game.objects.players[playerNum].scrapAmount > self.game.maxScrap:
-        self.game.objects.players[playerNum].scrapAmont = 0
+        self.game.objects.players[playerNum].scrapAmont = self.game.maxScrap
 
   def nextTurn(self):
     if self.owner == (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
