@@ -236,6 +236,8 @@ class Droid(Mappable):
 
     #separate this out so it makes more sense/easier to change
     hackerVariantVal = 3
+    wall = 5
+    hangar = 7
 
     #length of 2 = droid on tile
     if len(self.game.grid[x][y]) == 2:
@@ -247,7 +249,9 @@ class Droid(Mappable):
       elif self.taxiDist(self, target.x, target.y) > self.range:
         return "Turn %i: The opponent's %s is too far away from your %s."%(self.game.turnNumber, opponentName, variantName)
       elif self.attack > 0 and target.owner == (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
-       return "Turn %i: Your %s cannot attack your %s."%(self.game.turnNumber, variantName, opponentName)
+        return "Turn %i: Your %s cannot attack your %s."%(self.game.turnNumber, variantName, opponentName)
+      elif self.variant == hackerVariantVal and (target.variant == wall or target.variant == hangar):
+        return "Turn %i: You cannot hack attack a wall or hangar"%(self.game.turnNumber)
 
       if self.attack < 0:
         #heal the armor by the attack amount [attack is negative, subtracting will increase]
@@ -267,31 +271,7 @@ class Droid(Mappable):
           target.hackets = 0
 
     else:
-      target = self.game.grid[x][y][0]
-      #tile logic here
-      if self.variant == hackerVariantVal:
-        return "Turn %i: Your %s cannot attack walls."%(self.game.turnNumber, variantName)
-      elif target.health <= 0:
-        return "Turn %i: Your %s can only operate on walls or hangars."%(self.game.turnNumber, variantName)
-      elif target.owner == self.game.playerID and self.attack > 0:
-        return "Turn %i: Your %s cannot attack your own hangar."%(self.game.turnNumber, variantName)
-      elif target.owner != self.game.playerID and self.attack < 0:
-        return "Turn %i: Your %s cannot heal the opponent's hangar."%(self.game.turnNumber, variantName)
-      elif self.attack < 0:
-        # Heal the wall or hanger
-        target.health -= self.attack
-        if target.type == 0:
-          if target.health > self.game.maxWallHealth:
-            target.health = self.game.maxWallHealth
-        elif target.type == 2:
-          if target.health > self.game.maxHangarHealth:
-            target.health = self.game.maxHangarHealth
-      elif self.attack > 0:
-        target.health -= self.attack
-        if target.health <= 0:
-          target.health = 0
-          if target.type == 0: # Wall
-            target.owner = 2
+      return "Turn %i: Your %s cannot attack an empty tile."%(Self.game.turnNumber, variantName)
 
     self.attacksLeft -= 1
 
