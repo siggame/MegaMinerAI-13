@@ -181,7 +181,6 @@ class Droid(Mappable):
 
     return True
 
-  #TODO: Update move function to match new tiles
   def move(self, x, y):
     if self.owner != (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
       return 'Turn {}: You cannot use the other player\'s droid when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
@@ -193,12 +192,7 @@ class Droid(Mappable):
       return 'Turn {}: Your droid {} cannot move off the map. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif len(self.game.grid[x][y]) > 1:
       return 'Turn {}: Your droid {} is trying to run into something. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
-    tile = self.game.getTile(x, y)
-    if tile.health > 0 and (tile.owner != self.game.playerID or tile.typeToAssemble != 2):
-      return 'Turn {}: Your droid {} is trying to run into either a wall or enemy base. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
-    elif tile.turnsUntilAssembled > 0 and tile.type == 2:
-      return 'Turn {}: Your droid {} is trying to move onto a spawn tile that is spawning a droid. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
-    elif abs(self.x-x) + abs(self.y-y) != 1:
+    if abs(self.x-x) + abs(self.y-y) != 1:
       return 'Turn {}: Your droid {} can only move one unit away. ({}.{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
 
     self.game.grid[self.x][self.y].remove(self)
