@@ -88,6 +88,9 @@ class Player(object):
     tile.variantToAssemble = variant
     self.scrapAmount -= cost
 
+    #change owner
+    tile.owner = self.id
+
     self.dropsInProgress.append(tile)
 
     return True
@@ -309,13 +312,12 @@ class Tile(Mappable):
 
   def nextTurn(self):
     #Decrease Turns Until Assembled
-    if self.turnsUntilAssembled > 1:
-      self.turnsUntilAssembled -= 1
+    #if self.turnsUntilAssembled > 1:
+    #  self.turnsUntilAssembled -= 1
     #Add To Spawn List If About To Spawn
-    elif self.turnsUntilAssembled == 1:
-        #TODO: Add to spawning list
-        pass
-    return
+    #elif self.turnsUntilAssembled == 1:
+    #    pass
+    pass
 
   def __setattr__(self, name, value):
       if name in self.game_state_attributes:
