@@ -220,7 +220,6 @@ class Droid(Mappable):
     if target.health <= 0:
       target.handleDeath()
 
-  #TODO: Make sure walls and hangars cannot be hacked. Can be repaired.
   def operate(self, x, y):
     variantName = self.game.variantString[self.variant]
     #make sure valid for operating on either a droid or tile
