@@ -224,7 +224,7 @@ class Droid(Mappable):
       target.handleDeath()
 
   def operate(self, x, y):
-    variantName = self.game.variantString[self.variant]
+    variantName = self.game.variantStrings[self.variant]
     #make sure valid for operating on either a droid or tile
     if not (0 <= x < self.game.mapWidth and 0 <= y < self.game.mapHeight):
       return "Turn %i: You may only attack in-bounds."%(self.game.turnNumber)
@@ -244,7 +244,7 @@ class Droid(Mappable):
     if len(self.game.grid[x][y]) == 2:
       target = self.game.grid[x][y][1]
       #droid logic here
-      opponentName = self.game.variantString[target.variant]
+      opponentName = self.game.variantStrings[target.variant]
       if self.attack < 0 and target.owner != (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
         return "Turn %i: Your %s cannot heal your opponent's %s."%(self.game.turnNumber, variantName, opponentName)
       elif self.taxiDist(self, target.x, target.y) > self.range:
@@ -272,7 +272,7 @@ class Droid(Mappable):
           target.hackets = 0
 
     else:
-      return "Turn %i: Your %s cannot attack an empty tile."%(Self.game.turnNumber, variantName)
+      return "Turn %i: Your %s cannot operate on an empty tile."%(self.game.turnNumber, variantName)
 
     self.attacksLeft -= 1
 
