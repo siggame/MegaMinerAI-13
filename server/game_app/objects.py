@@ -180,7 +180,6 @@ class Droid(Mappable):
 
     return True
 
-  #TODO: Update move function to match new tiles
   def move(self, x, y):
     if self.owner != (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
       return 'Turn {}: You cannot use the other player\'s droid when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
