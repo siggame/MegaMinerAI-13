@@ -1,6 +1,6 @@
 from vexulizer import Vexulizer
 
-class DroidsVexulizer(object)
+class DroidsVexulizer(object):
     """
     This is the object you should use to enable the Vexulizer for REEF
     (Megaminer 13). To install, include this object by doing:
@@ -81,12 +81,12 @@ class DroidsVexulizer(object)
             return
         self.update_map(ai)
         self.vex.mark_turn(ai.getTurnNumber())
-    def breakpoint(self,ai)
+    def breakpoint(self,ai):
         if not self.enable:
             return
         self.update_map(ai)
         self.vex.breakpoint(ai.getTurnNumber())
-    def end(self,ai)
+    def end(self,ai):
         if not self.enable:
             return
         self.vex.stop_debugger()

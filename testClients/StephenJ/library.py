@@ -51,10 +51,7 @@ library.droidMove.restype = c_int
 library.droidMove.argtypes = [c_void_p, c_int, c_int]
 
 library.droidOperate.restype = c_int
-library.droidOperate.argtypes = [c_void_p, c_void_p]
-
-library.tileAssemble.restype = c_int
-library.tileAssemble.argtypes = [c_void_p, c_int]
+library.droidOperate.argtypes = [c_void_p, c_int, c_int]
 
 # accessors
 
@@ -71,9 +68,6 @@ library.getTurnNumber.argtypes = [c_void_p]
 library.getMaxDroids.restype = c_int
 library.getMaxDroids.argtypes = [c_void_p]
 
-library.getMaxWalls.restype = c_int
-library.getMaxWalls.argtypes = [c_void_p]
-
 library.getPlayerID.restype = c_int
 library.getPlayerID.argtypes = [c_void_p]
 
@@ -85,6 +79,9 @@ library.getScrapRate.argtypes = [c_void_p]
 
 library.getMaxScrap.restype = c_int
 library.getMaxScrap.argtypes = [c_void_p]
+
+library.getDropTime.restype = c_int
+library.getDropTime.argtypes = [c_void_p]
 
 library.getPlayer.restype = c_void_p
 library.getPlayer.argtypes = [c_void_p, c_int]
@@ -188,11 +185,17 @@ library.droidGetMaxArmor.argtypes = [c_void_p]
 library.droidGetScrapWorth.restype = c_int
 library.droidGetScrapWorth.argtypes = [c_void_p]
 
+library.droidGetTurnsToBeHacked.restype = c_int
+library.droidGetTurnsToBeHacked.argtypes = [c_void_p]
+
 library.droidGetHackedTurnsLeft.restype = c_int
 library.droidGetHackedTurnsLeft.argtypes = [c_void_p]
 
 library.droidGetHackets.restype = c_int
 library.droidGetHackets.argtypes = [c_void_p]
+
+library.droidGetHacketsMax.restype = c_int
+library.droidGetHacketsMax.argtypes = [c_void_p]
 
 library.tileGetId.restype = c_int
 library.tileGetId.argtypes = [c_void_p]
@@ -209,11 +212,8 @@ library.tileGetOwner.argtypes = [c_void_p]
 library.tileGetTurnsUntilAssembled.restype = c_int
 library.tileGetTurnsUntilAssembled.argtypes = [c_void_p]
 
-library.tileGetScrapAmount.restype = c_int
-library.tileGetScrapAmount.argtypes = [c_void_p]
-
-library.tileGetHealth.restype = c_int
-library.tileGetHealth.argtypes = [c_void_p]
+library.tileGetVariantToAssemble.restype = c_int
+library.tileGetVariantToAssemble.argtypes = [c_void_p]
 
 library.modelVariantGetId.restype = c_int
 library.modelVariantGetId.argtypes = [c_void_p]
@@ -247,6 +247,12 @@ library.modelVariantGetMaxArmor.argtypes = [c_void_p]
 
 library.modelVariantGetScrapWorth.restype = c_int
 library.modelVariantGetScrapWorth.argtypes = [c_void_p]
+
+library.modelVariantGetTurnsToBeHacked.restype = c_int
+library.modelVariantGetTurnsToBeHacked.argtypes = [c_void_p]
+
+library.modelVariantGetHacketsMax.restype = c_int
+library.modelVariantGetHacketsMax.argtypes = [c_void_p]
 
 
 #Properties

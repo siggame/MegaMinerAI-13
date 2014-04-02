@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from Queue import Empty
 import traceback
 
-from vexulizer import Vexulizer
+import vexulizer
 from colors import ScreenColors 
 
 UNIT_KEY_BLACKLIST = ['v']
@@ -86,8 +86,8 @@ class AsyncCursesScreen(object):
         except:
             curses.endwin()
             #Restore the real stderr and stdout?
-            sys.stderr = Vexulizer.rstderr
-            sys.stdout = Vexulizer.rstdout
+            sys.stderr = vexulizer.Vexulizer.rstderr
+            sys.stdout = vexulizer.Vexulizer.rstdout
             print "Something went terribly wrong! Is your terminal wide enough?"
             print traceback.format_exc()
             sys.stdout.flush()

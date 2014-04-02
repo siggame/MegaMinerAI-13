@@ -70,11 +70,6 @@ class BaseAI:
   #\endcond
   maxDroids = property(getMaxDroids)
   #\cond
-  def getMaxWalls(self):
-    return library.getMaxWalls(self.connection)
-  #\endcond
-  maxWalls = property(getMaxWalls)
-  #\cond
   def getPlayerID(self):
     return library.getPlayerID(self.connection)
   #\endcond
@@ -94,5 +89,10 @@ class BaseAI:
     return library.getMaxScrap(self.connection)
   #\endcond
   maxScrap = property(getMaxScrap)
+  #\cond
+  def getDropTime(self):
+    return library.getDropTime(self.connection)
+  #\endcond
+  dropTime = property(getDropTime)
   def __init__(self, connection):
     self.connection = connection
