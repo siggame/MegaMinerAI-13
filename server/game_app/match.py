@@ -93,14 +93,14 @@ class Match(DefaultGameWorld):
     for y in range(centerY-hangarSize/2, centerY+hangarSize/2):
       #Player 1
       for x in range(centerX-hangarSize/2, centerX+hangarSize/2):
-        #newDroidStats = [x, y, 0, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
-        newDroidStats= [x,y, 0, 7, 0, 0, 200, 200, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0]
+        newDroidStats = [x, y, 0, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        #newDroidStats= [x,y, 0, 7, 0, 0, 200, 200, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0]
         newDroid = self.addObject(Droid, newDroidStats)
         self.grid[x][y].append(newDroid)
       #Player 2
       for x in range(self.mapWidth-(centerX+hangarSize/2)+1, self.mapWidth-(centerX-hangarSize/2)+1):
-        #newDroidStats = [x, y, 1, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
-        newDroidStats = [x,y, 1, 7, 0, 0, 200, 200, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0]
+        newDroidStats = [x, y, 1, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        #newDroidStats = [x,y, 1, 7, 0, 0, 200, 200, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0]
         newDroid = self.addObject(Droid, newDroidStats)
         self.grid[x][y].append(newDroid)
 

@@ -160,8 +160,6 @@ class Droid(Mappable):
 
   def handleDeath(self):
     if self.healthLeft <= 0:
-      self.game.grid[self.x][self.y].remove(self)
-      self.game.removeObject(self)
       # Transfer scrap
       if self.x < self.game.mapWidth / 2:
         playerNum = 0
@@ -170,6 +168,8 @@ class Droid(Mappable):
       self.game.objects.players[playerNum].scrapAmount += self.scrapWorth
       if self.game.objects.players[playerNum].scrapAmount > self.game.maxScrap:
         self.game.objects.players[playerNum].scrapAmont = self.game.maxScrap
+      self.game.grid[self.x][self.y].remove(self)
+      self.game.removeObject(self)
 
   def nextTurn(self):
     if self.owner == (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
