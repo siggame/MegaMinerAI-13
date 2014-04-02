@@ -20,7 +20,8 @@ class Player(object):
   # This will not work if the object has variables other than primitives
   def toJson(self):
     return dict(id = self.id, playerName = self.playerName, time = self.time, scrapAmount = self.scrapAmount, )
-  
+
+  #TODO Fix orbital drops to work with anything
   def nextTurn(self):
     if self.id == self.game.playerID:
       self.scrapAmount += self.game.scrapRate
