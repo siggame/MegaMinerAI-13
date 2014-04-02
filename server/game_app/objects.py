@@ -22,6 +22,10 @@ class Player(object):
     return dict(id = self.id, playerName = self.playerName, time = self.time, scrapAmount = self.scrapAmount, )
 
   def nextTurn(self):
+    #give scrap on first turn; wasn't working in startGame
+    if self.game.turnNumber == 0:
+      self.scrapAmount = self.game.maxScrap/2
+
     if self.id == self.game.playerID:
       self.scrapAmount += self.game.scrapRate
 
