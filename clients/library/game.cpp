@@ -253,16 +253,14 @@ DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int variant)
 
   Connection* c = object->_c;
 
-  /*
-
   // Check bounds
   if (x < 0 || x >= getMapWidth(c) || y < 0 || y >= getMapHeight(c))
     return 0;
   // Check drop type
-  if (type != 0 && type != 1)
+  if (variant < 0 || variant > 7)
     return 0;
 
-  int cost = type == 0 ? getWallCost(c) : getModelVariant(c, 4)->cost;
+  int cost = getModelVariant(c, variant)->cost;
 
   // Check cost
   if (getPlayer(c, getPlayerID(c))->scrapAmount < cost)
@@ -270,19 +268,16 @@ DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int variant)
 
   _Tile* tile = getTile(c, x * getMapHeight(c) + y);
 
-  if (tile->health > 0)
-    return 0;
   if (tile->turnsUntilAssembled > 0)
     return 0;
 
   int xoff = getPlayerID(c) ? getMapWidth(c) : -1;
 
   tile->turnsUntilAssembled = abs(xoff - x) * getDropTime(c);
-  tile->typeToAssemble = type;
+  tile->variantToAssemble = variant;
+  tile->owner = getPlayerID(c);
 
   getPlayer(c, getPlayerID(c))->scrapAmount -= cost;
-
-  */
 
   return 1;
 }
@@ -302,7 +297,6 @@ DLLEXPORT int droidMove(_Droid* object, int x, int y)
 
   Connection* c = object->_c;
 
-  /*
   // Ownership check
   if (object->owner != (getPlayerID(c) ^ (object->hackedTurnsLeft > 0)))
     return 0;
@@ -318,12 +312,6 @@ DLLEXPORT int droidMove(_Droid* object, int x, int y)
 
   _Tile* tile = getTile(c, x * getMapHeight(c) + y);
 
-  // Check collision with structures
-  if (tile->health > 0 && (tile->owner != getPlayerID(c) || tile->typeToAssemble != 2))
-    return 0;
-  // Check collision with assembling droids
-  if (tile->turnsUntilAssembled > 0 && tile->typeToAssemble == 2)
-    return 0;
   // Check distance
   if (abs(x - object->x) + abs(y - object->y) != 1)
     return 0;
@@ -339,7 +327,6 @@ DLLEXPORT int droidMove(_Droid* object, int x, int y)
   object->y = y;
 
   object->movementLeft--;
-  */
 
   return 1;
 }
@@ -357,7 +344,6 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
 
   Connection* c = object->_c;
 
-  /*
 
   // Check bounds
   if (x < 0 || x >= getMapWidth(c) || y < 0 || y >= getMapHeight(c))
@@ -410,7 +396,7 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
         if (object->variant == 3)
         {
           target->hackets += object->attack;
-          if (target->hackets > target->maxHackets)
+          if (target->hackets > target->hacketsMax)
           {
             target->hackedTurnsLeft = target->turnsToBeHacked;
             target->hackets = 0;
@@ -440,53 +426,7 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
     }
   }
 
-  // Attack tile
-  if (!attacked_droid)
-  {
-    _Tile* tile = getTile(c, x * getMapHeight(c) + y);
-
-    // Check for hacker
-    if (object->variant == 3)
-      return 0;
-    // Check for structure
-    if (tile->health <= 0)
-      return 0;
-    // Check for heal
-    if (object->attack < 0)
-    {
-      // Check target ownership
-      if (target->owner != (getPlayerID(c) ^ (target->hackedTurnsLeft > 0)))
-        return 0;
-      target->health -= object->attack;
-      if (target->typeToAssemble == 0)
-      {
-        if (target->health > getMaxWallHealth(c))
-          target->health = getMaxWallHealth(c);
-      }
-      else
-      {
-        if (target->health > getMaxHangarHealth(c))
-          target->health = getMaxHangarHealth(c);
-      }
-    }
-    else
-    {
-      // Check target ownership
-      if (target->owner == (getPlayerID(c) ^ (target->hackedTurnsLeft > 0)))
-        return 0;
-      target->health -= object->attack;
-      if (target->health <= 0)
-      {
-        target->health = 0;
-        if (target->typeToAssemble == 0)
-          target->owner = 2;
-      }
-    }
-  }
-
   object->attacksLeft--;
-  */
-
   return 1;
 }
 
