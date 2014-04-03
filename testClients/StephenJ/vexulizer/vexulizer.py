@@ -35,18 +35,9 @@ class Vexulizer(object):
         self.locq = Queue()
         #: A boolean to indicate that the curses screen is active and has
         #: not crashed
-        self.running = Value('b',True)
-        screen = AsyncCursesScreen(mapheight,mapwidth)
-        #: The process spawned for curses
-        self.proc = Process(target=screen.start, args=(self.locq,self.running))
-        #: The buffer which will capture stdout contents
-        self.buff = DebugBuffer(self.locq,self.running,sys.stdout)
-        #: The buffer which will capture stderr contents
-        self.errbuff = DebugBuffer(self.locq,self.running,sys.stderr)
-        self.proc.start()
-        sys.stdout = self.buff
-        sys.stderr = self.errbuff
-    
+        self.mapwidth = mapwidth
+        self.mapheight = mapheight    
+
     def stop_debugger(self):
         """
         This function will end the debugger by putting a halt token in to the
@@ -57,6 +48,19 @@ class Vexulizer(object):
         tokens, because a non-empty queue causes a nasty hang on exit. Lastly,
         stdout and stderr are restored.
         """
+   
+        self.running = Value('b',True)
+        screen = AsyncCursesScreen(self.mapheight,self.mapwidth)
+        #: The process spawned for curses
+        self.proc = Process(target=screen.start, args=(self.locq,self.running))
+        #: The buffer which will capture stdout contents
+        self.buff = DebugBuffer(self.locq,self.running,sys.stdout)
+        #: The buffer which will capture stderr contents
+        self.errbuff = DebugBuffer(self.locq,self.running,sys.stderr)
+        self.proc.start()
+        sys.stdout = self.buff
+        sys.stderr = self.errbuff
+
         self.locq.put(('halt',''),False)
         if not self.running.value:
             self.proc.terminate()

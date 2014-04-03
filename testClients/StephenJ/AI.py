@@ -63,20 +63,27 @@ class AI(BaseAI):
   def attack_set(self, unit, targets):
     starting_attacks = unit.getAttacksLeft()
     if len(targets) > 0 and unit.getAttacksLeft() > 0:
-        targets = filter(lambda x: x.getHealthLeft() > 0 and self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) < unit.getRange(), targets) 
+        targets = filter(lambda x: x.getHealthLeft() > 0 and self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) <= unit.getRange(), targets) 
         if len(targets) > 0:
-            closest = min(targets, key=lambda x: self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) )
-            unit.operate(closest.getX(), closest.getY()) 
-            #assert unit.getAttacksLeft() < starting_attacks
+            targs = sorted(targets, key=lambda x: self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) )
+            print "{} units in range".format(len(targs))
+            for enemy in targs:
+                if unit.getAttacksLeft() == 0:
+                    break
+                print "DOING ATTACK ON ({},{})".format(enemy.getX(),enemy.getY())
+                unit.operate(enemy.getX(), enemy.getY())
             return True
     return False
 
-  def follow_path(self, unit, path, fight=True):
-    if path[0] == (unit.getX(), unit.getY()):
-        path.pop(0)
-    else:
-        print "Path doesn't start with unit location!"
-        return
+  def follow_path(self, unit, path, pop_last=True):
+    if len(path) >= 2:
+        if path[0] == (unit.getX(), unit.getY()):
+            path.pop(0)
+        else:
+            print "Path doesn't start with locatio"
+            return
+        if pop_last:
+            path.pop()
     if len(path) > 1: # Assuming you can't move onto your target
         for step in path:
             if unit.getMovementLeft() <= 0:
@@ -86,8 +93,8 @@ class AI(BaseAI):
                 print "Distance is {}".format(d)
                 break
             unit.move(step[0],step[1])
-            self.attack_set(unit, self.enemycontrol + self.enemybases)
-    self.attack_set(unit, self.enemycontrol + self.enemybases)
+            #self.attack_set(unit, self.enemycontrol + self.enemybases)
+    #self.attack_set(unit, self.enemycontrol + self.enemybases)
 
   def update_state(self):
     # Player objects
@@ -299,7 +306,7 @@ class AI(BaseAI):
             break
         self.update_state()
     
-    print "Attacking"  
+    print "Attacking" 
     regular_targets =  self.enemycontrol + self.enemybases
     for unit in self.mycontrol:
         self.attack_set(unit, regular_targets)

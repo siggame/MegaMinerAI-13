@@ -225,9 +225,9 @@ class Droid(Mappable):
     else:
       damage = attacker.attack
 
-    target.health -= damage
+    target.healthLeft -= damage
     #handle death
-    if target.health <= 0:
+    if target.healthLeft <= 0:
       target.handleDeath()
 
   def operate(self, x, y):
