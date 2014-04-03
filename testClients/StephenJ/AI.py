@@ -60,42 +60,113 @@ class AI(BaseAI):
   def distance(self, c1, c2):
     return abs(c1[0]-c2[0])+abs(c1[1]-c2[1])
 
+  def engineer_behavior(self, units):
+    if len(units) == 0:
+        return
+
+    healing_targets = filter(lambda x: x.getHealthLeft() < x.getMaxHealth(), self.mydroids_g)
+    hacking_targets = filter(lambda x: x.getHackets() > 0, self.mydroids_g) 
+    
+    self.engage_objectives(units, healing_targets, hacking_targets, within=units[0].getRange())
+
+  def unit_focused_behavior(self, units):
+    if len(units) == 0:
+        return
+
+    primary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemydroids)
+    secondary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemybases) 
+    
+    self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange())
+    
+  def base_focused_behavior(self, units):
+    if len(units) == 0:
+        return
+
+    primary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemybases) 
+    secondary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemydroids)
+    
+    self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange())
+ 
+  def defense_focused_behavior(self, units):
+    if len(units) == 0:
+        return
+    
+    primary_targets = filter(lambda x: x.getHealthLeft() > 0 and
+        x.getX() >= self.myhalf[0] and
+        x.getX() <= self.myhalf[1], self.enemydroids)
+    secondary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemydroids)
+
+    self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange()) 
+
+  def engage_objectives(self, units, primary, secondary, within=1):
+    tomove = {}
+    if len(primary) == 0:
+        primary = secondary
+        secondary = []
+
+    for unit in units:
+        if unit.getMovementLeft() <= 0:
+            continue
+        tomove[unit.getId()] = unit
+    
+    while len(tomove) > 0:
+        starts = [ (unit.getX(), unit.getY()) for (_,unit) in tomove.iteritems() ]
+        ends = [ (unit.getX(), unit.getY()) for unit in primary ]
+        p = self.sea.get_path(starts,ends)
+        if len(p) > 0:
+            unit = self.unitsxy[p[0]]
+            self.follow_path(unit,p,primary+secondary,within)
+            tomove.pop(unit.getId(),None)
+        else:
+            # No unit can reach an objective
+            break
+    for unit in units:
+        self.attack_set(unit, primary)
+        self.attack_set(unit, secondary)
+    self.update_state()
+  
+  def follow_path(self, unit, path, operables, within):
+    if len(path) == 0:
+        return
+    if path[0] == (unit.getX(), unit.getY()):
+        path.pop(0)
+    else:
+        print "Path doesn't start with locatio"
+        return
+    for i in range(within):
+        if len(path) == 0:
+            return
+        path.pop()
+    for step in path:
+        if unit.getMovementLeft() <= 0:
+            break
+        d = self.distance(step,(unit.getX(),unit.getY()))
+        if d != 1:
+            print "Distance is {}".format(d)
+            break
+        unit.move(step[0],step[1])
+        self.attack_set(unit,operables)
+
   def attack_set(self, unit, targets):
     starting_attacks = unit.getAttacksLeft()
-    if len(targets) > 0 and unit.getAttacksLeft() > 0:
-        targets = filter(lambda x: x.getHealthLeft() > 0 and self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) <= unit.getRange(), targets) 
-        if len(targets) > 0:
-            targs = sorted(targets, key=lambda x: self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) )
-            print "{} units in range".format(len(targs))
-            for enemy in targs:
-                if unit.getAttacksLeft() == 0:
-                    break
-                print "DOING ATTACK ON ({},{})".format(enemy.getX(),enemy.getY())
-                unit.operate(enemy.getX(), enemy.getY())
-            return True
-    return False
-
-  def follow_path(self, unit, path, pop_last=True):
-    if len(path) >= 2:
-        if path[0] == (unit.getX(), unit.getY()):
-            path.pop(0)
-        else:
-            print "Path doesn't start with locatio"
+    if len(targets) == 0:
+        return
+    if unit.getAttacksLeft() == 0:
+        return
+    targets = filter(lambda x: x.getHealthLeft() > 0 and
+        self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) <= unit.getRange(), targets) 
+    if len(targets) == 0:
+        return
+    targs = sorted(targets, key=lambda x: self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) )
+    while unit.getAttacksLeft() > 0:
+        result = 0
+        for enemy in targs:
+            if unit.getAttacksLeft() == 0:
+                break
+            result += int(unit.operate(enemy.getX(), enemy.getY()))
+        if not result:
             return
-        if pop_last:
-            path.pop()
-    if len(path) > 1: # Assuming you can't move onto your target
-        for step in path:
-            if unit.getMovementLeft() <= 0:
-                break
-            d = self.distance(step,(unit.getX(),unit.getY()))
-            if d != 1:
-                print "Distance is {}".format(d)
-                break
-            unit.move(step[0],step[1])
-            #self.attack_set(unit, self.enemycontrol + self.enemybases)
-    #self.attack_set(unit, self.enemycontrol + self.enemybases)
-
+  
   def update_state(self):
     # Player objects
     self.me = [ x for x in self.players if x.getId() == self.getPlayerID() ][0]
@@ -104,6 +175,11 @@ class AI(BaseAI):
     self.enemyid = self.enemy.getId()
     assert self.myid != self.enemyid
     
+    if self.myid == 0:
+        self.myhalf = (0,self.getMapWidth()/2)
+    else:
+        self.myhalf = (self.getMapWidth()/2+1,self.getMapWidth())
+
     # My Droids
     self.mydroids = [ x for x in self.droids if x.getOwner() == self.myid
         and x.getHealthLeft() > 0 ]
@@ -264,15 +340,20 @@ class AI(BaseAI):
 
     print "Spawning Units"
     self.building = set()
-    no_spawn = [ UNIT_HANGAR, UNIT_ENGINEER, UNIT_HACKER ]
-    while self.me.getScrapAmount() >= min([ variant.getCost() for variant in self.modelVariants if variant.getVariant() not in no_spawn]):
+    no_spawn = [ UNIT_HANGAR, UNIT_ENGINEER, UNIT_HACKER, UNIT_WALL ]
+    spawnpts = list(self.opentiles)
+    if self.myid != 0:
+        spawnpts.reverse()
+    cheapest_variant = min([ variant.getCost() for variant in self.modelVariants
+        if variant.getVariant() not in no_spawn])
+    while self.me.getScrapAmount() >= cheapest_variant:
         #Simple AI, pick a unit type, (Other than hangar), and drop those
         for variant in self.modelVariants:
             if variant.getVariant() in no_spawn:
                 continue
             if variant.getCost() > self.me.getScrapAmount():
                 continue
-            for tile in self.opentiles:
+            for tile in spawnpts:
                 if (tile.getX(), tile.getY()) in self.unitsxy:
                     continue
                 if (tile.getX(), tile.getY()) in self.building:
@@ -285,33 +366,32 @@ class AI(BaseAI):
                 break
 
     self.update_state()
-
-    print "Moving Units"
-    #Have all your units go after the enemy base
-    tomove = {}
-    for unit in self.mycontrol:
-        if unit.getMovementLeft() <= 0:
-            continue
-        tomove[unit.getId()] = unit
-
-    while len(tomove) > 0:
-        starts = [ (unit.getX(), unit.getY()) for (_,unit) in tomove.iteritems() ]
-        ends = [ (unit.getX(), unit.getY()) for unit in self.enemycontrol + self.enemybases ]
-        p = self.sea.get_path(starts,ends)
-        if len(p) > 0:
-            unit = self.unitsxy[p[0]]
-            self.follow_path(unit,p)
-            tomove.pop(unit.getId(),None)
-        else:
-            break
-        self.update_state()
     
-    print "Attacking" 
-    regular_targets =  self.enemycontrol + self.enemybases
-    for unit in self.mycontrol:
-        self.attack_set(unit, regular_targets)
-       
-      
+    """
+    UNIT_CLAW = 0
+    UNIT_ARCHER = 1 
+    UNIT_ENGINEER = 2
+    UNIT_HACKER = 3
+    UNIT_TURRET = 4 # This is a unit type?
+    UNIT_WALL = 5
+    UNIT_TERMINATOR = 6 
+    UNIT_HANGAR = 7
+    """
+ 
+    hackers = filter(lambda x: x.getVariant() == UNIT_HACKER, self.mycontrol)
+    engineers = filter(lambda x: x.getVariant() == UNIT_ENGINEER, self.mycontrol)
+    claws = filter(lambda x: x.getVariant() == UNIT_CLAW, self.mycontrol)
+    archers = filter(lambda x: x.getVariant() == UNIT_ARCHER, self.mycontrol)
+    turrets = filter(lambda x: x.getVariant() == UNIT_TURRET, self.mycontrol)
+    terminators = filter(lambda x: x.getVariant() == UNIT_TERMINATOR, self.mycontrol)
+
+    self.engineer_behavior(engineers)
+    self.unit_focused_behavior(claws)
+    self.defense_focused_behavior(archers)
+    self.unit_focused_behavior(terminators)
+    self.unit_focused_behavior(hackers)
+    self.unit_focused_behavior(turrets)
+
     print "Finished"
     return 1
 
