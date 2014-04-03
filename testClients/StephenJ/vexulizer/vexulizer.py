@@ -33,6 +33,7 @@ class Vexulizer(object):
         """
         #: The the multiprocess queue used to deliver tokens to curses
         self.locq = Queue()
+        self.fakeq = []
         #: A boolean to indicate that the curses screen is active and has
         #: not crashed
         self.mapwidth = mapwidth
@@ -60,7 +61,8 @@ class Vexulizer(object):
         self.proc.start()
         sys.stdout = self.buff
         sys.stderr = self.errbuff
-
+        for item in self.fakeq:
+            self.locq.put(item)
         self.locq.put(('halt',''),False)
         if not self.running.value:
             self.proc.terminate()
@@ -83,17 +85,17 @@ class Vexulizer(object):
         """
         Function to transport the units token to the curses screen.
         """
-        self.locq.put(('units',units))
+        self.fakeq.append(('units',units))
     
     def mark_turn(self, turn):
-        self.locq.put(('snapshot',turn))
+        self.fakeq.append(('snapshot',turn))
 
-    def print_debug(self, string):
+    def debug(self, string):
         """
         Function to directly access the print function of the curses screen
         without routing through the debug buffers.
         """
-        self.locq.put(('debug',string))
+        self.fakeq.append(('debug',string))
 
 class DebugBuffer(StringIO):
     """
