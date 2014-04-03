@@ -100,10 +100,14 @@ class Seastar(object):
         Given a list of x,y tuples and a layer mask, add obstacles to those
         layers.
         """
-        for (x,y) in obstacles:
+        for (x,y) in lst:
             index = x + y * self.map_width
             self.obstacles[index] = self.obstacles[index] | layer
         self.c_obstacles_dirty = True
+
+    def add_mappables(self, lst, layer):
+        lst = [ (item.getX(), item.getY()) for item in lst ]
+        self.add_obstacles(lst, layer)
 
     def get_path(self, starts, ends):
         """

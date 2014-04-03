@@ -32,12 +32,13 @@ class AI(BaseAI):
   ##This function is called once, before your first turn
   def init(self):
     self.sea = Seastar(self.getMapWidth(),self.getMapHeight())
-    self.vex = DroidsVexulizer(self)
+    self.vex = DroidsVexulizer(self,True)
     self.building = set()
     pass
 
   ##This function is called once, after your last turn
   def end(self):
+    self.vex.end(self)    
     pass
 
   def validate(self):
@@ -46,10 +47,12 @@ class AI(BaseAI):
         assert droid.getHealthLeft() <= droid.getMaxHealth()
         assert droid.getMovementLeft() <= droid.getMaxMovement()
         assert droid.getArmor() <= droid.getMaxArmor()
-        assert droid.getAttacksLeft() <= droid.GetAttacks()
-        
+        assert droid.getAttacksLeft() <= droid.getMaxAttacks()
+        assert droid.getMovementLeft() >= 0
+        assert droid.getAttacksLeft() >= 0        
+
     for tile in self.tiles:
-        assert tile.getScrapAmount() > 0
+        #assert tile.getScrapAmount() > 0
         assert tile.getTurnsUntilAssembled() >= 0
         assert (tile.getOwner() == NEUTRAL_PLAYER and tile.getTurnsUntilAssembled() == 0) \
             or tile.owner != NEUTRAL_PLAYER
@@ -59,11 +62,11 @@ class AI(BaseAI):
 
   def attack_set(self, unit, targets):
     starting_attacks = unit.getAttacksLeft()
-    if len(targets) > 0 and unit.GetAttacksLeft() > 0:
-        targets = filter(lambda x: x.getHealthLeft() > 0 and self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) < unit.getRange(), self.targets) 
+    if len(targets) > 0 and unit.getAttacksLeft() > 0:
+        targets = filter(lambda x: x.getHealthLeft() > 0 and self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) < unit.getRange(), targets) 
         if len(targets) > 0:
             closest = min(targets, key=lambda x: self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) )
-            unit.operate(closest) 
+            unit.operate(closest.getX(), closest.getY()) 
             assert unit.getAttacksLeft() < starting_attacks
             return True
     return False
@@ -71,7 +74,7 @@ class AI(BaseAI):
   def follow_path(self, unit, path, fight=True):
     if len(path) > 1: # Assuming you can't move onto your target
         for step in path:
-            if unit.GetMovementLeft() == 0:
+            if unit.getMovementLeft() <= 0:
                 break
             if self.distance(step,(unit.getX(),unit.getY())) != 1:
                 break
@@ -85,12 +88,12 @@ class AI(BaseAI):
     self.me = [ x for x in self.players if x.getId() == self.getPlayerID() ][0]
     self.myid = self.getPlayerID()
     self.enemy = [ x for x in self.players if x.getId() != self.getPlayerID()][0]
-    self.enemyid = enemy.getId()
-    assert myid != enemyid
+    self.enemyid = self.enemy.getId()
+    assert self.myid != self.enemyid
     
     # My Droids
     self.mydroids = [ x for x in self.droids if x.getOwner() == self.myid
-        and x.getCurrentHealth() > 0 ]
+        and x.getHealthLeft() > 0 ]
 
     gf = lambda x: x.getHackedTurnsLeft() == 0
     hf = lambda x: x.getHackedTurnsLeft() > 0
@@ -101,7 +104,7 @@ class AI(BaseAI):
    
     # Enemy Droids
     self.enemydroids = set([ x for x in self.droids if x.getOwner() == self.enemyid
-        and x.getCurrentHealth() > 0])
+        and x.getHealthLeft() > 0])
 
     # Droids filter on hacked ness
     self.enemydroids_g = filter(gf, self.enemydroids)
@@ -121,8 +124,8 @@ class AI(BaseAI):
     self.myhackables = filter(hf, self.mydroids)
 
     # Tiles
-    self.mytiles = [ x for x in self.tiles if x.getOwner() == myid ]
-    self.enemytiles = [ x for x in self.tiles if x.getOwner() == enemyid ]
+    self.mytiles = [ x for x in self.tiles if x.getOwner() == self.myid ]
+    self.enemytiles = [ x for x in self.tiles if x.getOwner() == self.enemyid ]
 
     #Hangar Units
     wf = lambda x: x.getVariant() == UNIT_HANGAR
@@ -196,8 +199,8 @@ class AI(BaseAI):
     self.sea.reset_obstacles()
     
     # Seastar: Add layers
-    self.sea.add_mappables(self.mycontrol, layers['MY_DROIDS'])
-    self.sea.add_mappables(self.enemycontrol, layers['ENEMY_DROIDS'])    
+    self.sea.add_mappables(self.mycontrol, layers['MY_CONTROL'])
+    self.sea.add_mappables(self.enemycontrol, layers['ENEMY_CONTROL'])    
     self.sea.add_mappables(self.nexttiles, layers['DROP_NEXT'])    
     self.sea.add_mappables(self.enemywalls, layers['ENEMY_WALLS'])    
     self.sea.add_mappables(self.mywalls, layers['MY_WALLS'])    
@@ -213,36 +216,48 @@ class AI(BaseAI):
   ##This function is called each time it is your turn
   ##Return true to end your turn, return false to ask the server for updated information
   def run(self):
-    update_state()
+    self.update_state()
+
+    print "Turn {}".format(self.getTurnNumber())
 
     # Mappables
+    """
+    REPORTED AS BUG 25
     assert len(self.mappables) > 0 # This was a problem in reef
+    """
 
     # Before we start, check some stuff out, then continue.
-    validate()    
+    self.validate()    
 
-    if True:
+    if False:
+        """
+        WORKING AT 3:26 4/2/2014
+        """
         initial_scrap = self.me.getScrapAmount()
         # Validate that you can't spawn where another unit curently dropping
         for tile in self.droppingtiles:
-            self.me.orbitalDrop(tile.getX(), tile.getY(), self.modelVariants[0].getId())
+            self.me.orbitalDrop(tile.getX(), tile.getY(), self.modelVariants[0].getVariant())
             assert initial_scrap == self.me.getScrapAmount()
-            assert tile.getTurnsUntilAssembled == 0
+            #assert tile.getTurnsUntilAssembled == 0
     
-    if True:
+    """
+    Reported in #20
+    if False:
         #Validate you can't drop base tiles
         for tile in self.opentiles:
             self.me.orbitalDrop(tile.getX(), tile.getY(), UNIT_HANGAR)
             assert tile.getTurnsUntilAssembled == 0
+    """
 
+    print "Spawning Units"
     self.building = set()
-    while self.me.getScrapAmount() >= min([ variant.getCost() for variant in self.modelVariants ]):
-        initial_scrap = self.me.getScrapAmount()
+    scrap = self.me.getScrapAmount()
+    while scrap >= min([ variant.getCost() for variant in self.modelVariants if variant.getVariant() != UNIT_HANGAR]):
         #Simple AI, pick a unit type, (Other than hangar), and drop those
         for variant in self.modelVariants:
             if variant.getVariant() == UNIT_HANGAR:
                 continue
-            if variant.getCost() > self.me.getScrapAmount():
+            if variant.getCost() > scrap:
                 continue
             for tile in self.opentiles:
                 if (tile.getX(), tile.getY()) in self.unitsxy:
@@ -250,16 +265,24 @@ class AI(BaseAI):
                 if (tile.getX(), tile.getY()) in self.building:
                     continue
                 #If we've made it this far, we can spawn the variant
+                initial_scrap = self.me.getScrapAmount()
+                scrap -= variant.getCost()
                 self.me.orbitalDrop(tile.getX(), tile.getY(), variant.getVariant())
                 self.building.add( (tile.getX(), tile.getY()) )
+                """
+                Reported as 27
                 assert initial_scrap > self.me.getScrapAmount()
+                """
                 break
 
-    update_state()
+    self.update_state()
 
+    print "Moving Units"
     #Have all your units go after the enemy base
     tomove = {}
     for unit in self.mycontrol:
+        #if unit.getMovementLeft() <= 0:
+        #    continue
         tomove[unit.getId()] = unit
 
     while len(tomove) > 0:
@@ -267,15 +290,20 @@ class AI(BaseAI):
         ends = [ (unit.getX(), unit.getY()) for unit in self.enemycontrol + self.enemybases ]
         p = self.sea.get_path(starts,ends)
         if len(p) > 0:
-            self.follow_path(unit,path)
-        tomove.pop(unit.getId(),None)
-        update_state()
-  
+            unit = self.unitsxy[p[0]]
+            tomove.pop(unit.getId(),None)
+            self.follow_path(unit,p)
+        else:
+            break
+        self.update_state()
+    
+    print "Attacking"  
     regular_targets =  self.enemycontrol + self.enemybases
     for unit in self.mycontrol:
         while self.attack_set(unit, regular_targets):
             pass
       
+    print "Finished"
     return 1
 
   def __init__(self, conn):

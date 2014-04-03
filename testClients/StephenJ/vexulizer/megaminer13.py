@@ -34,7 +34,7 @@ class DroidsVexulizer(object):
         if not self.enable:
             return
         #: The underlying vexulizer
-        self.vex = Vexulizer(ai.getMapWidth(),ai.getMapHeight(),COLOR_PROFILE)
+        self.vex = Vexulizer(ai.getMapWidth(),ai.getMapHeight())
     def update_map(self,ai):
         if not self.enable:
             return
@@ -47,20 +47,27 @@ class DroidsVexulizer(object):
                    2: 'R',
                    3: 'H',
                    4: 'T',
-                   5: 'S'}
-            
+                   5: 'W',
+                   6: 'E',
+                   7: 'H'}
 
-        for droid in ai.mydroids:
+        for droid in ai.droids:
             if droid.owner == ai.myid:
-                if droid.getHackedTurnsLeft() > 0:
+                if droid.getVariant() == 7:
+                    color = "MY_COLOR_HANGAR" 
+                elif droid.getHackedTurnsLeft() > 0:
                     color = "MY_COLOR_HACKED"
                 else:
                     color = "MY_COLOR"
             else:
-                if droid.getHackedTurnsLeft() > 0:
+                if droid.getVariant() == 7:
+                    color = "ENEMY_COLOR_HANGAR"
+                elif droid.getHackedTurnsLeft() > 0:
                     color = "ENEMY_COLOR_HACKED"
                 else:
                     color = "ENEMY_COLOR"
+            if droid.getVariant() == 7:
+                color = "WALL_COLOR"
 
             package.append({
                 'x':droid.getX(),
@@ -73,8 +80,8 @@ class DroidsVexulizer(object):
                 'movementLeft': droid.getMovementLeft(),
                 'hackedUntil': droid.getHackedTurnsLeft(),
                 'hackets': droid.getHackets(),
-                'v': (variant[droid.getVariant], color)})
-        v.update_units(package)
+                'v': (variant[droid.getVariant()], color)})
+        self.vex.update_units(package)
 
     def snapshot(self,ai):
         if not self.enable:
