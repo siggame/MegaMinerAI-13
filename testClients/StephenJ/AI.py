@@ -67,21 +67,27 @@ class AI(BaseAI):
         if len(targets) > 0:
             closest = min(targets, key=lambda x: self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) )
             unit.operate(closest.getX(), closest.getY()) 
-            assert unit.getAttacksLeft() < starting_attacks
+            #assert unit.getAttacksLeft() < starting_attacks
             return True
     return False
 
   def follow_path(self, unit, path, fight=True):
+    if path[0] == (unit.getX(), unit.getY()):
+        path.pop(0)
+    else:
+        print "Path doesn't start with unit location!"
+        return
     if len(path) > 1: # Assuming you can't move onto your target
         for step in path:
             if unit.getMovementLeft() <= 0:
                 break
-            if self.distance(step,(unit.getX(),unit.getY())) != 1:
+            d = self.distance(step,(unit.getX(),unit.getY()))
+            if d != 1:
+                print "Distance is {}".format(d)
                 break
             unit.move(step[0],step[1])
             self.attack_set(unit, self.enemycontrol + self.enemybases)
-    while self.attack_set(unit, self.enemycontrol + self.enemybases):
-        pass
+    self.attack_set(unit, self.enemycontrol + self.enemybases)
 
   def update_state(self):
     # Player objects
@@ -145,22 +151,22 @@ class AI(BaseAI):
     self.enemyturrets = filter(wf, self.enemydroids)
 
     #Building wall tile
-    wf = lambda x: x.getTurnsUntilAssembled() > 0 and x.getTypeToAssemble() == UNIT_WALL
+    wf = lambda x: x.getTurnsUntilAssembled() > 0 and x.getVariantToAssemble() == UNIT_WALL
     self.mywalls_b = filter(wf, self.mytiles)
     self.enemywalls_b = filter(wf, self.enemytiles)
 
     #Building (next turn)
-    wf = lambda x: x.getTurnsUntilAssembled() == 1 and x.getTypeToAssemble() == UNIT_WALL
+    wf = lambda x: x.getTurnsUntilAssembled() == 1 and x.getVariantToAssemble() == UNIT_WALL
     self.mywalls_n = filter(wf, self.mytiles)
     self.enemywalls_n = filter(wf, self.enemytiles)
    
     #Building turret tile
-    wf = lambda x: x.getTurnsUntilAssembled() > 0 and x.getTypeToAssemble() == UNIT_TURRET
+    wf = lambda x: x.getTurnsUntilAssembled() > 0 and x.getVariantToAssemble() == UNIT_TURRET
     self.myturrets_b = filter(wf, self.mytiles)
     self.enemyturrets_b = filter(wf, self.enemytiles)
 
     #Building (next turn)
-    wf = lambda x: x.getTurnsUntilAssembled() == 1 and x.getTypeToAssemble() == UNIT_TURRET
+    wf = lambda x: x.getTurnsUntilAssembled() == 1 and x.getVariantToAssemble() == UNIT_TURRET
     self.myturrets_n = filter(wf, self.mytiles)
     self.enemyturrests_n = filter(wf, self.enemytiles) 
 
@@ -251,13 +257,13 @@ class AI(BaseAI):
 
     print "Spawning Units"
     self.building = set()
-    scrap = self.me.getScrapAmount()
-    while scrap >= min([ variant.getCost() for variant in self.modelVariants if variant.getVariant() != UNIT_HANGAR]):
+    no_spawn = [ UNIT_HANGAR, UNIT_ENGINEER, UNIT_HACKER ]
+    while self.me.getScrapAmount() >= min([ variant.getCost() for variant in self.modelVariants if variant.getVariant() not in no_spawn]):
         #Simple AI, pick a unit type, (Other than hangar), and drop those
         for variant in self.modelVariants:
-            if variant.getVariant() == UNIT_HANGAR:
+            if variant.getVariant() in no_spawn:
                 continue
-            if variant.getCost() > scrap:
+            if variant.getCost() > self.me.getScrapAmount():
                 continue
             for tile in self.opentiles:
                 if (tile.getX(), tile.getY()) in self.unitsxy:
@@ -266,13 +272,9 @@ class AI(BaseAI):
                     continue
                 #If we've made it this far, we can spawn the variant
                 initial_scrap = self.me.getScrapAmount()
-                scrap -= variant.getCost()
                 self.me.orbitalDrop(tile.getX(), tile.getY(), variant.getVariant())
                 self.building.add( (tile.getX(), tile.getY()) )
-                """
-                Reported as 27
                 assert initial_scrap > self.me.getScrapAmount()
-                """
                 break
 
     self.update_state()
@@ -281,8 +283,8 @@ class AI(BaseAI):
     #Have all your units go after the enemy base
     tomove = {}
     for unit in self.mycontrol:
-        #if unit.getMovementLeft() <= 0:
-        #    continue
+        if unit.getMovementLeft() <= 0:
+            continue
         tomove[unit.getId()] = unit
 
     while len(tomove) > 0:
@@ -291,8 +293,8 @@ class AI(BaseAI):
         p = self.sea.get_path(starts,ends)
         if len(p) > 0:
             unit = self.unitsxy[p[0]]
-            tomove.pop(unit.getId(),None)
             self.follow_path(unit,p)
+            tomove.pop(unit.getId(),None)
         else:
             break
         self.update_state()
@@ -300,8 +302,8 @@ class AI(BaseAI):
     print "Attacking"  
     regular_targets =  self.enemycontrol + self.enemybases
     for unit in self.mycontrol:
-        while self.attack_set(unit, regular_targets):
-            pass
+        self.attack_set(unit, regular_targets)
+       
       
     print "Finished"
     return 1
