@@ -220,8 +220,6 @@ class AI(BaseAI):
     wf = lambda x: x.getVariant() == UNIT_HANGAR
     self.mybases = filter(wf,self.mydroids)
     self.enemybases = filter(wf,self.enemydroids)
-    assert len(self.mybases) > 0
-    assert len(self.enemybases) > 0
 
     #Built walls
     wf = lambda x: x.getVariant() == UNIT_WALL
