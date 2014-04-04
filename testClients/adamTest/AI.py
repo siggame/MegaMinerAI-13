@@ -46,13 +46,29 @@ class AI(BaseAI):
   ##This function is called each time it is your turn
   ##Return true to end your turn, return false to ask the server for updated information
   def run(self):
+    x = self.minX
+    y = self.minY - 1
+    notDone = True
+    while notDone:
+      while x <= self.maxX:
+        drop = True
+        for droid in self.droids:
+          if droid.x == x and droid.y == y and droid.owner == self.playerID:
+            drop = False
+            break
+        if drop:
+          self.players[self.playerID].orbitalDrop(x, y, 5)
+        x += 1
+      if y == self.maxY + 1:
+        notDone = False
+      y = self.maxY + 1
 
     self.players[self.playerID].orbitalDrop(self.dropX, self.dropY, 0)
     self.dropY += 1
     if self.dropY > self.maxY:
       self.dropY = self.minY
     for droid in self.droids:
-      if droid.owner == self.playerID and droid.variant != 7:
+      if droid.owner == self.playerID and droid.variant != 7 and droid.variant != 5:
         droid.move(droid.x + self.change, droid.y)
         droid.operate(droid.x + self.change, droid.y)
     return 1
