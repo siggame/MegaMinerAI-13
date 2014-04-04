@@ -182,20 +182,17 @@ class Match(DefaultGameWorld):
     self.animations = ["animations"]
     return True
 
-  #TODO: Fix checkwinner function. Hangars are now Droids, not tiles.
   def checkWinner(self):
-    #Get the players, is this necessary? If not, just remove these two lines :3
-    player1 = self.objects.players[0]
-    player2 = self.objects.players[1]
     
     #Determine if hangars are dead
     allDead1 = True #true if player 1's hangar is dead
     allDead2 = True #true if player 2's hangar is dead
 
+    #7 = Hangar
     for droid in self.objects.droids:
-      if droid.owner == 0 and droid.healthLeft > 0:
+      if droid.owner == 0 and droid.healthLeft > 0 and droid.variant == 7:
         allDead1 = False
-      if droid.owner == 1 and droid.healthLeft > 1:
+      if droid.owner == 1 and droid.healthLeft > 1 and droid.variant == 7:
         allDead2 = False
 
     for tile in self.hangartiles.values(): #this line will likely change after Russley finishes his function
