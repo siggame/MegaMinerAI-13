@@ -111,7 +111,7 @@ namespace visualizer
         renderer->setColor({1.0f, 1.0f, 1.0f,0.0f});
       }
 
-      renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, 0);
+	  renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust");
 
 	  // Draw horizontal lines
 	  renderer->setColor({0.0f,0.0f,0.0f,1.0f});
