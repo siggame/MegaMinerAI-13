@@ -203,17 +203,43 @@ class Match(DefaultGameWorld):
     elif self.turnNumber >= self.turnLimit:
       total1 = 0
       total2 = 0
+      armor1 = 0
+      armor2 = 0
+      count1 = 0
+      count2 = 0
+      hangars1 = 0
+      hangars2 = 0
       for droid in self.objects.droids:
+        if droid.owner == 0:
+          count1 += 1
+        else:
+          count2 += 1
         if droid.owner == 0 and droid.healthLeft > 0 and droid.variant == 7:
           total1 += droid.healthLeft
+          armor1 += droid.armor
+          hangars1 += 1
         elif droid.owner == 1 and droid.healthLeft > 1 and droid.variant == 7:
           total2 += droid.healthLeft
+          armor2 += droid.armor
+          hangars2 += 1
 
       #Winner has most health
       if total1 > total2:
         self.declareWinner(self.players[0], "Player 1\'s hangar has more total health.")
       elif total1 < total2:
         self.declareWinner(self.players[1], "Player 2\'s hangar has more total health.")
+      elif hangars1 > hangars2:
+        self.declareWinner(self.players[0], "Player 1 has more hangar units.")
+      elif hangars2 > hangars1:
+        self.declareWinner(self.players[1], "Player 2 has more hangar units.")
+      elif armor1 > armor2:
+        self.declareWinner(self.players[0], "Player 1\'s hangar has more total armor.")
+      elif armor2 > armor1:
+        self.declareWinner(self.players[1], "Player 2\'s hangar has more total armor.")
+      elif count1 > count2:
+        self.declareWinner(self.players[0], "Player 1 has more droids.")
+      elif count2 > count1:
+        self.declareWinner(self.players[1], "Player 2 has more droids.")
       else:
         self.declareWinner(self.players[0], "Player 1 wins because both are equally matched.")
     return
