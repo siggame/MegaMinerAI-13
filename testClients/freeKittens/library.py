@@ -53,9 +53,6 @@ library.droidMove.argtypes = [c_void_p, c_int, c_int]
 library.droidOperate.restype = c_int
 library.droidOperate.argtypes = [c_void_p, c_int, c_int]
 
-library.tileAssemble.restype = c_int
-library.tileAssemble.argtypes = [c_void_p, c_int]
-
 # accessors
 
 #Globals
@@ -71,9 +68,6 @@ library.getTurnNumber.argtypes = [c_void_p]
 library.getMaxDroids.restype = c_int
 library.getMaxDroids.argtypes = [c_void_p]
 
-library.getMaxWalls.restype = c_int
-library.getMaxWalls.argtypes = [c_void_p]
-
 library.getPlayerID.restype = c_int
 library.getPlayerID.argtypes = [c_void_p]
 
@@ -85,12 +79,6 @@ library.getScrapRate.argtypes = [c_void_p]
 
 library.getMaxScrap.restype = c_int
 library.getMaxScrap.argtypes = [c_void_p]
-
-library.getWallCost.restype = c_int
-library.getWallCost.argtypes = [c_void_p]
-
-library.getMaxWallHealth.restype = c_int
-library.getMaxWallHealth.argtypes = [c_void_p]
 
 library.getDropTime.restype = c_int
 library.getDropTime.argtypes = [c_void_p]
@@ -224,11 +212,8 @@ library.tileGetOwner.argtypes = [c_void_p]
 library.tileGetTurnsUntilAssembled.restype = c_int
 library.tileGetTurnsUntilAssembled.argtypes = [c_void_p]
 
-library.tileGetTypeToAssemble.restype = c_int
-library.tileGetTypeToAssemble.argtypes = [c_void_p]
-
-library.tileGetHealth.restype = c_int
-library.tileGetHealth.argtypes = [c_void_p]
+library.tileGetVariantToAssemble.restype = c_int
+library.tileGetVariantToAssemble.argtypes = [c_void_p]
 
 library.modelVariantGetId.restype = c_int
 library.modelVariantGetId.argtypes = [c_void_p]
