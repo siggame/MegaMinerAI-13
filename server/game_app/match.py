@@ -195,12 +195,6 @@ class Match(DefaultGameWorld):
       if droid.owner == 1 and droid.healthLeft > 1 and droid.variant == 7:
         allDead2 = False
 
-    for tile in self.hangartiles.values(): #this line will likely change after Russley finishes his function
-      if tile.owner == 0 and tile.health > 0:
-        allDead1 = False
-      if tile.owner == 1 and tile.health > 0:
-        allDead2 = False
-
     #Crown winner
     if allDead1:
       self.declareWinner(self.players[1], "Player 1\'s hangar has been destroyed")
@@ -209,11 +203,11 @@ class Match(DefaultGameWorld):
     elif self.turnNumber >= self.turnLimit:
       total1 = 0
       total2 = 0
-      for tile in self.hangartiles.values():
-        if tile.owner == 0:
-          total1 += tile.health
-        elif tile.owner == 1:
-          total2 += tile.health
+      for droid in self.objects.droids:
+        if droid.owner == 0 and droid.healthLeft > 0 and droid.variant == 7:
+          total1 += droid.healthLeft
+        elif droid.owner == 1 and droid.healthLeft > 1 and droid.variant == 7:
+          total2 += droid.healthLeft
 
       #Winner has most health
       if total1 > total2:
