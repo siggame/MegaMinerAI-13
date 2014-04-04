@@ -78,6 +78,7 @@ class AI(BaseAI):
           #attack around too
           droid.operate(droid.x, droid.y - 1)
           droid.operate(droid.x, droid.y + 1)
+          movez -= 1
     return 1
 
   def __init__(self, conn):
