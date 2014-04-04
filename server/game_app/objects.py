@@ -274,7 +274,7 @@ class Droid(Mappable):
         self.doDamage(self, target)
       elif self.attack > 0 and self.variant == hackerVariantVal:
         target.hackets += self.attack
-        if target.hackets > target.maxHackets:
+        if target.hackets > target.hacketsMax:
           target.hackedTurnsLeft = target.turnsToBeHacked
           target.hackets = 0
 
