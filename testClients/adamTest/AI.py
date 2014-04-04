@@ -71,11 +71,13 @@ class AI(BaseAI):
       self.dropY = self.minY
     for droid in self.droids:
       if droid.owner == self.playerID and droid.variant != 7 and droid.variant != 5:
-        droid.move(droid.x + self.change, droid.y)
-        droid.operate(droid.x + self.change, droid.y)
-        #attack around too
-        droid.operate(droid.x, droid.y - 1)
-        droid.operate(droid.x, droid.y + 1)
+        movez = 4
+        while movez > 0:
+          droid.move(droid.x + self.change, droid.y)
+          droid.operate(droid.x + self.change, droid.y)
+          #attack around too
+          droid.operate(droid.x, droid.y - 1)
+          droid.operate(droid.x, droid.y + 1)
     return 1
 
   def __init__(self, conn):
