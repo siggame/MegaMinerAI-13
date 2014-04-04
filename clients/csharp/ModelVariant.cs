@@ -183,6 +183,32 @@ public class ModelVariant
     }
   }
 
+  /// <summary>
+  /// The number of turns this unit will be hacked, if it is hacked. If 0, the droid cannot be hacked.
+  /// </summary>
+  public int TurnsToBeHacked
+  {
+    get
+    {
+      validify();
+      int value = Client.modelVariantGetTurnsToBeHacked(ptr);
+      return value;
+    }
+  }
+
+  /// <summary>
+  /// The maximum number of hackets that can be sustained before hacked. If 0, the Droid cannot be hacked.
+  /// </summary>
+  public int HacketsMax
+  {
+    get
+    {
+      validify();
+      int value = Client.modelVariantGetHacketsMax(ptr);
+      return value;
+    }
+  }
+
   #endregion
 
   #region Properties

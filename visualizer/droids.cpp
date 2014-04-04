@@ -6,6 +6,7 @@
 #include <utility>
 #include <time.h>
 #include <list>
+#include <glm/glm.hpp>
 
 namespace visualizer
 {
@@ -22,38 +23,35 @@ namespace visualizer
 
   void Droids::destroy()
   {
-    m_suicide=true;
-    wait();
-    animationEngine->registerGame(0, 0);
+	m_suicide=true;
+	wait();
+	animationEngine->registerGame(0, 0);
 
-    clear();
-    delete m_game;
-    m_game = 0;
-    
-    // Clear your memory here
-    
-    programs.clear();
+	clear();
+	delete m_game;
+	m_game = 0;
+
+	// Clear your memory here
+
+	programs.clear();
 
   } // Droids::~Droids()
 
   void Droids::preDraw()
   {
-    const Input& input = gui->getInput();
-    
+	renderer->push();
+	renderer->translate(GRID_OFFSET, GRID_OFFSET);
+
+	RenderGrid();
+
+
     // Handle player input here
   }
 
   void Droids::postDraw()
   {
-    if( renderer->fboSupport() )
-    {
-#if 0
-      renderer->useShader( programs["post"] ); 
-      renderer->swapFBO();
-      renderer->useShader( 0 );
-#endif
 
-    }
+	  renderer->pop();
   }
 
 
@@ -84,6 +82,51 @@ namespace visualizer
     return list<int>();  // return the empty list
   }
 
+  void Droids::RenderGrid() const
+  {
+      const float gustLength = 2.0f;
+      static float time = 0.0f;
+      static float nextGust = rand() % 4 + 2.0f;
+
+	  time += timeManager->getDt();
+
+      renderer->setColor({0.7,0.7, 0.7, 1.0f});
+      renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,0,0, 16/1.5, 9/1.5,"cliffside");
+
+      renderer->setColor({1.0f,1.0f,1.0f,1.0f});
+      renderer->drawSubTexturedQuad(0,0,m_mapWidth,m_mapHeight, 0, 0, 2, 1,"desolate");
+
+      if(time > nextGust + gustLength)
+      {
+          nextGust = time + rand() % 4 + 4.0f;
+      }
+
+      if(time > nextGust)
+      {
+        float alphaValue = 0.15f * sin( ((time - nextGust)/ gustLength) * 3.141592f );
+        renderer->setColor({1.0f, 1.0f, 1.0f, alphaValue});
+      }
+      else
+      {
+        renderer->setColor({1.0f, 1.0f, 1.0f,0.0f});
+      }
+
+      renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, 0);
+
+	  // Draw horizontal lines
+	  renderer->setColor({0.0f,0.0f,0.0f,1.0f});
+	  for(int i = 0; i <= m_mapHeight; i++)
+	  {
+		  renderer->drawLine(0,i,m_mapWidth,i,1.0f);
+	  }
+
+	  // Draw vertical lines
+	  for(int i = 0; i <= m_mapWidth; i++)
+	  {
+		  renderer->drawLine(i,0,i,m_mapHeight,1.0f);
+	  }
+  }
+
   void Droids::loadGamelog( std::string gamelog )
   {
     if(isRunning())
@@ -110,10 +153,14 @@ namespace visualizer
     }
     // END: Initial Setup
 
-    // Setup the renderer as a 4 x 4 map by default
-    // TODO: Change board size to something useful
-    renderer->setCamera( 0, 0, 4, 4 );
-    renderer->setGridDimensions( 4, 4 );
+	assert("Gamelog is empty" && !m_game->states.empty());
+
+	m_mapWidth = m_game->states[0].mapWidth;
+	m_mapHeight = m_game->states[0].mapHeight;
+	cout << "Map Width: " << m_mapWidth << endl;
+	cout << "Map Height: " << m_mapHeight << endl;
+	renderer->setCamera( 0, 0, m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
+	renderer->setGridDimensions( m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
  
     start();
   } // Droids::loadGamelog()
@@ -126,37 +173,159 @@ namespace visualizer
 
     animationEngine->registerGame(0, 0);
 
-    // Look through each turn in the gamelog
-    for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
-    {
-      Frame turn;  // The frame that will be drawn
-      SmartPointer<Something> something = new Something();
-      something->addKeyFrame( new DrawSomething( something ) );
-      turn.addAnimatable( something );
-      animationEngine->buildAnimations(turn);
-      addFrame(turn);
-      
-      // Register the game and begin playing delayed due to multithreading
-      if(state > 5)
-      {
-        timeManager->setNumTurns(state - 5);
-        animationEngine->registerGame( this, this );
-        if(state == 6)
-        {
-          animationEngine->registerGame(this, this);
-          timeManager->setTurn(0);
-          timeManager->play();
-        }
-      }
-    }
-    
-    if(!m_suicide)
-    {
-      timeManager->setNumTurns( m_game->states.size() );
-      timeManager->play();
-    }
+	// Look through each turn in the gamelog
+	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
+	{
+		Frame turn;  // The frame that will be drawn
+
+        //cout << "Turn " << state << " there are " << m_game->states[state].droids.size() << " droids" << endl;
+
+        PrepareUnits(state, turn);
+        PrepareStructures(state, turn);
+
+
+		animationEngine->buildAnimations(turn);
+		addFrame(turn);
+
+		// Register the game and begin playing delayed due to multithreading
+		if(state > 5)
+		{
+			timeManager->setNumTurns(state - 5);
+			animationEngine->registerGame( this, this );
+			if(state == 6)
+			{
+				animationEngine->registerGame(this, this);
+				timeManager->setTurn(0);
+				timeManager->play();
+			}
+		}
+	}
+
+	if(!m_suicide)
+	{
+		timeManager->setNumTurns( m_game->states.size() );
+		timeManager->play();
+	}
 
   } // Droids::run()
+
+  void Droids::PrepareUnits(const int& frameNum, Frame& turn) const
+  {
+      std::string texture;
+      parser::GameState& currentState = m_game->states[frameNum];
+
+      for(auto& it: currentState.droids)
+      {
+          parser::Droid& unit = it.second;
+          switch(unit.variant)
+          {
+            case DROID_CLAW:
+              texture = "claw";
+              break;
+            case DROID_ARCHER:
+              texture = "archer";
+              break;
+            case DROID_REPAIRER:
+              texture = "repairer";
+              break;
+            case DROID_HACKER:
+              texture = "hacker";
+              break;
+            case DROID_TURRET:
+              texture = "turret";
+              break;
+            case DROID_TERMINATOR:
+              texture = "terminator";
+              break;
+            default:
+              std::cout << "ouch\n";
+          }
+
+          const auto& iter = currentState.animations.find(unit.id);
+          if(iter != currentState.animations.end())
+          {
+              std::vector<SmartPointer<parser::Animation> >& animList = iter->second;
+              SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
+              for(auto& anim: animList)
+              {
+                  switch(anim->type)
+                  {
+                      case parser::MOVE:
+                      {
+                          parser::move& move = (parser::move&)*anim;
+                          sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(move.toX, move.toY), glm::vec2(move.fromX, move.fromY)));
+                          break;
+                      }
+                      case parser::SPAWN:
+                      {
+                          break;
+                      }
+                      case parser::HACK:
+                      {
+                          break;
+                      }
+                      case parser::ORBITALDROP:
+                      {
+                          break;
+                      }
+                      case parser::REPAIR:
+                      {
+                          break;
+                      }
+                      case parser::ATTACK:
+                      {
+                          break;
+                      }
+                      default:
+                      break;
+                  }
+              }
+
+              turn.addAnimatable(sprite);
+          }
+          else
+          {
+              SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), texture);
+              sprite->addKeyFrame(new DrawSprite(sprite, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
+              turn.addAnimatable(sprite);
+          }
+          std::cout << "unit made.\n";
+      }
+  }
+
+  void Droids::PrepareStructures(const int &frameNum, Frame &turn) const
+  {
+      parser::GameState& currentState = m_game->states[frameNum];
+
+      for(auto& it : currentState.tiles)
+      {
+          parser::Tile& tile = it.second;
+
+          /*
+          std::string texture;
+          if(tile.owner != 2)
+          {
+              std::cout << "tile owner: " << tile.owner << std::endl;
+              switch(tile.type)
+              {
+                case STRUCTURE_WALL:
+                  texture = "wall";
+                  break;
+                case STRUCTURE_HANGER:
+                  texture = "hanger";
+                  break;
+                default:
+                  //std::cout << "ouch";
+                  break;
+              }
+
+              SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(tile.x, tile.y), glm::vec2(1.0f,1.0f), texture);
+              sprite->addKeyFrame(new DrawSprite(sprite, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
+              turn.addAnimatable(sprite);
+          }
+          */
+      }
+  }
 
 } // visualizer
 

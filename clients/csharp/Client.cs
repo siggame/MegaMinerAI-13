@@ -26,13 +26,11 @@ public class Client {
   [DllImport("client")]
   public static extern int playerTalk(IntPtr self, string message);
   [DllImport("client")]
-  public static extern int playerOrbitalDrop(IntPtr self, int x, int y, int type);
+  public static extern int playerOrbitalDrop(IntPtr self, int x, int y, int variant);
   [DllImport("client")]
   public static extern int droidMove(IntPtr self, int x, int y);
   [DllImport("client")]
-  public static extern int droidOperate(IntPtr self, IntPtr target);
-  [DllImport("client")]
-  public static extern int tileAssemble(IntPtr self, int type);
+  public static extern int droidOperate(IntPtr self, int x, int y);
 #endregion
 
 #region Accessors
@@ -45,8 +43,6 @@ public class Client {
   [DllImport("client")]
   public static extern int getMaxDroids(IntPtr connection);
   [DllImport("client")]
-  public static extern int getMaxWalls(IntPtr connection);
-  [DllImport("client")]
   public static extern int getPlayerID(IntPtr connection);
   [DllImport("client")]
   public static extern int getGameNumber(IntPtr connection);
@@ -54,6 +50,8 @@ public class Client {
   public static extern int getScrapRate(IntPtr connection);
   [DllImport("client")]
   public static extern int getMaxScrap(IntPtr connection);
+  [DllImport("client")]
+  public static extern int getDropTime(IntPtr connection);
 
   [DllImport("client")]
   public static extern IntPtr getPlayer(IntPtr connection, int num);
@@ -127,9 +125,13 @@ public class Client {
   [DllImport("client")]
   public static extern int droidGetScrapWorth(IntPtr ptr);
   [DllImport("client")]
+  public static extern int droidGetTurnsToBeHacked(IntPtr ptr);
+  [DllImport("client")]
   public static extern int droidGetHackedTurnsLeft(IntPtr ptr);
   [DllImport("client")]
   public static extern int droidGetHackets(IntPtr ptr);
+  [DllImport("client")]
+  public static extern int droidGetHacketsMax(IntPtr ptr);
 
   [DllImport("client")]
   public static extern int tileGetId(IntPtr ptr);
@@ -142,9 +144,7 @@ public class Client {
   [DllImport("client")]
   public static extern int tileGetTurnsUntilAssembled(IntPtr ptr);
   [DllImport("client")]
-  public static extern int tileGetScrapAmount(IntPtr ptr);
-  [DllImport("client")]
-  public static extern int tileGetHealth(IntPtr ptr);
+  public static extern int tileGetVariantToAssemble(IntPtr ptr);
 
   [DllImport("client")]
   public static extern int modelVariantGetId(IntPtr ptr);
@@ -168,6 +168,10 @@ public class Client {
   public static extern int modelVariantGetMaxArmor(IntPtr ptr);
   [DllImport("client")]
   public static extern int modelVariantGetScrapWorth(IntPtr ptr);
+  [DllImport("client")]
+  public static extern int modelVariantGetTurnsToBeHacked(IntPtr ptr);
+  [DllImport("client")]
+  public static extern int modelVariantGetHacketsMax(IntPtr ptr);
 
 #endregion
 

@@ -24,12 +24,6 @@ class Tile extends Mappable
 
     //commands
 
-  ///Attempt to assemble a Droid at this location.
-  boolean assemble(int type)
-  {
-    validify();
-    return (Client.INSTANCE.tileAssemble(ptr, type) == 0) ? false : true;
-  }
 
     //getters
 
@@ -51,29 +45,23 @@ class Tile extends Mappable
     validify();
     return Client.INSTANCE.tileGetY(ptr);
   }
-  ///The owner of the tile. If 0: Player 1; If 1: Player 2; 
+  ///Owner of spawning droid. 0 - Player 1, 1 - Player 2, 2 - No spawning droid.
   public int getOwner()
   {
     validify();
     return Client.INSTANCE.tileGetOwner(ptr);
   }
-  ///The number of turns until a structure is assembled.
+  ///The number of turns until a Droid is assembled.
   public int getTurnsUntilAssembled()
   {
     validify();
     return Client.INSTANCE.tileGetTurnsUntilAssembled(ptr);
   }
-  ///The amount of scrap on this tile.
-  public int getScrapAmount()
+  ///The variant of Droid to assemble.
+  public int getVariantToAssemble()
   {
     validify();
-    return Client.INSTANCE.tileGetScrapAmount(ptr);
-  }
-  ///The health of the Hangar or Wall on this tile.
-  public int getHealth()
-  {
-    validify();
-    return Client.INSTANCE.tileGetHealth(ptr);
+    return Client.INSTANCE.tileGetVariantToAssemble(ptr);
   }
 
 }

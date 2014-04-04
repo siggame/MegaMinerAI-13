@@ -11,7 +11,6 @@
 namespace client
 {
 
-class Droid;
 
 ///Represents a single Droid on the map.
 class Droid : public Mappable {
@@ -27,7 +26,7 @@ class Droid : public Mappable {
   int y();
   ///The owner of this Droid.
   int owner();
-  ///The variant of this Droid. This variant refers to list of DroidVariants.
+  ///The variant of this Droid. This variant refers to list of ModelVariants.
   int variant();
   ///The number of attacks the Droid has remaining.
   int attacksLeft();
@@ -51,16 +50,20 @@ class Droid : public Mappable {
   int maxArmor();
   ///The amount of scrap the Droid drops.
   int scrapWorth();
+  ///The number of turns this unit will be hacked, if it is hacked. If 0, the droid cannot be hacked.
+  int turnsToBeHacked();
   ///The number of turns the Droid has remaining as hacked.
   int hackedTurnsLeft();
   ///The amount of hacking progress that has been made.
   int hackets();
+  ///The maximum number of hackets that can be sustained before hacked. If 0, the Droid cannot be hacked.
+  int hacketsMax();
 
   // Actions
   ///Make the Droid move to the respective x and y location.
   int move(int x, int y);
   ///Command to operate (repair, attack, hack) on another Droid.
-  int operate(Droid& target);
+  int operate(int x, int y);
 
   // Properties
 

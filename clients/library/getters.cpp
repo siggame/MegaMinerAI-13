@@ -92,6 +92,10 @@ DLLEXPORT int droidGetScrapWorth(_Droid* ptr)
 {
   return ptr->scrapWorth;
 }
+DLLEXPORT int droidGetTurnsToBeHacked(_Droid* ptr)
+{
+  return ptr->turnsToBeHacked;
+}
 DLLEXPORT int droidGetHackedTurnsLeft(_Droid* ptr)
 {
   return ptr->hackedTurnsLeft;
@@ -99,6 +103,10 @@ DLLEXPORT int droidGetHackedTurnsLeft(_Droid* ptr)
 DLLEXPORT int droidGetHackets(_Droid* ptr)
 {
   return ptr->hackets;
+}
+DLLEXPORT int droidGetHacketsMax(_Droid* ptr)
+{
+  return ptr->hacketsMax;
 }
 DLLEXPORT int tileGetId(_Tile* ptr)
 {
@@ -120,13 +128,9 @@ DLLEXPORT int tileGetTurnsUntilAssembled(_Tile* ptr)
 {
   return ptr->turnsUntilAssembled;
 }
-DLLEXPORT int tileGetScrapAmount(_Tile* ptr)
+DLLEXPORT int tileGetVariantToAssemble(_Tile* ptr)
 {
-  return ptr->scrapAmount;
-}
-DLLEXPORT int tileGetHealth(_Tile* ptr)
-{
-  return ptr->health;
+  return ptr->variantToAssemble;
 }
 DLLEXPORT int modelVariantGetId(_ModelVariant* ptr)
 {
@@ -171,5 +175,13 @@ DLLEXPORT int modelVariantGetMaxArmor(_ModelVariant* ptr)
 DLLEXPORT int modelVariantGetScrapWorth(_ModelVariant* ptr)
 {
   return ptr->scrapWorth;
+}
+DLLEXPORT int modelVariantGetTurnsToBeHacked(_ModelVariant* ptr)
+{
+  return ptr->turnsToBeHacked;
+}
+DLLEXPORT int modelVariantGetHacketsMax(_ModelVariant* ptr)
+{
+  return ptr->hacketsMax;
 }
 

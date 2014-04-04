@@ -45,8 +45,10 @@ std::ostream& operator<<(std::ostream& stream, Droid ob)
   stream << "armor: " << ob.armor  <<'\n';
   stream << "maxArmor: " << ob.maxArmor  <<'\n';
   stream << "scrapWorth: " << ob.scrapWorth  <<'\n';
+  stream << "turnsToBeHacked: " << ob.turnsToBeHacked  <<'\n';
   stream << "hackedTurnsLeft: " << ob.hackedTurnsLeft  <<'\n';
   stream << "hackets: " << ob.hackets  <<'\n';
+  stream << "hacketsMax: " << ob.hacketsMax  <<'\n';
   return stream;
 }
 
@@ -58,8 +60,7 @@ std::ostream& operator<<(std::ostream& stream, Tile ob)
   stream << "y: " << ob.y  <<'\n';
   stream << "owner: " << ob.owner  <<'\n';
   stream << "turnsUntilAssembled: " << ob.turnsUntilAssembled  <<'\n';
-  stream << "scrapAmount: " << ob.scrapAmount  <<'\n';
-  stream << "health: " << ob.health  <<'\n';
+  stream << "variantToAssemble: " << ob.variantToAssemble  <<'\n';
   return stream;
 }
 
@@ -77,9 +78,29 @@ std::ostream& operator<<(std::ostream& stream, ModelVariant ob)
   stream << "attack: " << ob.attack  <<'\n';
   stream << "maxArmor: " << ob.maxArmor  <<'\n';
   stream << "scrapWorth: " << ob.scrapWorth  <<'\n';
+  stream << "turnsToBeHacked: " << ob.turnsToBeHacked  <<'\n';
+  stream << "hacketsMax: " << ob.hacketsMax  <<'\n';
   return stream;
 }
 
+
+
+std::ostream& operator<<(std::ostream& stream, spawn ob)
+{
+  stream << "spawn" << "\n";
+  stream << "sourceID: " << ob.sourceID  <<'\n';
+  stream << "unitID: " << ob.unitID  <<'\n';
+  return stream;
+}
+
+
+std::ostream& operator<<(std::ostream& stream, repair ob)
+{
+  stream << "repair" << "\n";
+  stream << "actingID: " << ob.actingID  <<'\n';
+  stream << "targetID: " << ob.targetID  <<'\n';
+  return stream;
+}
 
 
 std::ostream& operator<<(std::ostream& stream, move ob)
@@ -90,24 +111,6 @@ std::ostream& operator<<(std::ostream& stream, move ob)
   stream << "fromY: " << ob.fromY  <<'\n';
   stream << "toX: " << ob.toX  <<'\n';
   stream << "toY: " << ob.toY  <<'\n';
-  return stream;
-}
-
-
-std::ostream& operator<<(std::ostream& stream, attack ob)
-{
-  stream << "attack" << "\n";
-  stream << "actingID: " << ob.actingID  <<'\n';
-  stream << "targetID: " << ob.targetID  <<'\n';
-  return stream;
-}
-
-
-std::ostream& operator<<(std::ostream& stream, spawn ob)
-{
-  stream << "spawn" << "\n";
-  stream << "sourceID: " << ob.sourceID  <<'\n';
-  stream << "unitID: " << ob.unitID  <<'\n';
   return stream;
 }
 
@@ -129,9 +132,9 @@ std::ostream& operator<<(std::ostream& stream, orbitalDrop ob)
 }
 
 
-std::ostream& operator<<(std::ostream& stream, repair ob)
+std::ostream& operator<<(std::ostream& stream, attack ob)
 {
-  stream << "repair" << "\n";
+  stream << "attack" << "\n";
   stream << "actingID: " << ob.actingID  <<'\n';
   stream << "targetID: " << ob.targetID  <<'\n';
   return stream;
@@ -144,11 +147,11 @@ std::ostream& operator<<(std::ostream& stream, GameState ob)
   stream << "mapHeight: " << ob.mapHeight  <<'\n';
   stream << "turnNumber: " << ob.turnNumber  <<'\n';
   stream << "maxDroids: " << ob.maxDroids  <<'\n';
-  stream << "maxWalls: " << ob.maxWalls  <<'\n';
   stream << "playerID: " << ob.playerID  <<'\n';
   stream << "gameNumber: " << ob.gameNumber  <<'\n';
   stream << "scrapRate: " << ob.scrapRate  <<'\n';
   stream << "maxScrap: " << ob.maxScrap  <<'\n';
+  stream << "dropTime: " << ob.dropTime  <<'\n';
 
   stream << "\n\nPlayers:\n";
   for(std::map<int,Player>::iterator i = ob.players.begin(); i != ob.players.end(); i++)
@@ -175,18 +178,18 @@ std::ostream& operator<<(std::ostream& stream, GameState ob)
   {
   for(std::vector< SmartPointer< Animation > >::iterator i = j->second.begin(); i != j->second.end(); i++)
   {
-//    if((*(*i)).type == MOVE)
-//      stream << *((move*)*i) << "\n";
-//    if((*(*i)).type == ATTACK)
-//      stream << *((attack*)*i) << "\n";
 //    if((*(*i)).type == SPAWN)
 //      stream << *((spawn*)*i) << "\n";
+//    if((*(*i)).type == REPAIR)
+//      stream << *((repair*)*i) << "\n";
+//    if((*(*i)).type == MOVE)
+//      stream << *((move*)*i) << "\n";
 //    if((*(*i)).type == HACK)
 //      stream << *((hack*)*i) << "\n";
 //    if((*(*i)).type == ORBITALDROP)
 //      stream << *((orbitalDrop*)*i) << "\n";
-//    if((*(*i)).type == REPAIR)
-//      stream << *((repair*)*i) << "\n";
+//    if((*(*i)).type == ATTACK)
+//      stream << *((attack*)*i) << "\n";
   }
   
 

@@ -34,14 +34,6 @@ public class Tile: Mappable
   }
 
   #region Commands
-  /// <summary>
-  /// Attempt to assemble a Droid at this location.
-  /// </summary>
-  public bool assemble(int type)
-  {
-    validify();
-    return (Client.tileAssemble(ptr, type) == 0) ? false : true;
-  }
   #endregion
 
   #region Getters
@@ -85,7 +77,7 @@ public class Tile: Mappable
   }
 
   /// <summary>
-  /// The owner of the tile. If 0: Player 1; If 1: Player 2; 
+  /// Owner of spawning droid. 0 - Player 1, 1 - Player 2, 2 - No spawning droid.
   /// </summary>
   public int Owner
   {
@@ -98,7 +90,7 @@ public class Tile: Mappable
   }
 
   /// <summary>
-  /// The number of turns until a structure is assembled.
+  /// The number of turns until a Droid is assembled.
   /// </summary>
   public int TurnsUntilAssembled
   {
@@ -111,27 +103,14 @@ public class Tile: Mappable
   }
 
   /// <summary>
-  /// The amount of scrap on this tile.
+  /// The variant of Droid to assemble.
   /// </summary>
-  public int ScrapAmount
+  public int VariantToAssemble
   {
     get
     {
       validify();
-      int value = Client.tileGetScrapAmount(ptr);
-      return value;
-    }
-  }
-
-  /// <summary>
-  /// The health of the Hangar or Wall on this tile.
-  /// </summary>
-  public int Health
-  {
-    get
-    {
-      validify();
-      int value = Client.tileGetHealth(ptr);
+      int value = Client.tileGetVariantToAssemble(ptr);
       return value;
     }
   }

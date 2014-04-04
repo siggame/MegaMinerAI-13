@@ -38,11 +38,11 @@ struct Connection
   int mapHeight;
   int turnNumber;
   int maxDroids;
-  int maxWalls;
   int playerID;
   int gameNumber;
   int scrapRate;
   int maxScrap;
+  int dropTime;
 
   _Player* Players;
   int PlayerCount;
@@ -76,14 +76,12 @@ extern "C"
 
   ///Allows a player to display messages on the screen
   DLLEXPORT int playerTalk(_Player* object, char* message);
-  ///Allows a player to spawn a structure.
-  DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int type);
+  ///Allows a player to spawn a Droid.
+  DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int variant);
   ///Make the Droid move to the respective x and y location.
   DLLEXPORT int droidMove(_Droid* object, int x, int y);
   ///Command to operate (repair, attack, hack) on another Droid.
-  DLLEXPORT int droidOperate(_Droid* object, _Droid* target);
-  ///Attempt to assemble a Droid at this location.
-  DLLEXPORT int tileAssemble(_Tile* object, int type);
+  DLLEXPORT int droidOperate(_Droid* object, int x, int y);
 
 //derived properties
 
@@ -95,11 +93,11 @@ DLLEXPORT int getMapWidth(Connection* c);
 DLLEXPORT int getMapHeight(Connection* c);
 DLLEXPORT int getTurnNumber(Connection* c);
 DLLEXPORT int getMaxDroids(Connection* c);
-DLLEXPORT int getMaxWalls(Connection* c);
 DLLEXPORT int getPlayerID(Connection* c);
 DLLEXPORT int getGameNumber(Connection* c);
 DLLEXPORT int getScrapRate(Connection* c);
 DLLEXPORT int getMaxScrap(Connection* c);
+DLLEXPORT int getDropTime(Connection* c);
 
 DLLEXPORT _Player* getPlayer(Connection* c, int num);
 DLLEXPORT int getPlayerCount(Connection* c);

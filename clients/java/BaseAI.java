@@ -105,11 +105,6 @@ public abstract class BaseAI
   {
     return Client.INSTANCE.getMaxDroids(connection);
   }
-  ///The maximum number of walls allowed per player.
-  int maxWalls()
-  {
-    return Client.INSTANCE.getMaxWalls(connection);
-  }
   ///The id of the current player.
   int playerID()
   {
@@ -129,5 +124,10 @@ public abstract class BaseAI
   int maxScrap()
   {
     return Client.INSTANCE.getMaxScrap(connection);
+  }
+  ///The amount of turns it takes to orbitally drop per tile away from the player's respective edge.
+  int dropTime()
+  {
+    return Client.INSTANCE.getDropTime(connection);
   }
 }

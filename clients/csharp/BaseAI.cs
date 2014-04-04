@@ -140,16 +140,6 @@ public abstract class BaseAI
   }
 
   /// <summary>
-  /// The maximum number of walls allowed per player.
-  /// </summary>
-  /// <returns>Returns the maximum number of walls allowed per player.</returns>
-  public int maxWalls()
-  {
-    int value = Client.getMaxWalls(connection);
-    return value;
-  }
-
-  /// <summary>
   /// The id of the current player.
   /// </summary>
   /// <returns>Returns the id of the current player.</returns>
@@ -186,6 +176,16 @@ public abstract class BaseAI
   public int maxScrap()
   {
     int value = Client.getMaxScrap(connection);
+    return value;
+  }
+
+  /// <summary>
+  /// The amount of turns it takes to orbitally drop per tile away from the player's respective edge.
+  /// </summary>
+  /// <returns>Returns the amount of turns it takes to orbitally drop per tile away from the player's respective edge.</returns>
+  public int dropTime()
+  {
+    int value = Client.getDropTime(connection);
     return value;
   }
 }

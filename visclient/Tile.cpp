@@ -37,21 +37,11 @@ int Tile::turnsUntilAssembled()
   return ((_Tile*)ptr)->turnsUntilAssembled;
 }
 
-int Tile::scrapAmount()
+int Tile::variantToAssemble()
 {
-  return ((_Tile*)ptr)->scrapAmount;
+  return ((_Tile*)ptr)->variantToAssemble;
 }
 
-int Tile::health()
-{
-  return ((_Tile*)ptr)->health;
-}
-
-
-int Tile::assemble(int type)
-{
-  return tileAssemble( (_Tile*)ptr, type);
-}
 
 
 
@@ -62,8 +52,7 @@ std::ostream& operator<<(std::ostream& stream,Tile ob)
   stream << "y: " << ((_Tile*)ob.ptr)->y  <<'\n';
   stream << "owner: " << ((_Tile*)ob.ptr)->owner  <<'\n';
   stream << "turnsUntilAssembled: " << ((_Tile*)ob.ptr)->turnsUntilAssembled  <<'\n';
-  stream << "scrapAmount: " << ((_Tile*)ob.ptr)->scrapAmount  <<'\n';
-  stream << "health: " << ((_Tile*)ob.ptr)->health  <<'\n';
+  stream << "variantToAssemble: " << ((_Tile*)ob.ptr)->variantToAssemble  <<'\n';
   return stream;
 }
 

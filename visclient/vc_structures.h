@@ -49,8 +49,10 @@ struct _Droid
   int armor;
   int maxArmor;
   int scrapWorth;
+  int turnsToBeHacked;
   int hackedTurnsLeft;
   int hackets;
+  int hacketsMax;
 };
 struct _Tile
 {
@@ -60,8 +62,7 @@ struct _Tile
   int y;
   int owner;
   int turnsUntilAssembled;
-  int scrapAmount;
-  int health;
+  int variantToAssemble;
 };
 struct _ModelVariant
 {
@@ -77,6 +78,8 @@ struct _ModelVariant
   int attack;
   int maxArmor;
   int scrapWorth;
+  int turnsToBeHacked;
+  int hacketsMax;
 };
 
 }

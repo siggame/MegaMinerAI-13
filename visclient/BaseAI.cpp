@@ -24,10 +24,6 @@ int BaseAI::maxDroids()
 {
   return getMaxDroids(c);
 }
-int BaseAI::maxWalls()
-{
-  return getMaxWalls(c);
-}
 int BaseAI::playerID()
 {
   return getPlayerID(c);
@@ -43,6 +39,10 @@ int BaseAI::scrapRate()
 int BaseAI::maxScrap()
 {
   return getMaxScrap(c);
+}
+int BaseAI::dropTime()
+{
+  return getDropTime(c);
 }
 
 bool BaseAI::startTurn()

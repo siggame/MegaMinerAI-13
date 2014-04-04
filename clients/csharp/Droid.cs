@@ -45,11 +45,10 @@ public class Droid: Mappable
   /// <summary>
   /// Command to operate (repair, attack, hack) on another Droid.
   /// </summary>
-  public bool operate(Droid target)
+  public bool operate(int x, int y)
   {
     validify();
-    target.validify();
-    return (Client.droidOperate(ptr, target.ptr) == 0) ? false : true;
+    return (Client.droidOperate(ptr, x, y) == 0) ? false : true;
   }
   #endregion
 
@@ -107,7 +106,7 @@ public class Droid: Mappable
   }
 
   /// <summary>
-  /// The variant of this Droid. This variant refers to list of DroidVariants.
+  /// The variant of this Droid. This variant refers to list of ModelVariants.
   /// </summary>
   public int Variant
   {
@@ -263,6 +262,19 @@ public class Droid: Mappable
   }
 
   /// <summary>
+  /// The number of turns this unit will be hacked, if it is hacked. If 0, the droid cannot be hacked.
+  /// </summary>
+  public int TurnsToBeHacked
+  {
+    get
+    {
+      validify();
+      int value = Client.droidGetTurnsToBeHacked(ptr);
+      return value;
+    }
+  }
+
+  /// <summary>
   /// The number of turns the Droid has remaining as hacked.
   /// </summary>
   public int HackedTurnsLeft
@@ -284,6 +296,19 @@ public class Droid: Mappable
     {
       validify();
       int value = Client.droidGetHackets(ptr);
+      return value;
+    }
+  }
+
+  /// <summary>
+  /// The maximum number of hackets that can be sustained before hacked. If 0, the Droid cannot be hacked.
+  /// </summary>
+  public int HacketsMax
+  {
+    get
+    {
+      validify();
+      int value = Client.droidGetHacketsMax(ptr);
       return value;
     }
   }

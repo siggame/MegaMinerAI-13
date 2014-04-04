@@ -1,0 +1,33 @@
+[?1049h[1;24r[m(B[4l[?7h>[24;1H[r[?1049l>Process Process-1:
+Traceback (most recent call last):
+  File "/usr/lib/python2.7/multiprocessing/process.py", line 258, in _bootstrap
+    self.run()
+  File "/usr/lib/python2.7/multiprocessing/process.py", line 114, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/scj7t4/Programming/vexulizer/vexulizer/screen.py", line 87, in start
+    curses.endwin()
+error: endwin() returned ERR
+Goodbye
+You Say Hello
+I say goodbye
+This is a particularly long string: it is interesting because magically, it will makeme cry out to thor and summon him forth
+Turn 0
+Test!
+Turn 1
+Test!
+Turn 2
+Test!
+Turn 3
+Test!
+Turn 4
+Test!
+Turn 5
+Test!
+Turn 6
+Test!
+Turn 7
+Test!
+Turn 8
+Test!
+Turn 9
+Test!

@@ -19,21 +19,20 @@ public interface Client extends Library {
 
     //commands
   int playerTalk(Pointer object, String message);
-  int playerOrbitalDrop(Pointer object, int x, int y, int type);
+  int playerOrbitalDrop(Pointer object, int x, int y, int variant);
   int droidMove(Pointer object, int x, int y);
-  int droidOperate(Pointer object, Pointer target);
-  int tileAssemble(Pointer object, int type);
+  int droidOperate(Pointer object, int x, int y);
 
     //accessors
   int getMapWidth(Pointer connection);
   int getMapHeight(Pointer connection);
   int getTurnNumber(Pointer connection);
   int getMaxDroids(Pointer connection);
-  int getMaxWalls(Pointer connection);
   int getPlayerID(Pointer connection);
   int getGameNumber(Pointer connection);
   int getScrapRate(Pointer connection);
   int getMaxScrap(Pointer connection);
+  int getDropTime(Pointer connection);
 
   Pointer getPlayer(Pointer connection, int num);
   int getPlayerCount(Pointer connection);
@@ -73,16 +72,17 @@ public interface Client extends Library {
   int droidGetArmor(Pointer ptr);
   int droidGetMaxArmor(Pointer ptr);
   int droidGetScrapWorth(Pointer ptr);
+  int droidGetTurnsToBeHacked(Pointer ptr);
   int droidGetHackedTurnsLeft(Pointer ptr);
   int droidGetHackets(Pointer ptr);
+  int droidGetHacketsMax(Pointer ptr);
 
   int tileGetId(Pointer ptr);
   int tileGetX(Pointer ptr);
   int tileGetY(Pointer ptr);
   int tileGetOwner(Pointer ptr);
   int tileGetTurnsUntilAssembled(Pointer ptr);
-  int tileGetScrapAmount(Pointer ptr);
-  int tileGetHealth(Pointer ptr);
+  int tileGetVariantToAssemble(Pointer ptr);
 
   int modelVariantGetId(Pointer ptr);
   String modelVariantGetName(Pointer ptr);
@@ -95,6 +95,8 @@ public interface Client extends Library {
   int modelVariantGetAttack(Pointer ptr);
   int modelVariantGetMaxArmor(Pointer ptr);
   int modelVariantGetScrapWorth(Pointer ptr);
+  int modelVariantGetTurnsToBeHacked(Pointer ptr);
+  int modelVariantGetHacketsMax(Pointer ptr);
 
 
     //properties

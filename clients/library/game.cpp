@@ -10,6 +10,7 @@
 #include <sstream>
 #include <fstream>
 #include <memory>
+#include <cmath>
 
 #include "game.h"
 #include "network.h"
@@ -58,11 +59,11 @@ DLLEXPORT Connection* createConnection()
   c->mapHeight = 0;
   c->turnNumber = 0;
   c->maxDroids = 0;
-  c->maxWalls = 0;
   c->playerID = 0;
   c->gameNumber = 0;
   c->scrapRate = 0;
   c->maxScrap = 0;
+  c->dropTime = 0;
   c->Players = NULL;
   c->PlayerCount = 0;
   c->Mappables = NULL;
@@ -238,17 +239,46 @@ DLLEXPORT int playerTalk(_Player* object, char* message)
   return 1;
 }
 
-DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int type)
+DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int variant)
 {
   stringstream expr;
   expr << "(game-orbital-drop " << object->id
        << " " << x
        << " " << y
-       << " " << type
+       << " " << variant
        << ")";
   LOCK( &object->_c->mutex);
   send_string(object->_c->socket, expr.str().c_str());
   UNLOCK( &object->_c->mutex);
+
+  Connection* c = object->_c;
+
+  // Check bounds
+  if (x < 0 || x >= getMapWidth(c) || y < 0 || y >= getMapHeight(c))
+    return 0;
+  // Check drop type
+  if (variant < 0 || variant > 7)
+    return 0;
+
+  int cost = getModelVariant(c, variant)->cost;
+
+  // Check cost
+  if (getPlayer(c, getPlayerID(c))->scrapAmount < cost)
+    return 0;
+
+  _Tile* tile = getTile(c, x * getMapHeight(c) + y);
+
+  if (tile->turnsUntilAssembled > 0)
+    return 0;
+
+  int xoff = getPlayerID(c) ? getMapWidth(c) : -1;
+
+  tile->turnsUntilAssembled = abs(xoff - x) * getDropTime(c);
+  tile->variantToAssemble = variant;
+  tile->owner = getPlayerID(c);
+
+  getPlayer(c, getPlayerID(c))->scrapAmount -= cost;
+
   return 1;
 }
 
@@ -264,33 +294,142 @@ DLLEXPORT int droidMove(_Droid* object, int x, int y)
   LOCK( &object->_c->mutex);
   send_string(object->_c->socket, expr.str().c_str());
   UNLOCK( &object->_c->mutex);
+
+  Connection* c = object->_c;
+
+  // Ownership check
+  if (object->owner != (getPlayerID(c) ^ (object->hackedTurnsLeft > 0)))
+    return 0;
+  // Alive?
+  if (object->healthLeft <= 0)
+    return 0;
+  // Movement left
+  if (object->movementLeft <= 0)
+    return 0;
+  // Check bounds
+  if (x < 0 || x >= getMapWidth(c) || y < 0 || y >= getMapHeight(c))
+    return 0;
+
+  _Tile* tile = getTile(c, x * getMapHeight(c) + y);
+
+  // Check distance
+  if (abs(x - object->x) + abs(y - object->y) != 1)
+    return 0;
+
+  // Check collision with droids
+  for (int i = 0; i < getDroidCount(c); ++i)
+  {
+    if (getDroid(c, i)->x == x && getDroid(c, i)->y == y)
+      return 0;
+  }
+
+  object->x = x;
+  object->y = y;
+
+  object->movementLeft--;
+
   return 1;
 }
 
-DLLEXPORT int droidOperate(_Droid* object, _Droid* target)
+DLLEXPORT int droidOperate(_Droid* object, int x, int y)
 {
   stringstream expr;
   expr << "(game-operate " << object->id
-      << " " << target->id
+       << " " << x
+       << " " << y
        << ")";
   LOCK( &object->_c->mutex);
   send_string(object->_c->socket, expr.str().c_str());
   UNLOCK( &object->_c->mutex);
+
+  Connection* c = object->_c;
+
+
+  // Check bounds
+  if (x < 0 || x >= getMapWidth(c) || y < 0 || y >= getMapHeight(c))
+    return 0;
+  // Check ownership
+  if (object->owner != (getPlayerID(c) ^ (object->hackedTurnsLeft > 0)))
+    return 0;
+  // Check attacks left
+  if (object->attacksLeft <= 0)
+    return 0;
+  // Check if dead
+  if (object->healthLeft <= 0)
+    return 0;
+  // Check distance
+  if (abs(x - object->x) + abs(y - object->y) > object->range)
+    return 0;
+
+  bool attacked_droid = false;
+
+  // Check if attacking droid
+  for (int i = 0; i < getDroidCount(c); ++i)
+  {
+    _Droid* target = getDroid(c, i);
+    if (target->x == x && target->y == y)
+    {
+      // Check for heal
+      if (object->attack < 0)
+      {
+        // Check target ownership
+        if (target->owner != (getPlayerID(c) ^ (target->hackedTurnsLeft > 0)))
+          return 0;
+
+        // Repair armor
+        target->armor -= object->attack;
+        if (target->armor > target->maxArmor)
+          target->armor = target->maxArmor;
+
+        // Reduce hackets
+        target->hackets += object->attack;
+        if (target->hackets < 0)
+          target->hackets = 0;
+      }
+      else
+      {
+        // Check target ownership
+        if (target->owner == (getPlayerID(c) ^ (target->hackedTurnsLeft > 0)))
+          return 0;
+
+        // Check for hacker
+        if (object->variant == 3)
+        {
+          target->hackets += object->attack;
+          if (target->hackets > target->hacketsMax)
+          {
+            target->hackedTurnsLeft = target->turnsToBeHacked;
+            target->hackets = 0;
+          }
+        }
+        else
+        {
+          int damage;
+          if (target->armor > 0)
+          {
+            damage = static_cast<int>(object->attack * ((target->maxArmor - target->armor) / static_cast<double>(target->maxArmor)));
+            target->armor -= object->attack;
+            if (target->armor < 0)
+              target->armor = 0;
+          }
+          else
+          {
+            damage = object->attack;
+          }
+
+          target->healthLeft -= damage;
+        }
+      }
+
+      attacked_droid = true;
+      break;
+    }
+  }
+
+  object->attacksLeft--;
   return 1;
 }
 
-
-DLLEXPORT int tileAssemble(_Tile* object, int type)
-{
-  stringstream expr;
-  expr << "(game-assemble " << object->id
-       << " " << type
-       << ")";
-  LOCK( &object->_c->mutex);
-  send_string(object->_c->socket, expr.str().c_str());
-  UNLOCK( &object->_c->mutex);
-  return 1;
-}
 
 
 
@@ -368,9 +507,13 @@ void parseDroid(Connection* c, _Droid* object, sexp_t* expression)
   sub = sub->next;
   object->scrapWorth = atoi(sub->val);
   sub = sub->next;
+  object->turnsToBeHacked = atoi(sub->val);
+  sub = sub->next;
   object->hackedTurnsLeft = atoi(sub->val);
   sub = sub->next;
   object->hackets = atoi(sub->val);
+  sub = sub->next;
+  object->hacketsMax = atoi(sub->val);
   sub = sub->next;
 
 }
@@ -391,9 +534,7 @@ void parseTile(Connection* c, _Tile* object, sexp_t* expression)
   sub = sub->next;
   object->turnsUntilAssembled = atoi(sub->val);
   sub = sub->next;
-  object->scrapAmount = atoi(sub->val);
-  sub = sub->next;
-  object->health = atoi(sub->val);
+  object->variantToAssemble = atoi(sub->val);
   sub = sub->next;
 
 }
@@ -427,6 +568,10 @@ void parseModelVariant(Connection* c, _ModelVariant* object, sexp_t* expression)
   object->maxArmor = atoi(sub->val);
   sub = sub->next;
   object->scrapWorth = atoi(sub->val);
+  sub = sub->next;
+  object->turnsToBeHacked = atoi(sub->val);
+  sub = sub->next;
+  object->hacketsMax = atoi(sub->val);
   sub = sub->next;
 
 }
@@ -511,9 +656,6 @@ DLLEXPORT int networkLoop(Connection* c)
           c->maxDroids = atoi(sub->val);
           sub = sub->next;
 
-          c->maxWalls = atoi(sub->val);
-          sub = sub->next;
-
           c->playerID = atoi(sub->val);
           sub = sub->next;
 
@@ -524,6 +666,9 @@ DLLEXPORT int networkLoop(Connection* c)
           sub = sub->next;
 
           c->maxScrap = atoi(sub->val);
+          sub = sub->next;
+
+          c->dropTime = atoi(sub->val);
           sub = sub->next;
 
         }
@@ -716,10 +861,6 @@ DLLEXPORT int getMaxDroids(Connection* c)
 {
   return c->maxDroids;
 }
-DLLEXPORT int getMaxWalls(Connection* c)
-{
-  return c->maxWalls;
-}
 DLLEXPORT int getPlayerID(Connection* c)
 {
   return c->playerID;
@@ -735,4 +876,8 @@ DLLEXPORT int getScrapRate(Connection* c)
 DLLEXPORT int getMaxScrap(Connection* c)
 {
   return c->maxScrap;
+}
+DLLEXPORT int getDropTime(Connection* c)
+{
+  return c->dropTime;
 }
