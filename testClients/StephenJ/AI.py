@@ -34,12 +34,27 @@ class AI(BaseAI):
     self.sea = Seastar(self.getMapWidth(),self.getMapHeight())
     self.vex = DroidsVexulizer(self,True)
     self.building = set()
-    pass
+    bofp = open("{}.buildorder".format(self.getPlayerID(), 'r'))
+    self.buildorder = []
+    for line in bofp:
+        self.buildorder.append(int(line))
+    self.vtobuild = self.get_next_unit()
+
+  def get_next_unit(self):
+    if len(self.buildorder) > 1:
+        return self.buildorder.pop(0)
+    elif len(self.buildorder) == 1:
+        return self.buildorder[0]
+    else:
+        print "Nothing in build order file!"
+        return UNIT_CLAW
 
   ##This function is called once, after your last turn
   def end(self):
-    self.vex.end(self)    
-    pass
+    try:
+        self.vex.end(self)
+    except AttributeError:
+        pass
 
   def validate(self):
     #With rigor, check properties
@@ -69,21 +84,41 @@ class AI(BaseAI):
     
     self.engage_objectives(units, healing_targets, hacking_targets, within=units[0].getRange())
 
+  def unit_only_behavior(self, units):
+    if len(units) == 0:
+        return
+
+    primary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemydroids_g)
+    secondary_targets = [] 
+    
+    self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange())
+
   def unit_focused_behavior(self, units):
     if len(units) == 0:
         return
 
-    primary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemydroids)
+    primary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemydroids_g)
     secondary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemybases) 
     
     self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange())
+   
+   
+  def balanced_behavior(self, units):
+    if len(units) == 0:
+        return
+
+    primary_targets = filter(lambda x: x.getHealthLeft() > 0 and x.getHackedTurnsLeft() == 0, self.enemyunits)
+    secondary_targets = [] 
     
+    self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange())
+   
+ 
   def base_focused_behavior(self, units):
     if len(units) == 0:
         return
 
     primary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemybases) 
-    secondary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemydroids)
+    secondary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemydroids_g)
     
     self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange())
  
@@ -162,6 +197,11 @@ class AI(BaseAI):
     while unit.getAttacksLeft() > 0:
         result = 0
         for enemy in targs:
+            if enemy.getHealthLeft() <= 0:
+                continue
+            if unit.getVariant() == UNIT_HACKER and (enemy.getHackets() >= enemy.getHacketsMax() or
+                enemy.getHackedTurnsLeft() > 0):
+                continue
             if unit.getAttacksLeft() == 0:
                 break
             result += int(unit.operate(enemy.getX(), enemy.getY()))
@@ -182,8 +222,9 @@ class AI(BaseAI):
         self.myhalf = (self.getMapWidth()/2+1,self.getMapWidth())
 
     # My Droids
-    self.mydroids = [ x for x in self.droids if x.getOwner() == self.myid
+    self.myunits = [ x for x in self.droids if x.getOwner() == self.myid
         and x.getHealthLeft() > 0 ]
+    self.mydroids = [ x for x in self.myunits if x.getVariant() != UNIT_HANGAR ]
 
     gf = lambda x: x.getHackedTurnsLeft() == 0
     hf = lambda x: x.getHackedTurnsLeft() > 0
@@ -193,8 +234,9 @@ class AI(BaseAI):
     self.mydroids_h = filter(hf, self.mydroids)
    
     # Enemy Droids
-    self.enemydroids = set([ x for x in self.droids if x.getOwner() == self.enemyid
-        and x.getHealthLeft() > 0])
+    self.enemyunits = set([ x for x in self.droids if x.getOwner() == self.enemyid
+        and x.getHealthLeft() > 0 ])
+    self.enemydroids = set([ x for x in self.enemyunits if x.getVariant() != UNIT_HANGAR])
 
     # Droids filter on hacked ness
     self.enemydroids_g = filter(gf, self.enemydroids)
@@ -209,7 +251,7 @@ class AI(BaseAI):
     self.enemycontrol = filter(mf, self.enemycontrol)
 
     # Units that can't move.
-    hf = lambda x: x.getTurnsToBeHacked() > 0
+    hf = lambda x: x.getTurnsToBeHacked() > 0 and x.getVariant() != UNIT_WALL
     self.enemyhackables = filter(hf, self.enemydroids)
     self.myhackables = filter(hf, self.mydroids)
 
@@ -219,8 +261,8 @@ class AI(BaseAI):
 
     #Hangar Units
     wf = lambda x: x.getVariant() == UNIT_HANGAR
-    self.mybases = filter(wf,self.mydroids)
-    self.enemybases = filter(wf,self.enemydroids)
+    self.mybases = filter(wf,self.myunits)
+    self.enemybases = filter(wf,self.enemyunits)
 
     #Built walls
     wf = lambda x: x.getVariant() == UNIT_WALL
@@ -339,30 +381,27 @@ class AI(BaseAI):
 
     print "Spawning Units"
     self.building = set()
-    no_spawn = [ UNIT_HANGAR, UNIT_ENGINEER, UNIT_HACKER, UNIT_WALL ]
     spawnpts = list(self.opentiles)
     if self.myid != 0:
         spawnpts.reverse()
-    cheapest_variant = min([ variant.getCost() for variant in self.modelVariants
-        if variant.getVariant() not in no_spawn])
-    while self.me.getScrapAmount() >= cheapest_variant:
+
+    variant = filter(lambda x: x.getVariant() == self.vtobuild, self.modelVariants)[0]
+    while self.me.getScrapAmount() >= variant.getCost():
+        print "Building {0}".format(self.vtobuild)
         #Simple AI, pick a unit type, (Other than hangar), and drop those
-        for variant in self.modelVariants:
-            if variant.getVariant() in no_spawn:
+        for tile in spawnpts:
+            if (tile.getX(), tile.getY()) in self.unitsxy:
                 continue
-            if variant.getCost() > self.me.getScrapAmount():
+            if (tile.getX(), tile.getY()) in self.building:
                 continue
-            for tile in spawnpts:
-                if (tile.getX(), tile.getY()) in self.unitsxy:
-                    continue
-                if (tile.getX(), tile.getY()) in self.building:
-                    continue
-                #If we've made it this far, we can spawn the variant
-                initial_scrap = self.me.getScrapAmount()
-                self.me.orbitalDrop(tile.getX(), tile.getY(), variant.getVariant())
-                self.building.add( (tile.getX(), tile.getY()) )
-                assert initial_scrap > self.me.getScrapAmount()
-                break
+            #If we've made it this far, we can spawn the variant
+            initial_scrap = self.me.getScrapAmount()
+            self.me.orbitalDrop(tile.getX(), tile.getY(), variant.getVariant())
+            self.building.add( (tile.getX(), tile.getY()) )
+            assert initial_scrap > self.me.getScrapAmount()
+            break
+        self.vtobuild = self.get_next_unit()
+        variant = filter(lambda x: x.getVariant() == self.vtobuild, self.modelVariants)[0]
 
     self.update_state()
     
@@ -385,11 +424,11 @@ class AI(BaseAI):
     terminators = filter(lambda x: x.getVariant() == UNIT_TERMINATOR, self.mycontrol)
 
     self.engineer_behavior(engineers)
-    self.unit_focused_behavior(claws)
-    self.defense_focused_behavior(archers)
-    self.unit_focused_behavior(terminators)
-    self.unit_focused_behavior(hackers)
-    self.unit_focused_behavior(turrets)
+    self.balanced_behavior(claws)
+    self.balanced_behavior(archers)
+    self.balanced_behavior(terminators)
+    self.unit_only_behavior(hackers)
+    self.balanced_behavior(turrets)
 
     print "Finished"
     return 1

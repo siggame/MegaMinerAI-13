@@ -143,8 +143,8 @@ class AsyncCursesScreen(object):
         while 1:
             # Accept key events from the terminal
             key = stdscr.getch()
-            if key != -1:
-                self.debug.write("Got key {}\n".format(key))
+            #if key != -1:
+                #self.debug.write("Got key {}\n".format(key))
             if key == curses.KEY_UP:
                 #self.debug.write("Got key up")
                 self.game.cursor_up()
@@ -160,6 +160,8 @@ class AsyncCursesScreen(object):
             elif key == 9: #Tab
                 #self.debug.write("Got key tab")
                 self.game.cursor_hide()
+            elif key == 27:
+                break
             elif key == 113: #W
                 self.unit.cursor_next()
             elif key == 119: #Q
@@ -239,6 +241,14 @@ class AsyncCursesScreen(object):
             self.unit.blit()
             self.game.blit()
             sleep(.01)
+    
+        while not self.halting:
+            try:
+                (t, contents) = self.queue.get(False)
+                if t == 'halt':
+                    self.halting = True
+            except Empty:
+                pass
 
     def pickle(self,destroy=False):
         self.pc += 1
