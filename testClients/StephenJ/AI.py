@@ -116,6 +116,7 @@ class AI(BaseAI):
         if len(p) > 0:
             unit = self.unitsxy[p[0]]
             self.follow_path(unit,p,primary+secondary,within)
+            self.update_state()
             tomove.pop(unit.getId(),None)
         else:
             # No unit can reach an objective
