@@ -9,7 +9,7 @@ import game_cache
 
 class AI(BaseAI):
 
-  self.manhattan_offsets = [(0,1),(0,-1),(1,0),(-1,0)]
+  manhattan_offsets = [(0,1),(0,-1),(1,0),(-1,0)]
 
   """The class implementing gameplay logic."""
   @staticmethod
@@ -36,7 +36,7 @@ class AI(BaseAI):
   def run(self):
     snapshot = self.history.save_snapshot()
     self.history.print_snapshot(snapshot)
-    self.game_cache.update_all()
+    self.cache.update_all()
 
     #DROP SOMETHING
     randx = random.randrange(0, self.mapWidth-1)
@@ -47,10 +47,10 @@ class AI(BaseAI):
     for droid in self.droids:
       if droid.owner == self.playerID:
         offset = random.choice(self.manhattan_offsets)
-        droid.move(offset[0], offset[1])
+        droid.move(droid.x + offset[0], droid.y + offset[1])
 
         offset = random.choice(self.manhattan_offsets)
-        droid.operate(offset[0], offset[1])
+        droid.operate(droid.x + offset[0], droid.y + offset[1])
 
     
     return 1

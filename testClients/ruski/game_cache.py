@@ -33,15 +33,15 @@ class game_cache:
         self.walls[(droid.x, droid.y)] = droid
 
       elif droid.variant == 7: #HANGAR
-        if droid.owner == self.playerID:
+        if droid.owner == self.ai.playerID:
           self.my_hangars[(droid.x, droid.y)] = droid
-        elif droid.owner == self.playerID^1:
+        elif droid.owner == self.ai.playerID^1:
           self.enemy_hangars[(droid.x, droid.y)] = droid
 
       else: #DROID
-        if droid.owner == self.playerID:
+        if droid.owner == self.ai.playerID:
           self.my_droids[(droid.x, droid.y)] = droid
-        elif droid.owner == self.playerID^1:
+        elif droid.owner == self.ai.playerID^1:
           self.enemy_droids[(droid.x, droid.y)] = droid
 
     return True
