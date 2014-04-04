@@ -48,10 +48,10 @@ class AI(BaseAI):
   ##This function is called each time it is your turn
   ##Return true to end your turn, return false to ask the server for updated information
   def run(self):
-    x = self.minX
     y = self.minY - 1
     notDone = True
     while notDone:
+      x = self.minX
       while x <= self.maxX:
         drop = True
         for droid in self.droids:

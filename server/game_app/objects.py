@@ -234,7 +234,7 @@ class Droid(Mappable):
     variantName = self.game.variantStrings[self.variant]
     #make sure valid for operating on either a droid or tile
     if not (0 <= x < self.game.mapWidth and 0 <= y < self.game.mapHeight):
-      return "Turn %i: You may only attack in-bounds."%(self.game.turnNumber)
+      return "Turn %i: You may only operate in-bounds."%(self.game.turnNumber)
     elif self.owner != (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
       return 'Turn {}: You cannot use the other player\'s droid when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.attacksLeft == 0:
