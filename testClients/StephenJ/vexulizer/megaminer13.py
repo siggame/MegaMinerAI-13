@@ -66,7 +66,7 @@ class DroidsVexulizer(object):
                     color = "ENEMY_COLOR_HACKED"
                 else:
                     color = "ENEMY_COLOR"
-            if droid.getVariant() == 7:
+            if droid.getVariant() == 5:
                 color = "WALL_COLOR"
 
             package.append({
