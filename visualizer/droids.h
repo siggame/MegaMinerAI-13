@@ -25,21 +25,17 @@ namespace visualizer
         private:
             static const int IDLE = 6;
 
-            enum DROID_TYPE
-                {
-                  DROID_CLAW = 0,
-                  DROID_ARCHER,
-                  DROID_REPAIRER,
-                  DROID_HACKER,
-                  DROID_TURRET,
-                  DROID_TERMINATOR
-                };
-
-            enum STRUCTURE_TYPE
-                {
-                  STRUCTURE_WALL = 0,
-                  STRUCTURE_HANGER
-                };
+			enum DROID_TYPE
+			{
+				DROID_CLAW = 0,
+				DROID_ARCHER,
+				DROID_REPAIRER,
+				DROID_HACKER,
+				DROID_TURRET,
+				DROID_WALL,
+				DROID_TERMINATOR,
+				DROID_HANGAR
+			};
 
 
         public: 

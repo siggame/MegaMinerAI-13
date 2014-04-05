@@ -217,28 +217,35 @@ namespace visualizer
       for(auto& it: currentState.droids)
       {
           parser::Droid& unit = it.second;
+		  cout << unit.variant << endl;
           switch(unit.variant)
           {
-            case DROID_CLAW:
-              texture = "claw";
-              break;
-            case DROID_ARCHER:
-              texture = "archer";
-              break;
-            case DROID_REPAIRER:
-              texture = "repairer";
-              break;
-            case DROID_HACKER:
-              texture = "hacker";
-              break;
-            case DROID_TURRET:
-              texture = "turret";
-              break;
-            case DROID_TERMINATOR:
-              texture = "terminator";
-              break;
-            default:
-              std::cout << "ouch\n";
+			case DROID_CLAW:
+				  texture = "claw";
+				  break;
+			case DROID_ARCHER:
+				  texture = "archer";
+				  break;
+			case DROID_REPAIRER:
+				  texture = "repairer";
+				  break;
+			case DROID_HACKER:
+				  texture = "hacker";
+				  break;
+			case DROID_TURRET:
+				  texture = "turret";
+				  break;
+			case DROID_WALL:
+				  texture = "wall";
+				  break;
+			case DROID_TERMINATOR:
+				  texture = "terminator";
+				  break;
+			case DROID_HANGAR:
+				  texture = "hangar";
+				  break;
+			default:
+				  assert("Unknown Droid Variant" && false);
           }
 
           const auto& iter = currentState.animations.find(unit.id);
@@ -285,6 +292,7 @@ namespace visualizer
           }
           else
           {
+			  cout << "Texture: " << texture << endl;
               SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), texture);
               sprite->addKeyFrame(new DrawSprite(sprite, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
               turn.addAnimatable(sprite);
@@ -297,7 +305,7 @@ namespace visualizer
   {
       parser::GameState& currentState = m_game->states[frameNum];
 
-      for(auto& it : currentState.tiles)
+	  for(auto& it : currentState.tiles)
       {
           parser::Tile& tile = it.second;
 
