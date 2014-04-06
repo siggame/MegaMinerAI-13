@@ -268,8 +268,16 @@ DLLEXPORT int playerOrbitalDrop(_Player* object, int x, int y, int variant)
 
   _Tile* tile = getTile(c, x * getMapHeight(c) + y);
 
+  // Check for previous orbital drop
   if (tile->turnsUntilAssembled > 0)
     return 0;
+
+  // Check for hangars
+  for (int i = 0; i < getDroidCount(c); ++i)
+  {
+    if (getDroid(c, i)->x == x && getDroid(c, i)->y == y && getDroid(c, i)->variant == 7)
+      return 0;
+  }
 
   int xoff = getPlayerID(c) ? getMapWidth(c) : -1;
 

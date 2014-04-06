@@ -34,20 +34,14 @@ class AI(BaseAI):
     self.sea = Seastar(self.getMapWidth(),self.getMapHeight())
     self.vex = DroidsVexulizer(self,True)
     self.building = set()
-    bofp = open("{}.buildorder".format(self.getPlayerID(), 'r'))
-    self.buildorder = []
-    for line in bofp:
-        self.buildorder.append(int(line))
-    self.vtobuild = self.get_next_unit()
-
-  def get_next_unit(self):
-    if len(self.buildorder) > 1:
-        return self.buildorder.pop(0)
-    elif len(self.buildorder) == 1:
-        return self.buildorder[0]
-    else:
-        print "Nothing in build order file!"
-        return UNIT_CLAW
+    self.builditerator = None
+    if self.getPlayerID() == 0:
+        import buildorder0
+        self.buildit = buildorder0.buildorder(self)
+    if self.getPlayerID() == 1:
+        import buildorder1
+        self.buildit = buildorder1.buildorder(self)
+    self.vtobuild = self.buildit.next()
 
   ##This function is called once, after your last turn
   def end(self):
@@ -88,7 +82,7 @@ class AI(BaseAI):
     if len(units) == 0:
         return
 
-    primary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemydroids_g)
+    primary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemycontrol)
     secondary_targets = [] 
     
     self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange())
@@ -97,7 +91,7 @@ class AI(BaseAI):
     if len(units) == 0:
         return
 
-    primary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemydroids_g)
+    primary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemycontrol)
     secondary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemybases) 
     
     self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange())
@@ -118,7 +112,7 @@ class AI(BaseAI):
         return
 
     primary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemybases) 
-    secondary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemydroids_g)
+    secondary_targets = filter(lambda x: x.getHealthLeft() > 0, self.enemycontrol)
     
     self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange())
  
@@ -382,11 +376,22 @@ class AI(BaseAI):
     print "Spawning Units"
     self.building = set()
     spawnpts = list(self.opentiles)
-    if self.myid != 0:
-        spawnpts.reverse()
 
-    variant = filter(lambda x: x.getVariant() == self.vtobuild, self.modelVariants)[0]
-    while self.me.getScrapAmount() >= variant.getCost():
+    while 1:
+        variant = filter(lambda x: x.getVariant() == self.vtobuild[0], self.modelVariants)[0]
+        
+        if self.vtobuild[1] == None:
+            if self.myid == 0:
+                spawntarget = (0, self.getMapHeight()/2)
+            else:
+                spawntarget = (self.getMapWidth()-1, self.getMapHeight()/2)
+        else:
+            spawntarget = self.vtobuild[1]
+        spawnpts.sort(key=lambda x: self.distance(spawntarget, (x.getX(), x.getY()) ) )
+        
+        if self.me.getScrapAmount() < variant.getCost():
+            break
+
         print "Building {0}".format(self.vtobuild)
         #Simple AI, pick a unit type, (Other than hangar), and drop those
         for tile in spawnpts:
@@ -400,8 +405,7 @@ class AI(BaseAI):
             self.building.add( (tile.getX(), tile.getY()) )
             assert initial_scrap > self.me.getScrapAmount()
             break
-        self.vtobuild = self.get_next_unit()
-        variant = filter(lambda x: x.getVariant() == self.vtobuild, self.modelVariants)[0]
+        self.vtobuild = self.buildit.next()
 
     self.update_state()
     
