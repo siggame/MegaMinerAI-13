@@ -16,7 +16,7 @@ def cat_see(game):
     shapes[6] = 't#'
     shapes[7] = '_H'
 
-    neon = [[[' ', '097', '040'] for _ in xrange(game.mapWidth)] for _ in xrange(game.mapHeight)]
+    neon = [[['  ', '097', '040'] for _ in xrange(game.mapWidth)] for _ in xrange(game.mapHeight)]
     for territory in game.tiles:
         mine = neon[territory.y][territory.x]
         # Background

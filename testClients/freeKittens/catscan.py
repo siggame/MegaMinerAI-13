@@ -9,8 +9,11 @@ def catscan(game):
         grid[droid.x][droid.y].append(droid)
     return grid
 
+
 def cat_move(game, droid, x, y):
     if droid in game.grid[droid.x][droid.y]:
         game.grid[droid.x][droid.y].remove(droid)
-    if (droid.move(x, y)):
+    success = droid.move(x, y)
+    if success:
         game.grid[x][y].append(droid)
+    return success
