@@ -14,11 +14,11 @@
 namespace parser
 {
 
-const int MOVE = 0;
-const int SPAWN = 1;
-const int HACK = 2;
-const int ORBITALDROP = 3;
-const int REPAIR = 4;
+const int SPAWN = 0;
+const int REPAIR = 1;
+const int MOVE = 2;
+const int HACK = 3;
+const int ORBITALDROP = 4;
 const int ATTACK = 5;
 
 struct Player
@@ -67,8 +67,7 @@ struct Tile: public Mappable
 {
   int owner;
   int turnsUntilAssembled;
-  int typeToAssemble;
-  int health;
+  int variantToAssemble;
 
   friend std::ostream& operator<<(std::ostream& stream, Tile obj);
 };
@@ -98,6 +97,22 @@ struct Animation
   int type;
 };
 
+struct spawn : public Animation
+{
+  int sourceID;
+  int unitID;
+
+  friend std::ostream& operator<<(std::ostream& stream, spawn obj);
+};
+
+struct repair : public Animation
+{
+  int actingID;
+  int targetID;
+
+  friend std::ostream& operator<<(std::ostream& stream, repair obj);
+};
+
 struct move : public Animation
 {
   int actingID;
@@ -107,14 +122,6 @@ struct move : public Animation
   int toY;
 
   friend std::ostream& operator<<(std::ostream& stream, move obj);
-};
-
-struct spawn : public Animation
-{
-  int sourceID;
-  int unitID;
-
-  friend std::ostream& operator<<(std::ostream& stream, spawn obj);
 };
 
 struct hack : public Animation
@@ -130,14 +137,6 @@ struct orbitalDrop : public Animation
   int sourceID;
 
   friend std::ostream& operator<<(std::ostream& stream, orbitalDrop obj);
-};
-
-struct repair : public Animation
-{
-  int actingID;
-  int targetID;
-
-  friend std::ostream& operator<<(std::ostream& stream, repair obj);
 };
 
 struct attack : public Animation
@@ -166,13 +165,10 @@ struct GameState
   int mapHeight;
   int turnNumber;
   int maxDroids;
-  int maxWalls;
   int playerID;
   int gameNumber;
   int scrapRate;
   int maxScrap;
-  int wallCost;
-  int maxWallHealth;
   int dropTime;
 
   std::map< int, std::vector< SmartPointer< Animation > > > animations;

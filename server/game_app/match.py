@@ -30,28 +30,30 @@ class Match(DefaultGameWorld):
       self.dictLog = dict(gameName = "Droids", turns = [])
     self.addPlayer(self.scribe, "spectator")
 
+
     self.turnNumber = -1
     self.playerID = -1
     self.gameNumber = id
+    
+    self.hangartiles = dict()
+    self.grid = []
 
     self.mapWidth = self.mapWidth
     self.mapHeight = self.mapHeight
     self.maxDroids = self.maxDroids
-    self.maxWalls = self.maxWalls
     self.scrapRate = self.scrapRate
     self.maxScrap = self.maxScrap
-    
-    self.hangartiles = dict()
-
-    self.grid = []
-
-    self.wallCost = self.wallCost
-    self.maxWallHealth = self.maxWallHealth
     self.dropTime = self.dropTime
 
   #this is here to be wrapped
   def __del__(self):
     pass
+
+  def variantToModelVariant(self, type):
+    for variant in self.objects.modelVariants:
+      if variant.variant == type:
+        return variant
+    return None
 
   def addPlayer(self, connection, type="player"):
     connection.type = type
@@ -84,19 +86,22 @@ class Match(DefaultGameWorld):
     centerX = int(self.mapWidth/4.0)
     centerY = int(self.mapHeight/2.0)
 
+    #Hangar = 7
+    variant = self.variantToModelVariant(7)
+
     for y in range(centerY-hangarSize/2, centerY+hangarSize/2):
       #Player 1
       for x in range(centerX-hangarSize/2, centerX+hangarSize/2):
-        self.grid[x][y][0].owner = 0
-        self.grid[x][y][0].health = self.maxHangarHealth
-        self.hangartiles[(x, y)] = self.grid[x][y][0]
-        self.grid[x][y][0].typeToAssemble = 2
+        newDroidStats = [x, y, 0, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        #newDroidStats= [x,y, 0, 7, 0, 0, 200, 200, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0]
+        newDroid = self.addObject(Droid, newDroidStats)
+        self.grid[x][y].append(newDroid)
       #Player 2
       for x in range(self.mapWidth-(centerX+hangarSize/2)+1, self.mapWidth-(centerX-hangarSize/2)+1):
-        self.grid[x][y][0].owner = 1
-        self.grid[x][y][0].health = self.maxHangarHealth
-        self.hangartiles[(x, y)] = self.grid[x][y][0]
-        self.grid[x][y][0].typeToAssemble = 2
+        newDroidStats = [x, y, 1, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        #newDroidStats = [x,y, 1, 7, 0, 0, 200, 200, 0, 0, 0, 200, 200, 0, 0, 0, 0, 0, 0]
+        newDroid = self.addObject(Droid, newDroidStats)
+        self.grid[x][y].append(newDroid)
 
     return
 
@@ -109,18 +114,18 @@ class Match(DefaultGameWorld):
     #TODO: START STUFF
     self.turn = self.players[-1]
     self.turnNumber = -1
-    #'x', 'y', 'owner', 'turnsUntilAssembled', 'typeToAssemble', 'health']
-    self.grid = [[[ self.addObject(Tile,[x, y, 2, 0, -1, 0]) ] for y in range(self.mapHeight)] for x in range(self.mapWidth)]
+    #['x', 'y', 'owner', 'turnsUntilAssembled', 'variantToAssemble']
+    self.grid = [[[ self.addObject(Tile,[x, y, 2, 0, -1]) ] for y in range(self.mapHeight)] for x in range(self.mapWidth)]
 
-    self.createhangars()
-
-    statList = ["name", "variant", "cost", "maxAttacks", "maxHealth", "maxMovement", "range", "attack", "maxArmor", "scrapWorth", "turnsToBeHacked", "hacketsMax"]
+    statList = ['name', 'variant', 'cost', 'maxAttacks', 'maxHealth', 'maxMovement', 'range', 'attack', 'maxArmor', 'scrapWorth', 'turnsToBeHacked', 'hacketsMax']
     variants = cfgVariants.values()
     variants.sort(key=lambda variant: variant['variant'])
     for t in variants:
       self.addObject(ModelVariant, [t[value] for value in statList])
 
-    self.varaintStrings = {variants.variant:variants.name for variants in self.objects.modelVariants}
+    self.createhangars()
+
+    self.variantStrings = {variants.variant:variants.name for variants in self.objects.modelVariants}
 
     self.nextTurn()
     return True
@@ -159,13 +164,10 @@ class Match(DefaultGameWorld):
           mapHeight = self.mapHeight,
           turnNumber = self.turnNumber,
           maxDroids = self.maxDroids,
-          maxWalls = self.maxWalls,
           playerID = self.playerID,
           gameNumber = self.gameNumber,
           scrapRate = self.scrapRate,
           maxScrap = self.maxScrap,
-          wallCost = self.wallCost,
-          maxWallHealth = self.maxWallHealth,
           dropTime = self.dropTime,
           Players = [i.toJson() for i in self.objects.values() if i.__class__ is Player],
           Mappables = [i.toJson() for i in self.objects.values() if i.__class__ is Mappable],
@@ -181,18 +183,16 @@ class Match(DefaultGameWorld):
     return True
 
   def checkWinner(self):
-    #Get the players, is this necessary? If not, just remove these two lines :3
-    player1 = self.objects.players[0]
-    player2 = self.objects.players[1]
     
     #Determine if hangars are dead
     allDead1 = True #true if player 1's hangar is dead
     allDead2 = True #true if player 2's hangar is dead
 
-    for tile in self.hangartiles.values(): #this line will likely change after Russley finishes his function
-      if tile.owner == 0 and tile.health > 0:
+    #7 = Hangar
+    for droid in self.objects.droids:
+      if droid.owner == 0 and droid.healthLeft > 0 and droid.variant == 7:
         allDead1 = False
-      if tile.owner == 1 and tile.health > 0:
+      if droid.owner == 1 and droid.healthLeft > 1 and droid.variant == 7:
         allDead2 = False
 
     #Crown winner
@@ -203,17 +203,43 @@ class Match(DefaultGameWorld):
     elif self.turnNumber >= self.turnLimit:
       total1 = 0
       total2 = 0
-      for tile in self.hangartiles.values():
-        if tile.owner == 0:
-          total1 += tile.health
-        elif tile.owner == 1:
-          total2 += tile.health
+      armor1 = 0
+      armor2 = 0
+      count1 = 0
+      count2 = 0
+      hangars1 = 0
+      hangars2 = 0
+      for droid in self.objects.droids:
+        if droid.owner == 0:
+          count1 += 1
+        else:
+          count2 += 1
+        if droid.owner == 0 and droid.healthLeft > 0 and droid.variant == 7:
+          total1 += droid.healthLeft
+          armor1 += droid.armor
+          hangars1 += 1
+        elif droid.owner == 1 and droid.healthLeft > 1 and droid.variant == 7:
+          total2 += droid.healthLeft
+          armor2 += droid.armor
+          hangars2 += 1
 
       #Winner has most health
       if total1 > total2:
         self.declareWinner(self.players[0], "Player 1\'s hangar has more total health.")
       elif total1 < total2:
         self.declareWinner(self.players[1], "Player 2\'s hangar has more total health.")
+      elif hangars1 > hangars2:
+        self.declareWinner(self.players[0], "Player 1 has more hangar units.")
+      elif hangars2 > hangars1:
+        self.declareWinner(self.players[1], "Player 2 has more hangar units.")
+      elif armor1 > armor2:
+        self.declareWinner(self.players[0], "Player 1\'s hangar has more total armor.")
+      elif armor2 > armor1:
+        self.declareWinner(self.players[1], "Player 2\'s hangar has more total armor.")
+      elif count1 > count2:
+        self.declareWinner(self.players[0], "Player 1 has more droids.")
+      elif count2 > count1:
+        self.declareWinner(self.players[1], "Player 2 has more droids.")
       else:
         self.declareWinner(self.players[0], "Player 1 wins because both are equally matched.")
     return
@@ -251,8 +277,8 @@ class Match(DefaultGameWorld):
     return object.talk(message, )
 
   @derefArgs(Player, None, None, None)
-  def orbitalDrop(self, object, x, y, type):
-    return object.orbitalDrop(x, y, type, )
+  def orbitalDrop(self, object, x, y, variant):
+    return object.orbitalDrop(x, y, variant, )
 
   @derefArgs(Droid, None, None)
   def move(self, object, x, y):
@@ -261,10 +287,6 @@ class Match(DefaultGameWorld):
   @derefArgs(Droid, None, None)
   def operate(self, object, x, y):
     return object.operate(x, y, )
-
-  @derefArgs(Tile, None)
-  def assemble(self, object, type):
-    return object.assemble(type, )
 
 
   def sendIdent(self, players):
@@ -293,7 +315,7 @@ class Match(DefaultGameWorld):
   def status(self):
     msg = ["status"]
 
-    msg.append(["game", self.mapWidth, self.mapHeight, self.turnNumber, self.maxDroids, self.maxWalls, self.playerID, self.gameNumber, self.scrapRate, self.maxScrap, self.wallCost, self.maxWallHealth, self.dropTime])
+    msg.append(["game", self.mapWidth, self.mapHeight, self.turnNumber, self.maxDroids, self.playerID, self.gameNumber, self.scrapRate, self.maxScrap, self.dropTime])
 
     typeLists = []
     typeLists.append(["Player"] + [i.toList() for i in self.objects.values() if i.__class__ is Player])

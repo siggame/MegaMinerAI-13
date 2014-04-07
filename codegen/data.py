@@ -15,13 +15,10 @@ globals = [
   Variable('mapHeight', int, 'The height of the total map.'),
   Variable('turnNumber', int, 'The current turn number.'),
   Variable('maxDroids', int, 'The maximum number of Droids allowed per player.'),
-  Variable('maxWalls', int, 'The maximum number of walls allowed per player.'),
   Variable('playerID', int, 'The id of the current player.'),
   Variable('gameNumber', int, 'What number game this is for the server.'),
   Variable('scrapRate', int, 'The rate a player receives scrap per turn.'),
   Variable('maxScrap', int, 'The maximum amount of scrap a player can have at once.'),
-  Variable('wallCost', int, 'The cost to place a wall, in scrap.'),
-  Variable('maxWallHealth', int, 'The maximum amount of scrap a player can have at once.'),
   Variable('dropTime', int, 'The amount of turns it takes to orbitally drop per tile away from the player\'s respective edge.'),
 ]
 
@@ -31,7 +28,7 @@ playerData = [
 
 playerFunctions = [
   Function('talk', [Variable('message', str)], doc='Allows a player to display messages on the screen'),
-  Function('orbitalDrop', [Variable('x', int), Variable('y', int), Variable('type', int)], doc='Allows a player to spawn a structure.'),
+  Function('orbitalDrop', [Variable('x', int), Variable('y', int), Variable('variant', int)], doc='Allows a player to spawn a Droid.'),
 ]
 
 #MAPPABLE
@@ -47,14 +44,9 @@ Mappable = Model('Mappable',
 Tile = Model('Tile',
   parent = Mappable,
   data = [
-    Variable('owner', int, 'The owner of the tile. If 0: Player 1; If 1: Player 2; '),
-    Variable('turnsUntilAssembled', int, 'The number of turns until a structure is assembled.'),
-    Variable('typeToAssemble', int, 'The type of structure to assemble. If 0: Wall. If 1: Turret'),
-    Variable('health', int, 'The health of the Hangar or Wall on this tile.')
-    ],
-  functions=[
-    Function('assemble',[Variable('type',int)],
-    doc='Attempt to assemble a Droid at this location.'),
+    Variable('owner', int, 'Owner of spawning droid. 0 - Player 1, 1 - Player 2, 2 - No spawning droid.'),
+    Variable('turnsUntilAssembled', int, 'The number of turns until a Droid is assembled.'),
+    Variable('variantToAssemble', int, 'The variant of Droid to assemble.'),
     ],
   doc='Represents a single tile on the map.',
   permanent = True,
@@ -66,21 +58,29 @@ Droid = Model('Droid',
   data = [
     Variable('owner', int, 'The owner of this Droid.'),
     Variable('variant', int, 'The variant of this Droid. This variant refers to list of ModelVariants.'),
+
     Variable('attacksLeft', int, 'The number of attacks the Droid has remaining.'),
     Variable('maxAttacks', int, 'The maximum number of times the Droid can attack.'),
+
     Variable('healthLeft', int, 'The current amount health this Droid has remaining.'),
     Variable('maxHealth', int, 'The maximum amount of this health this Droid can have'),
+
     Variable('movementLeft', int, 'The number of moves this Droid has remaining.'),
     Variable('maxMovement', int, 'The maximum number of moves this Droid can move.'),
+
     Variable('range', int, 'The range of this Droid\'s attack.'),
     Variable('attack', int, 'The power of this Droid variant\'s attack.'),
+
     Variable('armor', int, 'How much armor the Droid has which reduces damage taken.'),
     Variable('maxArmor', int, 'How much armor the Droid has which reduces damage taken.'),
+
     Variable('scrapWorth', int, 'The amount of scrap the Droid drops.'),
-    Variable('turnsToBeHacked', int, 'The number of turns this unit will be hacked, if it is hacked.'),
+
+    Variable('turnsToBeHacked', int, 'The number of turns this unit will be hacked, if it is hacked. If 0, the droid cannot be hacked.'),
     Variable('hackedTurnsLeft', int, 'The number of turns the Droid has remaining as hacked.'),
+
     Variable('hackets', int, 'The amount of hacking progress that has been made.'),
-    Variable('hacketsMax', int, 'The maximum number of hackets that can be sustained before hacked.'),
+    Variable('hacketsMax', int, 'The maximum number of hackets that can be sustained before hacked. If 0, the Droid cannot be hacked.'),
     ],
   doc='Represents a single Droid on the map.',
   functions=[
@@ -105,8 +105,8 @@ ModelVariant = Model('ModelVariant',
     Variable('attack', int, 'The power of this Droid variant\'s attack.'),
     Variable('maxArmor', int, 'How much armor the Droid has which reduces damage taken.'),
     Variable('scrapWorth', int, 'The amount of scrap the Droid drops.'),
-    Variable('turnsToBeHacked', int, 'The number of turns this unit will be hacked, if it is hacked.'),
-    Variable('hacketsMax', int, 'The maximum number of hackets that can be sustained before hacked.')
+    Variable('turnsToBeHacked', int, 'The number of turns this unit will be hacked, if it is hacked. If 0, the droid cannot be hacked.'),
+    Variable('hacketsMax', int, 'The maximum number of hackets that can be sustained before hacked. If 0, the Droid cannot be hacked.')
     ],
   doc='Represents Variant of Droid.',
   functions=[],

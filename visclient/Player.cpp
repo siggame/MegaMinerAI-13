@@ -38,9 +38,9 @@ int Player::talk(char* message)
   return playerTalk( (_Player*)ptr, message);
 }
 
-int Player::orbitalDrop(int x, int y, int type)
+int Player::orbitalDrop(int x, int y, int variant)
 {
-  return playerOrbitalDrop( (_Player*)ptr, x, y, type);
+  return playerOrbitalDrop( (_Player*)ptr, x, y, variant);
 }
 
 

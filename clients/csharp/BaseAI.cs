@@ -140,16 +140,6 @@ public abstract class BaseAI
   }
 
   /// <summary>
-  /// The maximum number of walls allowed per player.
-  /// </summary>
-  /// <returns>Returns the maximum number of walls allowed per player.</returns>
-  public int maxWalls()
-  {
-    int value = Client.getMaxWalls(connection);
-    return value;
-  }
-
-  /// <summary>
   /// The id of the current player.
   /// </summary>
   /// <returns>Returns the id of the current player.</returns>
@@ -186,26 +176,6 @@ public abstract class BaseAI
   public int maxScrap()
   {
     int value = Client.getMaxScrap(connection);
-    return value;
-  }
-
-  /// <summary>
-  /// The cost to place a wall, in scrap.
-  /// </summary>
-  /// <returns>Returns the cost to place a wall, in scrap.</returns>
-  public int wallCost()
-  {
-    int value = Client.getWallCost(connection);
-    return value;
-  }
-
-  /// <summary>
-  /// The maximum amount of scrap a player can have at once.
-  /// </summary>
-  /// <returns>Returns the maximum amount of scrap a player can have at once.</returns>
-  public int maxWallHealth()
-  {
-    int value = Client.getMaxWallHealth(connection);
     return value;
   }
 

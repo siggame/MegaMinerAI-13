@@ -46,12 +46,12 @@ public class Player
     return (Client.playerTalk(ptr, message) == 0) ? false : true;
   }
   /// <summary>
-  /// Allows a player to spawn a structure.
+  /// Allows a player to spawn a Droid.
   /// </summary>
-  public bool orbitalDrop(int x, int y, int type)
+  public bool orbitalDrop(int x, int y, int variant)
   {
     validify();
-    return (Client.playerOrbitalDrop(ptr, x, y, type) == 0) ? false : true;
+    return (Client.playerOrbitalDrop(ptr, x, y, variant) == 0) ? false : true;
   }
   #endregion
 

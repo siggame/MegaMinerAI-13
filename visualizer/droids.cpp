@@ -90,11 +90,19 @@ namespace visualizer
 
 	  time += timeManager->getDt();
 
-      renderer->setColor({0.7,0.7, 0.7, 1.0f});
-      renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,0,0, 16/1.5, 9/1.5,"cliffside");
+	  renderer->setColor({0.9,0.9, 0.9, 1.0f});
+	  renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,0,0, 16/1.5, 9/1.5,"cliffside");
+
+      /*
+	  renderer->setColor({1.0, 1.0, 1.0, 0.4});
+	  renderer->drawRotatedTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,2.0f, time, "grid");
+
+	  renderer->setColor({0.7, 0.8, 0.8, 0.5});
+	  renderer->drawRotatedTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,2.2f, -time/2, "grid");
+      */
 
       renderer->setColor({1.0f,1.0f,1.0f,1.0f});
-      renderer->drawSubTexturedQuad(0,0,m_mapWidth,m_mapHeight, 0, 0, 2, 1,"desolate");
+	  renderer->drawSubTexturedQuad(0,0,m_mapWidth,m_mapHeight, 0, 0, 2, 1,"desolate");
 
       if(time > nextGust + gustLength)
       {
@@ -217,41 +225,50 @@ namespace visualizer
       for(auto& it: currentState.droids)
       {
           parser::Droid& unit = it.second;
+		  cout << unit.variant << endl;
           switch(unit.variant)
           {
-            case DROID_CLAW:
-              texture = "claw";
-              break;
-            case DROID_ARCHER:
-              texture = "archer";
-              break;
-            case DROID_REPAIRER:
-              texture = "repairer";
-              break;
-            case DROID_HACKER:
-              texture = "hacker";
-              break;
-            case DROID_TURRET:
-              texture = "turret";
-              break;
-            case DROID_TERMINATOR:
-              texture = "terminator";
-              break;
-            default:
-              std::cout << "ouch\n";
+			case DROID_CLAW:
+				  texture = "claw";
+				  break;
+			case DROID_ARCHER:
+				  texture = "archer";
+				  break;
+			case DROID_REPAIRER:
+				  texture = "repairer";
+				  break;
+			case DROID_HACKER:
+				  texture = "hacker";
+				  break;
+			case DROID_TURRET:
+				  texture = "turret";
+				  break;
+			case DROID_WALL:
+				  texture = "wall";
+				  break;
+			case DROID_TERMINATOR:
+				  texture = "terminator";
+				  break;
+			case DROID_HANGAR:
+				  texture = "hangar";
+				  break;
+			default:
+				  assert("Unknown Droid Variant" && false);
           }
+
+         // SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(unit.x,unit.y), glm::vec2(1), texture);
+           SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
 
           const auto& iter = currentState.animations.find(unit.id);
           if(iter != currentState.animations.end())
           {
-              std::vector<SmartPointer<parser::Animation> >& animList = iter->second;
-              SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
-              for(auto& anim: animList)
+              for(auto& anim : iter->second)
               {
                   switch(anim->type)
                   {
                       case parser::MOVE:
                       {
+                          //.std::cout << "Found move animation." << endl;
                           parser::move& move = (parser::move&)*anim;
                           sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(move.toX, move.toY), glm::vec2(move.fromX, move.fromY)));
                           break;
@@ -280,16 +297,17 @@ namespace visualizer
                       break;
                   }
               }
+          }
 
-              turn.addAnimatable(sprite);
-          }
-          else
+          if(sprite->m_Moves.empty())
           {
-              SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), texture);
-              sprite->addKeyFrame(new DrawSprite(sprite, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
-              turn.addAnimatable(sprite);
+                cout << unit.x << " " << unit.y << endl;
+                sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
           }
-          std::cout << "unit made.\n";
+          sprite->addKeyFrame(new DrawSmoothMoveSprite(sprite, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
+        turn.addAnimatable(sprite);
+
+          std::cout << texture << " made.\n";
       }
   }
 
@@ -297,7 +315,7 @@ namespace visualizer
   {
       parser::GameState& currentState = m_game->states[frameNum];
 
-      for(auto& it : currentState.tiles)
+	  for(auto& it : currentState.tiles)
       {
           parser::Tile& tile = it.second;
 

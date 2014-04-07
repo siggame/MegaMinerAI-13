@@ -53,8 +53,7 @@ DLLEXPORT int tileGetX(_Tile* ptr);
 DLLEXPORT int tileGetY(_Tile* ptr);
 DLLEXPORT int tileGetOwner(_Tile* ptr);
 DLLEXPORT int tileGetTurnsUntilAssembled(_Tile* ptr);
-DLLEXPORT int tileGetTypeToAssemble(_Tile* ptr);
-DLLEXPORT int tileGetHealth(_Tile* ptr);
+DLLEXPORT int tileGetVariantToAssemble(_Tile* ptr);
 
 
 DLLEXPORT int modelVariantGetId(_ModelVariant* ptr);
