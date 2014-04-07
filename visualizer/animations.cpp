@@ -78,13 +78,13 @@ namespace visualizer
 		RenderProgressBar(*game->renderer,m_pos.x,m_pos.y,m_width,m_height,m_percent,1.0f,Color(1.0f,0.0f,0.0f,0.5f));
 	}
 
-	void DrawSmoothSpriteProgressBar::animate(const float &t, AnimData *d, IGame *game)
+    /*void DrawSmoothSpriteProgressBar::animate(const float &t, AnimData *d, IGame *game)
 	{
 		DrawFlippedSmoothMoveSprite::animate(t,d,game);
 
 		m_pProgressBar->SetPos(m_pos + glm::vec2(0.0f,-0.1f));
 		m_pProgressBar->animate(t,d,game);
-	}
+    }*/
 
 	void DrawSprite::animate(const float &t, AnimData *d, IGame *game)
 	{
@@ -109,9 +109,11 @@ namespace visualizer
 		m_pos = thisMove.from + diff * subT;
 
 		ColorSprite::animate(t, d, game);
+
+        game->renderer->drawTexturedQuad(m_pos.x, m_pos.y, 1.0f, 1.0f, 1.0f, m_Sprite->m_sprite);
 	}
 
-	void DrawFlippedSmoothMoveSprite::animate(const float &t, AnimData *d, IGame *game)
+    /*void DrawFlippedSmoothMoveSprite::animate(const float &t, AnimData *d, IGame *game)
 	{
 		DrawSmoothMoveSprite::animate(t, d, game);
 		game->renderer->drawTexturedQuad(m_pos.x, m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, 1.0f, m_Sprite->m_sprite, m_Flipped);
@@ -121,7 +123,7 @@ namespace visualizer
 	{
 		DrawSmoothMoveSprite::animate(t, d, game);
 		game->renderer->drawRotatedTexturedQuad(m_pos.x, m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, 1.0f, m_angle, m_Sprite->m_sprite);
-	}
+    }*/
 
 	void DrawAnimatedSprite::animate(const float &t, AnimData*d, IGame* game)
 	{

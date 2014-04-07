@@ -109,31 +109,6 @@ namespace visualizer
 
 	};
 
-	class DrawFlippedSmoothMoveSprite : public DrawSmoothMoveSprite
-	{
-	public:
-		DrawFlippedSmoothMoveSprite(MoveableSprite * sprite, const glm::vec4& c, bool flipped, Fade f = None) : DrawSmoothMoveSprite(sprite,c,f), m_Flipped(flipped) {}
-
-		void animate( const float& t, AnimData* d, IGame* game );
-
-	private:
-
-		bool m_Flipped;
-	};
-
-	class DrawRotatedSmoothMoveSprite : public DrawSmoothMoveSprite
-	{
-	public:
-		DrawRotatedSmoothMoveSprite(MoveableSprite * sprite, const glm::vec4& c, float angle, Fade f = None) :
-			DrawSmoothMoveSprite(sprite,c,f), m_angle(angle)  {}
-
-		void animate( const float& t, AnimData* d, IGame* game );
-
-	private:
-
-		float m_angle;
-	};
-
 	class DrawProgressBar : public Anim
 	{
 	public:
@@ -154,7 +129,7 @@ namespace visualizer
 
 	};
 
-	class DrawSmoothSpriteProgressBar : public DrawFlippedSmoothMoveSprite
+    /*class DrawSmoothSpriteProgressBar : public DrawFlippedSmoothMoveSprite
 	{
 	public:
 
@@ -166,7 +141,7 @@ namespace visualizer
 
 	private:
 		SmartPointer<DrawProgressBar> m_pProgressBar;
-	};
+    };*/
 
 	/** @name DrawAnimatedSprite
 	  * @inherits Anim
