@@ -62,11 +62,6 @@ def scan_possible_damage(game):
     for droid in game.droids:
         top_damage = []
         possible_attacks = 4  # Account for blocking with allied droids
-        for x_off, y_off in [[1, 0], [0, -1], [-1, 0], [0, 1]]:
-            if len(game.grid[droid.x + x_off][droid.y + y_off]) == 2:
-                shield = game.grid[droid.x + x_off][droid.y + y_off][1]
-                if (shield.owner ^ shield.hackedTurnsLeft > 0) == (droid.owner ^ droid.hackedTurnsLeft > 0):
-                    possible_attacks -= 1
         if possible_attacks > len(droid.possible_damage):
             possible_attacks = len(droid.possible_damage)
         for _ in xrange(possible_attacks):
