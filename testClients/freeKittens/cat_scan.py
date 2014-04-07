@@ -4,6 +4,12 @@ import itertools  # Contains heapq as well?
 from tools import *
 
 
+def setup_cat_scan(game):
+    for breed in game.modelVariants:
+        breed.count_enemy = 0
+        breed.count_my = 0
+
+
 def cat_scan(game):
     game.grid = [[[] for _ in xrange(game.mapHeight)] for _ in xrange(game.mapWidth)]
     for tile in game.tiles:
@@ -20,6 +26,8 @@ def cat_scan(game):
     game.kittens = [kitten for kitten in game.droids if kitten.owner == (game.playerID ^ kitten.hackedTurnsLeft > 0)]
 
     scan_possible_damage(game)
+
+    analyze_strategy(game)
 
 
 def cat_move(game, droid, x, y):
@@ -76,3 +84,7 @@ def scan_possible_damage(game):
                 if droid.possible_armor < 0:
                     droid.possible_armor = 0
             droid.possible_health -= real_damage
+
+
+def analyze_strategy(game):
+    pass
