@@ -84,7 +84,6 @@ class Player(object):
 
     #turnsUntilDrop = 1 + (self.game.maxTurnsUntilDeploy - 1) * (abs(xoff - x) / float(self.game.mapWidth - 1))
     turnsUntilDrop = abs(xoff - x) * self.game.dropTime
-    tile.owner = self.id
     tile.turnsUntilAssembled = turnsUntilDrop
     tile.variantToAssemble = variant
     self.scrapAmount -= cost
