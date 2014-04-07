@@ -3,7 +3,7 @@ INCLUDEPATH +=  ../interfaces                 ../common/                 ./parse
 DEPENDPATH += ../common/ 
 
 TEMPLATE = lib
-TARGET = mars
+TARGET = droids
 SOURCES = *.cpp           ./parser/*.cpp           ./parser/sexp/*.cpp           ../common/*.cpp
 
 HEADERS +=  *.h             ./parser/*.h             ./parser/sexp/*.h
