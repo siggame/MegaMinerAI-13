@@ -61,6 +61,7 @@ namespace visualizer
             map<string, int> programs;
             
             list<int> getSelectedUnits();
+
 		private:
 			void RenderGrid() const;
 
