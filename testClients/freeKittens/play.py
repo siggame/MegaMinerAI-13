@@ -1,16 +1,14 @@
 __author__ = 'Tarnasa'
 
 import random
+import heapq
 
 from tools import *
-from catscan import *
+from cat_scan import *
 
 
 def play(game):
-    toys = [toy for toy in game.droids if toy.owner != (game.playerID ^ toy.hackedTurnsLeft > 0)]
-    kittens = [kitten for kitten in game.droids if kitten.owner == (game.playerID ^ kitten.hackedTurnsLeft > 0)]
-
-    for kitten in kittens:
+    for kitten in game.kittens:
         for _ in xrange(kitten.maxMovement):
             possible_moves = [[kitten.x + x, kitten.y + y] for x, y in [[1, 0], [0, -1], [-1, 0], [0, 1]]
                               if inbox(0, 0, game.mapWidth - 1, game.mapHeight - 1,
@@ -21,11 +19,18 @@ def play(game):
                 cat_move(game, kitten, x, y)
 
         if kitten.attack < 0:
-            possible_toys = [playmate for playmate in kittens if
+            possible_toys = [playmate for playmate in game.kittens if
                              manhattan(playmate.x, playmate.y, kitten.x, kitten.y) <= kitten.range]
         else:
-            possible_toys = [toy for toy in toys if manhattan(toy.x, toy.y, kitten.x, kitten.y) <= kitten.range]
+            possible_toys = [toy for toy in game.toys if manhattan(toy.x, toy.y, kitten.x, kitten.y) <= kitten.range]
         for _ in xrange(kitten.maxAttacks):
             if possible_toys:
                 toy = random.choice(possible_toys)
                 kitten.operate(toy.x, toy.y)
+
+
+def play_fast(game):
+    # Look for best toys
+    ranked_toys = heapq.heapify([(toy.possible_health, toy) for toy in game.toys])
+
+    pass
