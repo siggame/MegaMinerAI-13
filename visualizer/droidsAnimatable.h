@@ -16,7 +16,7 @@ namespace visualizer
 	  *      The position and scale vectors must be set for Anim interfaces to render
 	  *      correctly.
 	  */
-	struct BaseSprite : public Animatable
+    struct  BaseSprite : public Animatable
 	{
 		BaseSprite(const glm::vec2& pos, const glm::vec2& scale, const string& sprite, const string& tag = "") :
 			m_pos(pos), m_scale(scale), m_sprite(sprite), Animatable(tag)  {}

@@ -254,17 +254,19 @@ namespace visualizer
 				  assert("Unknown Droid Variant" && false);
           }
 
+         // SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(unit.x,unit.y), glm::vec2(1), texture);
+           SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
+
           const auto& iter = currentState.animations.find(unit.id);
           if(iter != currentState.animations.end())
           {
-              std::vector<SmartPointer<parser::Animation> >& animList = iter->second;
-              SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
-              for(auto& anim: animList)
+              for(auto& anim : iter->second)
               {
                   switch(anim->type)
                   {
                       case parser::MOVE:
                       {
+                          //.std::cout << "Found move animation." << endl;
                           parser::move& move = (parser::move&)*anim;
                           sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(move.toX, move.toY), glm::vec2(move.fromX, move.fromY)));
                           break;
@@ -293,17 +295,17 @@ namespace visualizer
                       break;
                   }
               }
+          }
 
-              turn.addAnimatable(sprite);
-          }
-          else
+          if(sprite->m_Moves.empty())
           {
-			  cout << "Texture: " << texture << endl;
-              SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), texture);
-              sprite->addKeyFrame(new DrawSprite(sprite, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
-              turn.addAnimatable(sprite);
+                cout << unit.x << " " << unit.y << endl;
+                sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
           }
-          std::cout << "unit made.\n";
+          sprite->addKeyFrame(new DrawSmoothMoveSprite(sprite, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
+        turn.addAnimatable(sprite);
+
+          std::cout << texture << " made.\n";
       }
   }
 
