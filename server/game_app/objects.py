@@ -36,7 +36,6 @@ class Player(object):
         self.scrapAmount = 0
 
       # Update orbital drops
-      print 'length: ',len(self.dropsInProgress)
       for dropzone in self.dropsInProgress:
         dropzone.turnsUntilAssembled -= 1
         if dropzone.turnsUntilAssembled <= 0:
@@ -163,7 +162,6 @@ class Droid(Mappable):
     return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, variant = self.variant, attacksLeft = self.attacksLeft, maxAttacks = self.maxAttacks, healthLeft = self.healthLeft, maxHealth = self.maxHealth, movementLeft = self.movementLeft, maxMovement = self.maxMovement, range = self.range, attack = self.attack, armor = self.armor, maxArmor = self.maxArmor, scrapWorth = self.scrapWorth, turnsToBeHacked = self.turnsToBeHacked, hackedTurnsLeft = self.hackedTurnsLeft, hackets = self.hackets, hacketsMax = self.hacketsMax, )
 
   def handleDeath(self):
-    print self is self.game.grid[self.x][self.y][1]
     if self.healthLeft <= 0:
       # Transfer scrap
       if self.x < self.game.mapWidth / 2:
