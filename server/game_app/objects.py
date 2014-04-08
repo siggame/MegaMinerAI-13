@@ -38,11 +38,11 @@ class Player(object):
       # Update orbital drops
       for dropzone in self.dropsInProgress:
         dropzone.turnsUntilAssembled -= 1
-        if dropzone.turnsUntilAssembled == 0:
+        if dropzone.turnsUntilAssembled <= 0:
           dropzone.owner = 2
           if len(self.game.grid[dropzone.x][dropzone.y]) > 1:
             # Kill droids on dropzone
-            self.game.grid[dropzone.x][dropzone.y][1].health = 0
+            self.game.grid[dropzone.x][dropzone.y][1].healthLeft = 0
             self.game.grid[dropzone.x][dropzone.y][1].handleDeath()
           variant = self.game.variantToModelVariant(dropzone.variantToAssemble)
           # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'hackedTurnsLeft', 'hackets']
@@ -74,7 +74,7 @@ class Player(object):
     tile = self.game.getTile(x, y)
     if tile.turnsUntilAssembled > 0:
       return 'Turn {}: You cannot drop a droid onto a tile that is assembling a droid.'.format(self.game.turnNumber)
-    if len(self.game.grid[x][y]) == 2:
+    if len(self.game.grid[x][y]) > 1:
       if self.game.grid[x][y][1].variant == HangarVariant:
         return 'Turn {}: You cannot drop a droid onto a hangar'.format(self.game.turnNumber)
 
@@ -186,7 +186,6 @@ class Droid(Mappable):
       elif self.hackets > 0:
         self.hackets -= 1 # Hackets gradually decrease (ANTIVIRUS FTW)
 
-    self.handleDeath()
 
     return True
 
