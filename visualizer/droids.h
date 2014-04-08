@@ -8,6 +8,7 @@
 #include <map>
 #include <string>
 #include <list>
+#include <glm/glm.hpp>
 
 // The Codegen's Parser
 #include "parser/parser.h"
@@ -19,6 +20,14 @@ namespace visualizer
 {
     class Droids: public QThread, public AnimSequence, public IGame
     {
+        struct Rect
+        {
+            int left;
+            int top;
+            int right;
+            int bottom;
+        };
+
         Q_OBJECT;
         Q_INTERFACES( visualizer::IGame );
 
@@ -60,6 +69,12 @@ namespace visualizer
 
 		private:
 			void RenderGrid() const;
+
+            void DrawPlayerName();
+
+            void GetSelectedRect(Rect &out) const;
+
+            glm::vec3 GetTeamColor(int owner) const;
 
             void PrepareUnits(const int& frameNum,Frame& turn) const;
 

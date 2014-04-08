@@ -6,7 +6,6 @@
 #include <utility>
 #include <time.h>
 #include <list>
-#include <glm/glm.hpp>
 
 namespace visualizer
 {
@@ -50,10 +49,46 @@ namespace visualizer
 
   void Droids::postDraw()
   {
-
+      DrawPlayerName();
 	  renderer->pop();
   }
 
+  void Droids::DrawPlayerName()
+  {
+      for (int owner : {0,1})
+      {
+          int namePos = owner == 0 ? 1 : m_mapWidth - 1;
+          IRenderer::Alignment alignment = owner == 0 ? IRenderer::Left : IRenderer::Right;
+
+          glm::vec3 playerColor = GetTeamColor(owner);
+
+          renderer->setColor( Color(playerColor.r,playerColor.g,playerColor.b, 1.0f));
+          renderer->drawText(namePos, m_mapHeight + 0.5f, "Roboto", m_game->states[0].players[owner].playerName, 3.0f, alignment);
+      }
+  }
+
+  void Droids::GetSelectedRect(Rect &out) const
+  {
+      const Input& input = gui->getInput();
+
+      int x = input.x - GRID_OFFSET;
+      int y = input.y - GRID_OFFSET;
+      int width = input.sx - x - GRID_OFFSET;
+      int height = input.sy - y - GRID_OFFSET;
+
+      int right = x + width;
+      int bottom = y + height;
+
+      out.left = min(x,right);
+      out.top = min(y,bottom);
+      out.right = max(x,right);
+      out.bottom = max(y,bottom);
+  }
+
+  glm::vec3 Droids::GetTeamColor(int owner) const
+  {
+    return owner == 1 ? glm::vec3(0.5f,1.0f,0.5f) : glm::vec3(0.5f,0.5f,1.0f);
+  }
 
   PluginInfo Droids::getPluginInfo()
   {
