@@ -93,13 +93,13 @@ namespace visualizer
 	  renderer->setColor({0.9,0.9, 0.9, 1.0f});
 	  renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,0,0, 16/1.5, 9/1.5,"cliffside");
 
-      /*
+
 	  renderer->setColor({1.0, 1.0, 1.0, 0.4});
 	  renderer->drawRotatedTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,2.0f, time, "grid");
 
 	  renderer->setColor({0.7, 0.8, 0.8, 0.5});
 	  renderer->drawRotatedTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,2.2f, -time/2, "grid");
-      */
+
 
       renderer->setColor({1.0f,1.0f,1.0f,1.0f});
 	  renderer->drawSubTexturedQuad(0,0,m_mapWidth,m_mapHeight, 0, 0, 2, 1,"desolate");
@@ -119,7 +119,7 @@ namespace visualizer
         renderer->setColor({1.0f, 1.0f, 1.0f,0.0f});
       }
 
-      renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+	  renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
 
 	  // Draw horizontal lines
 	  renderer->setColor({0.0f,0.0f,0.0f,1.0f});
