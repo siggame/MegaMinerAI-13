@@ -185,37 +185,71 @@ namespace visualizer
       const float boxWidth = 10;
       const float boxHeight = 3.5;
 
-      for(int owner : {-1,1})
+      const float healthBarOffset = 6;
+      const float healthBarWidth = 6;
+      const float healthBarHeight = healthBarWidth/ 2;
+
+      const float pipeHeight = healthBarHeight /2;
+      const float pipeLength = (x - healthBarOffset - (healthBarWidth/2)) - (x - boxOffset + (boxWidth/2)) ;
+      const int numPipeSections = static_cast<int>(pipeLength) * 2;
+      float pipeSectionWidth = pipeLength/ numPipeSections;
+
+      std::cout << pipeLength << std::endl;
+
+
+      for(int side : {-1,1})
       {
+          renderer->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+          for(int i = 0; i < numPipeSections; i++)
+          {
+              if(side == -1)
+              {
+                  renderer->drawTexturedQuad((x + (side * boxOffset) + (boxWidth/2) ) + (pipeSectionWidth * i),
+                                              y + (boxHeight/2) - (pipeHeight/2),
+                                             pipeSectionWidth, pipeHeight,  1, "pipe_section");
+              }
+              else
+              {
+                  renderer->drawTexturedQuad((x + (side * healthBarOffset) + (healthBarWidth/2) ) + (pipeSectionWidth * i),
+                                              y + (boxHeight/2) - (pipeHeight/2),
+                                             pipeSectionWidth, pipeHeight,  1, "pipe_section");
+              }
+          }
+
           renderer->setColor(Color(0.0f, 0.0f, 0.0f, 1.0f));
-          renderer->drawQuad(x + (owner * boxOffset) - boxWidth/2, y,
+          renderer->drawQuad(x + (side * boxOffset) - boxWidth/2, y,
                              boxWidth, boxHeight);
 
           renderer->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
           for(int i = 1; i < (boxWidth * 2) - 1; i++)
           {
-              renderer->drawTexturedQuad((x + (owner * boxOffset) - boxWidth /2) + i/2.0f, y,
+              renderer->drawTexturedQuad((x + (side * boxOffset) - boxWidth /2) + i/2.0f, y,
                                          0.5, 0.5, 1, "rivet");
-              renderer->drawRotatedTexturedQuad((x + (owner * boxOffset)  - boxWidth /2) + i/2.0f, y + boxHeight,
+              renderer->drawRotatedTexturedQuad((x + (side * boxOffset)  - boxWidth /2) + i/2.0f, y + boxHeight,
                                                 0.5, 0.5, 1, 180, "rivet");
           }
 
           for(int i = 1; i < (boxHeight * 2); i++)
           {
-              renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) - boxWidth/2, y + i/2.0f,
+              renderer->drawRotatedTexturedQuad(x + (side * boxOffset) - boxWidth/2, y + i/2.0f,
                                          0.5, 0.5, 1, 270, "rivet");
-              renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2 - 0.5, y + i/2.0f,
+              renderer->drawRotatedTexturedQuad(x + (side * boxOffset) + boxWidth/2 - 0.5, y + i/2.0f,
                                          0.5, 0.5, 1, 90, "rivet");
           }
 
-          renderer->drawTexturedQuad(x + (owner * boxOffset) - boxWidth/2, y,
+          renderer->drawTexturedQuad(x + (side* boxOffset) - boxWidth/2, y,
                                      0.5, 0.5, 1, "rivet_corner");
-          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2 - 0.5, y,
+          renderer->drawRotatedTexturedQuad(x + (side* boxOffset) + boxWidth/2 - 0.5, y,
                                      0.5, 0.5, 1, 90, "rivet_corner");
-          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) - boxWidth/2 , y + boxHeight,
+          renderer->drawRotatedTexturedQuad(x + (side * boxOffset) - boxWidth/2 , y + boxHeight,
                                             0.5, 0.5, 1, 270, "rivet_corner");
-          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2 - 0.5, y + boxHeight,
+          renderer->drawRotatedTexturedQuad(x + (side * boxOffset) + boxWidth/2 - 0.5, y + boxHeight,
                                             0.5, 0.5, 1, 180, "rivet_corner");
+
+          renderer->drawTexturedQuad(x + (side *healthBarOffset) - healthBarWidth/2, (y + (boxHeight/2) - (healthBarHeight /2)),
+                                     healthBarWidth, healthBarHeight , 1, "health_bar");
+
+
       }
 
       for (int owner : {0,1})
