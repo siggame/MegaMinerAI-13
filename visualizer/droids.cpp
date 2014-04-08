@@ -319,29 +319,6 @@ namespace visualizer
       {
           parser::Tile& tile = it.second;
 
-          /*
-          std::string texture;
-          if(tile.owner != 2)
-          {
-              std::cout << "tile owner: " << tile.owner << std::endl;
-              switch(tile.type)
-              {
-                case STRUCTURE_WALL:
-                  texture = "wall";
-                  break;
-                case STRUCTURE_HANGER:
-                  texture = "hanger";
-                  break;
-                default:
-                  //std::cout << "ouch";
-                  break;
-              }
-
-              SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(tile.x, tile.y), glm::vec2(1.0f,1.0f), texture);
-              sprite->addKeyFrame(new DrawSprite(sprite, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
-              turn.addAnimatable(sprite);
-          }
-          */
       }
   }
 
