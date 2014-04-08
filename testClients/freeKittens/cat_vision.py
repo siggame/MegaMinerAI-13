@@ -22,16 +22,19 @@ def cat_see(game):
         # Background
         if territory.owner == game.playerID:
             mine[2] = '041'
-        elif territory.owner == game.playerID:
+        elif territory.owner == game.playerID ^ 1:
             mine[2] = '044'
     for kitten in game.droids:
         mine = neon[kitten.y][kitten.x]
         # Color
         if mine[2] == '040':
-            if kitten.owner == game.getPlayerID():
+            if kitten.owner == game.playerID:
                 mine[1] = '091'
             else:
                 mine[1] = '094'
+        elif mine[2] == '041' and kitten.owner == game.playerID ^ 1 or\
+             mine[2] == '044' and kitten.owner == game.playerID:
+            mine[1] = '095'
         # Shape
         mine[0] = shapes[kitten.variant]
 
@@ -51,4 +54,4 @@ def show_cat(neon):
                 back = shiny[2]
             out(shiny[0])
         out('\n')
-    out('\033[097m\033[040m')
+    out('\033[037m\033[040m')

@@ -29,7 +29,7 @@ class AI(BaseAI):
     def run(self):
         cat_scan(self)
         make_kittens(self)
-        play(self)
+        play_fast(self)
         show_cat(cat_see(self))
         return 1
 
