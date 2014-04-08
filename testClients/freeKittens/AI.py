@@ -4,7 +4,7 @@ from BaseAI import BaseAI
 from make_kittens import *
 from play import *
 from cat_vision import *
-from catscan import *
+from cat_scan import *
 
 class AI(BaseAI):
     """The class implementing gameplay logic."""
@@ -27,9 +27,9 @@ class AI(BaseAI):
     ##This function is called each time it is your turn
     ##Return true to end your turn, return false to ask the server for updated information
     def run(self):
-        self.grid = catscan(self)
+        cat_scan(self)
         make_kittens(self)
-        play(self)
+        play_fast(self)
         show_cat(cat_see(self))
         return 1
 
