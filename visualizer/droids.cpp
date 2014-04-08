@@ -181,7 +181,7 @@ namespace visualizer
   {
       float x = m_mapWidth / 2;
       float y = m_mapHeight + 1.5;
-      const float boxOffset = 14;
+      const float boxOffset = 16;
       const float boxWidth = 10;
       const float boxHeight = 3.5;
 
@@ -192,7 +192,7 @@ namespace visualizer
                              boxWidth, boxHeight);
 
           renderer->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
-          for(int i = 1; i < (boxWidth * 2); i++)
+          for(int i = 1; i < (boxWidth * 2) - 1; i++)
           {
               renderer->drawTexturedQuad((x + (owner * boxOffset) - boxWidth /2) + i/2.0f, y,
                                          0.5, 0.5, 1, "rivet");
@@ -204,17 +204,17 @@ namespace visualizer
           {
               renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) - boxWidth/2, y + i/2.0f,
                                          0.5, 0.5, 1, 270, "rivet");
-              renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2, y + i/2.0f,
+              renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2 - 0.5, y + i/2.0f,
                                          0.5, 0.5, 1, 90, "rivet");
           }
 
           renderer->drawTexturedQuad(x + (owner * boxOffset) - boxWidth/2, y,
                                      0.5, 0.5, 1, "rivet_corner");
-          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2, y,
+          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2 - 0.5, y,
                                      0.5, 0.5, 1, 90, "rivet_corner");
           renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) - boxWidth/2 , y + boxHeight,
                                             0.5, 0.5, 1, 270, "rivet_corner");
-          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2, y + boxHeight,
+          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2 - 0.5, y + boxHeight,
                                             0.5, 0.5, 1, 180, "rivet_corner");
       }
 
