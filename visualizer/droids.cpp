@@ -42,29 +42,19 @@ namespace visualizer
 	renderer->translate(GRID_OFFSET, GRID_OFFSET);
 
 	RenderGrid();
-
+    DrawHUD();
 
     // Handle player input here
   }
 
   void Droids::postDraw()
   {
-      DrawPlayerName();
 	  renderer->pop();
   }
 
   void Droids::DrawPlayerName()
   {
-      for (int owner : {0,1})
-      {
-          int namePos = owner == 0 ? 1 : m_mapWidth - 1;
-          IRenderer::Alignment alignment = owner == 0 ? IRenderer::Left : IRenderer::Right;
 
-          glm::vec3 playerColor = GetTeamColor(owner);
-
-          renderer->setColor( Color(playerColor.r,playerColor.g,playerColor.b, 1.0f));
-          renderer->drawText(namePos, m_mapHeight + 0.5f, "Roboto", m_game->states[0].players[owner].playerName, 3.0f, alignment);
-      }
   }
 
   void Droids::GetSelectedRect(Rect &out) const
@@ -129,7 +119,7 @@ namespace visualizer
 	  renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,0,0, 16/1.5, 9/1.5,"cliffside");
 
 
-	  renderer->setColor({1.0, 1.0, 1.0, 0.4});
+      renderer->setColor({1.0, 0.0, 0.0, 0.4});
 	  renderer->drawRotatedTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3,2.0f, time, "grid");
 
 	  renderer->setColor({0.7, 0.8, 0.8, 0.5});
@@ -138,6 +128,23 @@ namespace visualizer
 
       renderer->setColor({1.0f,1.0f,1.0f,1.0f});
 	  renderer->drawSubTexturedQuad(0,0,m_mapWidth,m_mapHeight, 0, 0, 2, 1,"desolate");
+
+      for(int i = 0; i < m_mapWidth; i++)
+      {
+          renderer->drawTexturedQuad(i, -1, 1, 1, 1, "rivet");
+          renderer->drawRotatedTexturedQuad(i, m_mapHeight, 1, 1, 1, 180, "rivet");
+      }
+
+      for(int i = 0; i < m_mapHeight; i++)
+      {
+          renderer->drawRotatedTexturedQuad(-1, i, 1, 1, 1, 270, "rivet");
+          renderer->drawRotatedTexturedQuad(m_mapWidth, i, 1, 1, 1, 90, "rivet");
+      }
+
+      renderer->drawTexturedQuad(-1, -1, 1, 1, 1, "rivet_corner");
+      renderer->drawRotatedTexturedQuad(m_mapWidth, -1, 1, 1, 1, 90, "rivet_corner");
+      renderer->drawRotatedTexturedQuad(-1, m_mapHeight, 1 , 1, 1, 270, "rivet_corner");
+      renderer->drawRotatedTexturedQuad(m_mapWidth, m_mapHeight, 1, 1, 1, 180, "rivet_corner");
 
       if(time > nextGust + gustLength)
       {
@@ -170,6 +177,60 @@ namespace visualizer
 	  }
   }
 
+  void Droids::DrawHUD() const
+  {
+      float x = m_mapWidth / 2;
+      float y = m_mapHeight + 1.5;
+      const float boxOffset = 14;
+      const float boxWidth = 10;
+      const float boxHeight = 3.5;
+
+      for(int owner : {-1,1})
+      {
+          renderer->setColor(Color(0.0f, 0.0f, 0.0f, 1.0f));
+          renderer->drawQuad(x + (owner * boxOffset) - boxWidth/2, y,
+                             boxWidth, boxHeight);
+
+          renderer->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+          for(int i = 1; i < (boxWidth * 2); i++)
+          {
+              renderer->drawTexturedQuad((x + (owner * boxOffset) - boxWidth /2) + i/2.0f, y,
+                                         0.5, 0.5, 1, "rivet");
+              renderer->drawRotatedTexturedQuad((x + (owner * boxOffset)  - boxWidth /2) + i/2.0f, y + boxHeight,
+                                                0.5, 0.5, 1, 180, "rivet");
+          }
+
+          for(int i = 1; i < (boxHeight * 2); i++)
+          {
+              renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) - boxWidth/2, y + i/2.0f,
+                                         0.5, 0.5, 1, 270, "rivet");
+              renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2, y + i/2.0f,
+                                         0.5, 0.5, 1, 90, "rivet");
+          }
+
+          renderer->drawTexturedQuad(x + (owner * boxOffset) - boxWidth/2, y,
+                                     0.5, 0.5, 1, "rivet_corner");
+          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2, y,
+                                     0.5, 0.5, 1, 90, "rivet_corner");
+          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) - boxWidth/2 , y + boxHeight,
+                                            0.5, 0.5, 1, 270, "rivet_corner");
+          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2, y + boxHeight,
+                                            0.5, 0.5, 1, 180, "rivet_corner");
+      }
+
+      for (int owner : {0,1})
+      {
+          int namePos = owner == 0 ? (x - boxOffset - (boxWidth/2) + 1) : (x + boxOffset + (boxWidth/2) - 1);
+          IRenderer::Alignment alignment = owner == 0 ? IRenderer::Left : IRenderer::Right;
+
+          glm::vec3 playerColor = GetTeamColor(owner);
+
+          renderer->setColor( Color(playerColor.r,playerColor.g,playerColor.b, 1.0f));
+          renderer->drawText(namePos, y+(1/2.0f) , "Roboto", m_game->states[0].players[owner].playerName, 3.0f, alignment);
+
+      }
+  }
+
   void Droids::loadGamelog( std::string gamelog )
   {
     if(isRunning())
@@ -200,8 +261,8 @@ namespace visualizer
 
 	m_mapWidth = m_game->states[0].mapWidth;
 	m_mapHeight = m_game->states[0].mapHeight;
-	cout << "Map Width: " << m_mapWidth << endl;
-	cout << "Map Height: " << m_mapHeight << endl;
+    //cout << "Map Width: " << m_mapWidth << endl;
+    //cout << "Map Height: " << m_mapHeight << endl;
 	renderer->setCamera( 0, 0, m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
 	renderer->setGridDimensions( m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
  
@@ -260,7 +321,7 @@ namespace visualizer
       for(auto& it: currentState.droids)
       {
           parser::Droid& unit = it.second;
-		  cout << unit.variant << endl;
+          //cout << unit.variant << endl;
           switch(unit.variant)
           {
 			case DROID_CLAW:
@@ -336,13 +397,13 @@ namespace visualizer
 
           if(sprite->m_Moves.empty())
           {
-                cout << unit.x << " " << unit.y << endl;
+                //cout << unit.x << " " << unit.y << endl;
                 sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
           }
           sprite->addKeyFrame(new DrawSmoothMoveSprite(sprite, glm::vec4(GetTeamColor(unit.owner), 1.0f)));
           turn.addAnimatable(sprite);
 
-          std::cout << texture << " made.\n";
+          //std::cout << texture << " made.\n";
       }
   }
 

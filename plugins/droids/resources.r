@@ -3,6 +3,8 @@ texture grid textures/grid.png
 texture desolate textures/desolate.png
 texture cliffside textures/cliffside.png
 texture dust textures/dust.png
+texture rivet textures/rivet_border.png
+texture rivet_corner textures/rivet_border_corner.png
 
 texture hacker textures/units/hackedit.png
 texture claw textures/units/ghost1.png

@@ -72,6 +72,8 @@ namespace visualizer
 
             void DrawPlayerName();
 
+            void DrawHUD() const;
+
             void GetSelectedRect(Rect &out) const;
 
             glm::vec3 GetTeamColor(int owner) const;
@@ -86,7 +88,7 @@ namespace visualizer
 			int m_mapHeight;
             bool m_suicide;
 
-			static const unsigned int GRID_OFFSET = 1;
+            static const unsigned int GRID_OFFSET = 2;
     }; 
 
 } // visualizer
