@@ -339,8 +339,8 @@ namespace visualizer
                 cout << unit.x << " " << unit.y << endl;
                 sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
           }
-          sprite->addKeyFrame(new DrawSmoothMoveSprite(sprite, glm::vec4(1.0f,1.0f,1.0f,1.0f)));
-        turn.addAnimatable(sprite);
+          sprite->addKeyFrame(new DrawSmoothMoveSprite(sprite, glm::vec4(GetTeamColor(unit.owner), 1.0f)));
+          turn.addAnimatable(sprite);
 
           std::cout << texture << " made.\n";
       }
