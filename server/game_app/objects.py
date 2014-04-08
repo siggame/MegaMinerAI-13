@@ -36,13 +36,14 @@ class Player(object):
         self.scrapAmount = 0
 
       # Update orbital drops
+      print 'length: ',len(self.dropsInProgress)
       for dropzone in self.dropsInProgress:
         dropzone.turnsUntilAssembled -= 1
-        if dropzone.turnsUntilAssembled == 0:
+        if dropzone.turnsUntilAssembled <= 0:
           dropzone.owner = 2
           if len(self.game.grid[dropzone.x][dropzone.y]) > 1:
             # Kill droids on dropzone
-            self.game.grid[dropzone.x][dropzone.y][1].health = 0
+            self.game.grid[dropzone.x][dropzone.y][1].healthLeft = 0
             self.game.grid[dropzone.x][dropzone.y][1].handleDeath()
           variant = self.game.variantToModelVariant(dropzone.variantToAssemble)
           # ['id', 'x', 'y', 'owner', 'variant', 'attacksLeft', 'maxAttacks', 'healthLeft', 'maxHealth', 'movementLeft', 'maxMovement', 'range', 'attack', 'armor', 'maxArmor', 'scrapWorth', 'hackedTurnsLeft', 'hackets']
@@ -74,7 +75,7 @@ class Player(object):
     tile = self.game.getTile(x, y)
     if tile.turnsUntilAssembled > 0:
       return 'Turn {}: You cannot drop a droid onto a tile that is assembling a droid.'.format(self.game.turnNumber)
-    if len(self.game.grid[x][y]) == 2:
+    if len(self.game.grid[x][y]) > 1:
       if self.game.grid[x][y][1].variant == HangarVariant:
         return 'Turn {}: You cannot drop a droid onto a hangar'.format(self.game.turnNumber)
 
@@ -162,6 +163,7 @@ class Droid(Mappable):
     return dict(id = self.id, x = self.x, y = self.y, owner = self.owner, variant = self.variant, attacksLeft = self.attacksLeft, maxAttacks = self.maxAttacks, healthLeft = self.healthLeft, maxHealth = self.maxHealth, movementLeft = self.movementLeft, maxMovement = self.maxMovement, range = self.range, attack = self.attack, armor = self.armor, maxArmor = self.maxArmor, scrapWorth = self.scrapWorth, turnsToBeHacked = self.turnsToBeHacked, hackedTurnsLeft = self.hackedTurnsLeft, hackets = self.hackets, hacketsMax = self.hacketsMax, )
 
   def handleDeath(self):
+    print self is self.game.grid[self.x][self.y][1]
     if self.healthLeft <= 0:
       # Transfer scrap
       if self.x < self.game.mapWidth / 2:
@@ -186,7 +188,6 @@ class Droid(Mappable):
       elif self.hackets > 0:
         self.hackets -= 1 # Hackets gradually decrease (ANTIVIRUS FTW)
 
-    self.handleDeath()
 
     return True
 
