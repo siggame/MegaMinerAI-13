@@ -6,11 +6,13 @@ import random
 
 import game_history
 import game_cache
-import path_find
+#import path_find
 
 class AI(BaseAI):
 
   manhattan_offsets = [(0,1),(0,-1),(1,0),(-1,0)]
+  history = None
+  cache = None
 
   CLAW, ARCHER, REPAIRER, HACKER, TURRET, WALL, TERMINATOR, HANGAR = range(8)
 
@@ -25,9 +27,10 @@ class AI(BaseAI):
 
   ##This function is called once, before your first turn
   def init(self):
+    print("INIT")
     self.history = game_history.game_history(self, True)
     self.cache = game_cache.game_cache(self)
-    self.finder = path_find.path_find(self, self.cache)
+    #self.finder = path_find.path_find(self, self.cache)
     pass
 
   ##This function is called once, after your last turn
@@ -38,7 +41,7 @@ class AI(BaseAI):
   ##This function is called each time it is your turn
   ##Return true to end your turn, return false to ask the server for updated information
   def run(self):
-    return self.runSMART()
+    return self.runRAND()
 
   def runSMART(self):
     snapshot = self.history.save_snapshot()
