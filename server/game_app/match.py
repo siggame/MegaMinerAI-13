@@ -80,8 +80,15 @@ class Match(DefaultGameWorld):
       self.players.remove(connection)
     else:
       self.spectators.remove(connection)
+  
 
-  def createhangars(self):
+  def createhangars():
+    return self.createhangars0()
+
+  def createhangars1(self):
+    pass
+
+  def createhangars0(self):
     hangarSize = random.randrange(self.minHangar, self.maxHangar)
     centerX = int(self.mapWidth/4.0)
     centerY = int(self.mapHeight/2.0)

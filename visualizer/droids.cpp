@@ -44,6 +44,7 @@ namespace visualizer
 	renderer->push();
 	renderer->translate(GRID_OFFSET, GRID_OFFSET);
 
+	UpdateHangarCount();
 	RenderGrid();
     DrawHUD();
 
@@ -110,6 +111,7 @@ namespace visualizer
       const float gustLength = 2.0f;
       static float time = 0.0f;
       static float nextGust = rand() % 4 + 2.0f;
+      static bool direction = 0;
 
 	  time += timeManager->getDt();
 
@@ -147,6 +149,7 @@ namespace visualizer
       if(time > nextGust + gustLength)
       {
           nextGust = time + rand() % 4 + 4.0f;
+          direction = !direction;
       }
 
       if(time > nextGust)
@@ -159,7 +162,14 @@ namespace visualizer
         renderer->setColor({1.0f, 1.0f, 1.0f,0.0f});
       }
 
-	  renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+      if (direction)
+      {
+        renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+      }
+      else
+      {
+        renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", -fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+      }
 
 	  // Draw horizontal lines
 	  renderer->setColor({0.0f,0.0f,0.0f,1.0f});
@@ -200,11 +210,13 @@ namespace visualizer
       // player 0 health
       int interval = 0;
       glm::vec3 color = GetTeamColor(0);
-      for(interval = 0; interval < (m_NumHangers - m_Player0Hangars); interval++)
+
+	  std::cout << m_NumHangers << "   " << m_Player0Hangars << "  " << m_Player1Hangars <<  std::endl;
+	  for(interval = 0; interval < m_Player0Hangars; interval++)
       {
           // bars for alive hangars
           // too dark, i'm doing it manulally
-          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
           renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -213,7 +225,7 @@ namespace visualizer
       for(;interval < m_NumHangers; interval++)
       {
           // bars for dead hangars
-          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
           renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -225,7 +237,7 @@ namespace visualizer
       for(interval = 0; interval < m_NumHangers - m_Player1Hangars; interval++)
       {
           // bars for dead hangars
-          renderer->setColor(Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 1.0f));
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
           renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -234,7 +246,7 @@ namespace visualizer
       for(;interval < m_NumHangers; interval ++)
       {
           // bars for alive hangars
-          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->setColor(Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 1.0f));
           renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -312,6 +324,25 @@ namespace visualizer
       }
   }
 
+  void Droids::UpdateHangarCount()
+  {
+	int curTurn = timeManager->getTurn();
+	auto & curState = m_game->states[curTurn];
+
+	m_Player0Hangars = m_Player1Hangars = 0;
+
+	for(auto& droid : curState.droids)
+	{
+		if(droid.second.variant == DROID_HANGAR)
+		{
+			if(droid.second.owner == 0)
+				m_Player0Hangars++;
+			else
+				m_Player1Hangars++;
+		}
+	}
+  }
+
   void Droids::loadGamelog( std::string gamelog )
   {
     if(isRunning())
@@ -365,12 +396,10 @@ namespace visualizer
         if(droid.second.variant == DROID_HANGAR && droid.second.owner == 0)
         {
             m_NumHangers++;
-            m_Player0Hangars++;
         }
-
-        if(droid.second.variant == DROID_HANGAR && droid.second.owner == 1)
-            m_Player1Hangars++;
     }
+
+	std::cout << m_NumHangers << "  " << m_Player0Hangars << "  " << m_Player1Hangars << std::endl;
 
 	// Look through each turn in the gamelog
 	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
@@ -491,25 +520,52 @@ namespace visualizer
           }
 
           // check for deaths
-          if(frameNum < m_game->states.size() - 2)
+		  if(frameNum < m_game->states.size() - 1)
           {
               auto& nextState = m_game->states[frameNum+1];
               auto next = nextState.droids.find(unit.id);
 
               if(next == nextState.droids.end())
               {
-                  std::cout << "died\n";
                   SmartPointer<AnimatedSprite> deathAnim = new AnimatedSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), "death", 63);
                   deathAnim->addKeyFrame(new DrawAnimatedSprite(deathAnim, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
                   nextFrame.addAnimatable(deathAnim);
 
-                  if(unit.variant == DROID_HANGAR)
-                  {
-                      if(unit.owner == 0)
-                          m_Player0Hangars--;
-                      if(unit.owner == 1)
-                          m_Player1Hangars--;
-                  }
+				  std::cout << "FRAME: " << frameNum << std::endl;
+				  switch(unit.variant)
+				  {
+					  case DROID_CLAW:
+						  std::cout << "claw died\n";
+						  break;
+					  case DROID_ARCHER:
+						  std::cout << "archer died\n";
+						  break;
+					  case DROID_HACKER:
+						  std::cout << "hacker died\n";
+						  break;
+					  case DROID_REPAIRER:
+						  std::cout << "repairer died\n";
+						  break;
+					  case DROID_TERMINATOR:
+						  std::cout << "terminator died\n";
+						  break;
+					  case DROID_TURRET:
+						  std::cout << "turret died\n";
+						  break;
+					  case DROID_WALL:
+						  std:cout << "wall died\n";
+						  break;
+					  case DROID_HANGAR:
+					  {
+						  std::cout << "hangar died\n";
+						  if(unit.owner == 0)
+							  m_Player0Hangars--;
+						  if(unit.owner == 1)
+							  m_Player1Hangars--;
+						  break;
+					 }
+				  }
+
               }
           }
 
