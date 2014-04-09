@@ -111,6 +111,7 @@ namespace visualizer
       const float gustLength = 2.0f;
       static float time = 0.0f;
       static float nextGust = rand() % 4 + 2.0f;
+      static bool direction = 0;
 
 	  time += timeManager->getDt();
 
@@ -148,6 +149,7 @@ namespace visualizer
       if(time > nextGust + gustLength)
       {
           nextGust = time + rand() % 4 + 4.0f;
+          direction = !direction;
       }
 
       if(time > nextGust)
@@ -160,7 +162,14 @@ namespace visualizer
         renderer->setColor({1.0f, 1.0f, 1.0f,0.0f});
       }
 
-	  renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+      if (direction)
+      {
+        renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+      }
+      else
+      {
+        renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", -fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+      }
 
 	  // Draw horizontal lines
 	  renderer->setColor({0.0f,0.0f,0.0f,1.0f});
