@@ -6,15 +6,18 @@ import random
 
 import game_history
 import game_cache
+import path_find
 
 class AI(BaseAI):
 
   manhattan_offsets = [(0,1),(0,-1),(1,0),(-1,0)]
 
+  CLAW, ARCHER, REPAIRER, HACKER, TURRET, WALL, TERMINATOR, HANGAR = range(8)
+
   """The class implementing gameplay logic."""
   @staticmethod
   def username():
-    return "Shell AI"
+    return "Russley Shaw"
 
   @staticmethod
   def password():
@@ -24,6 +27,7 @@ class AI(BaseAI):
   def init(self):
     self.history = game_history.game_history(self, True)
     self.cache = game_cache.game_cache(self)
+    self.finder = path_find.path_find(self, self.cache)
     pass
 
   ##This function is called once, after your last turn
@@ -34,6 +38,18 @@ class AI(BaseAI):
   ##This function is called each time it is your turn
   ##Return true to end your turn, return false to ask the server for updated information
   def run(self):
+    return self.runSMART()
+
+  def runSMART(self):
+    snapshot = self.history.save_snapshot()
+    #self.history.print_snapshot(snapshot)
+    self.cache.update_all()
+
+
+
+    return 1
+
+  def runRAND(self):
     snapshot = self.history.save_snapshot()
     self.history.print_snapshot(snapshot)
     self.cache.update_all()
