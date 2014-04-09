@@ -77,6 +77,7 @@ class DroidsVexulizer(object):
                 'variant': droid.getVariant(),
                 'attacksLeft': droid.getAttacksLeft(),
                 'healthLeft': droid.getHealthLeft(),
+                'armorLeft': droid.getArmor(),
                 'movementLeft': droid.getMovementLeft(),
                 'hackedUntil': droid.getHackedTurnsLeft(),
                 'hackets': droid.getHackets(),
