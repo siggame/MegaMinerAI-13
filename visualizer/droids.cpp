@@ -44,6 +44,7 @@ namespace visualizer
 	renderer->push();
 	renderer->translate(GRID_OFFSET, GRID_OFFSET);
 
+	UpdateHangarCount();
 	RenderGrid();
     DrawHUD();
 
@@ -200,7 +201,9 @@ namespace visualizer
       // player 0 health
       int interval = 0;
       glm::vec3 color = GetTeamColor(0);
-      for(interval = 0; interval < (m_NumHangers - m_Player0Hangars); interval++)
+
+	  std::cout << m_NumHangers << "   " << m_Player0Hangars << "  " << m_Player1Hangars <<  std::endl;
+	  for(interval = 0; interval < m_Player0Hangars; interval++)
       {
           // bars for alive hangars
           // too dark, i'm doing it manulally
@@ -312,6 +315,25 @@ namespace visualizer
       }
   }
 
+  void Droids::UpdateHangarCount()
+  {
+	int curTurn = timeManager->getTurn();
+	auto & curState = m_game->states[curTurn];
+
+	m_Player0Hangars = m_Player1Hangars = 0;
+
+	for(auto& droid : curState.droids)
+	{
+		if(droid.second.variant == DROID_HANGAR)
+		{
+			if(droid.second.owner == 0)
+				m_Player0Hangars++;
+			else
+				m_Player1Hangars++;
+		}
+	}
+  }
+
   void Droids::loadGamelog( std::string gamelog )
   {
     if(isRunning())
@@ -365,12 +387,10 @@ namespace visualizer
         if(droid.second.variant == DROID_HANGAR && droid.second.owner == 0)
         {
             m_NumHangers++;
-            m_Player0Hangars++;
         }
-
-        if(droid.second.variant == DROID_HANGAR && droid.second.owner == 1)
-            m_Player1Hangars++;
     }
+
+	std::cout << m_NumHangers << "  " << m_Player0Hangars << "  " << m_Player1Hangars << std::endl;
 
 	// Look through each turn in the gamelog
 	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
@@ -491,25 +511,52 @@ namespace visualizer
           }
 
           // check for deaths
-          if(frameNum < m_game->states.size() - 2)
+		  if(frameNum < m_game->states.size() - 1)
           {
               auto& nextState = m_game->states[frameNum+1];
               auto next = nextState.droids.find(unit.id);
 
               if(next == nextState.droids.end())
               {
-                  std::cout << "died\n";
                   SmartPointer<AnimatedSprite> deathAnim = new AnimatedSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), "death", 63);
                   deathAnim->addKeyFrame(new DrawAnimatedSprite(deathAnim, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
                   nextFrame.addAnimatable(deathAnim);
 
-                  if(unit.variant == DROID_HANGAR)
-                  {
-                      if(unit.owner == 0)
-                          m_Player0Hangars--;
-                      if(unit.owner == 1)
-                          m_Player1Hangars--;
-                  }
+				  std::cout << "FRAME: " << frameNum << std::endl;
+				  switch(unit.variant)
+				  {
+					  case DROID_CLAW:
+						  std::cout << "claw died\n";
+						  break;
+					  case DROID_ARCHER:
+						  std::cout << "archer died\n";
+						  break;
+					  case DROID_HACKER:
+						  std::cout << "hacker died\n";
+						  break;
+					  case DROID_REPAIRER:
+						  std::cout << "repairer died\n";
+						  break;
+					  case DROID_TERMINATOR:
+						  std::cout << "terminator died\n";
+						  break;
+					  case DROID_TURRET:
+						  std::cout << "turret died\n";
+						  break;
+					  case DROID_WALL:
+						  std:cout << "wall died\n";
+						  break;
+					  case DROID_HANGAR:
+					  {
+						  std::cout << "hangar died\n";
+						  if(unit.owner == 0)
+							  m_Player0Hangars--;
+						  if(unit.owner == 1)
+							  m_Player1Hangars--;
+						  break;
+					 }
+				  }
+
               }
           }
 
