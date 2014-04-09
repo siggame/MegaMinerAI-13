@@ -52,11 +52,6 @@ namespace visualizer
 	  renderer->pop();
   }
 
-  void Droids::DrawPlayerName()
-  {
-
-  }
-
   void Droids::GetSelectedRect(Rect &out) const
   {
       const Input& input = gui->getInput();
@@ -194,11 +189,15 @@ namespace visualizer
       const int numPipeSections = static_cast<int>(pipeLength) * 2;
       float pipeSectionWidth = pipeLength/ numPipeSections;
 
-      std::cout << pipeLength << std::endl;
+      // render the health bars
+      for(int owner : {0, 1})
+      {
 
+      }
 
       for(int side : {-1,1})
       {
+          // render the pipe from the health tank to the status screen
           renderer->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
           for(int i = 0; i < numPipeSections; i++)
           {
@@ -216,6 +215,7 @@ namespace visualizer
               }
           }
 
+          // render the status screen
           renderer->setColor(Color(0.0f, 0.0f, 0.0f, 1.0f));
           renderer->drawQuad(x + (side * boxOffset) - boxWidth/2, y,
                              boxWidth, boxHeight);
@@ -252,6 +252,7 @@ namespace visualizer
 
       }
 
+      // draw the names of the teams on the status screen
       for (int owner : {0,1})
       {
           int namePos = owner == 0 ? (x - boxOffset - (boxWidth/2) + 1) : (x + boxOffset + (boxWidth/2) - 1);
@@ -294,9 +295,8 @@ namespace visualizer
 	assert("Gamelog is empty" && !m_game->states.empty());
 
 	m_mapWidth = m_game->states[0].mapWidth;
-	m_mapHeight = m_game->states[0].mapHeight;
-    //cout << "Map Width: " << m_mapWidth << endl;
-    //cout << "Map Height: " << m_mapHeight << endl;
+    m_mapHeight = m_game->states[0].mapHeight;
+
 	renderer->setCamera( 0, 0, m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
 	renderer->setGridDimensions( m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
  
@@ -306,24 +306,32 @@ namespace visualizer
   // The "main" function
   void Droids::run()
   {
+    Frame * turn = new Frame;
+    Frame * nextTurn = new Frame;
+
 	gui->setDebugOptions(this);
     timeManager->setNumTurns( 0 );
 
     animationEngine->registerGame(0, 0);
 
+    for(auto & droid : m_game->states[0].droids)
+    {
+        if(droid.second.variant == DROID_HANGAR && droid.second.owner == 0)
+        {
+            m_NumHangers++;
+        }
+    }
+
 	// Look through each turn in the gamelog
 	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
-	{
-		Frame turn;  // The frame that will be drawn
-
+    {
         //cout << "Turn " << state << " there are " << m_game->states[state].droids.size() << " droids" << endl;
 
-        PrepareUnits(state, turn);
-        PrepareStructures(state, turn);
+        PrepareUnits(state, *turn, *nextTurn);
+        PrepareTiles(state, *turn, *nextTurn);
 
-
-		animationEngine->buildAnimations(turn);
-		addFrame(turn);
+        animationEngine->buildAnimations(*turn);
+        addFrame(*turn);
 
 		// Register the game and begin playing delayed due to multithreading
 		if(state > 5)
@@ -337,17 +345,23 @@ namespace visualizer
 				timeManager->play();
 			}
 		}
+
+        delete turn;
+        turn = nextTurn;
+        nextTurn = new Frame;
 	}
 
 	if(!m_suicide)
 	{
 		timeManager->setNumTurns( m_game->states.size() );
-		timeManager->play();
+        timeManager->play();
 	}
 
+    delete turn;
+    delete nextTurn;
   } // Droids::run()
 
-  void Droids::PrepareUnits(const int& frameNum, Frame& turn) const
+  void Droids::PrepareUnits(const int& frameNum, Frame& turn, Frame& nextFrame)
   {
       std::string texture;
       parser::GameState& currentState = m_game->states[frameNum];
@@ -355,7 +369,6 @@ namespace visualizer
       for(auto& it: currentState.droids)
       {
           parser::Droid& unit = it.second;
-          //cout << unit.variant << endl;
           switch(unit.variant)
           {
 			case DROID_CLAW:
@@ -429,6 +442,21 @@ namespace visualizer
               }
           }
 
+          // check for deaths
+          if(frameNum < m_game->states.size() - 2)
+          {
+              auto& nextState = m_game->states[frameNum+1];
+              auto next = nextState.droids.find(unit.id);
+
+              if(next == nextState.droids.end())
+              {
+                  std::cout << "died\n";
+                  SmartPointer<AnimatedSprite> deathAnim = new AnimatedSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), "death", 63);
+                  deathAnim->addKeyFrame(new DrawAnimatedSprite(deathAnim, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+                  nextFrame.addAnimatable(deathAnim);
+              }
+          }
+
           if(sprite->m_Moves.empty())
           {
                 //cout << unit.x << " " << unit.y << endl;
@@ -441,15 +469,9 @@ namespace visualizer
       }
   }
 
-  void Droids::PrepareStructures(const int &frameNum, Frame &turn) const
+  void Droids::PrepareTiles(const int &frameNum, Frame &turn, Frame& nextTurn)
   {
-      parser::GameState& currentState = m_game->states[frameNum];
 
-	  for(auto& it : currentState.tiles)
-      {
-          parser::Tile& tile = it.second;
-
-      }
   }
 
 } // visualizer

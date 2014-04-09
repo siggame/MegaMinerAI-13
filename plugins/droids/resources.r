@@ -16,3 +16,5 @@ texture turret textures/units/turret.png
 texture terminator textures/units/ghost4.png
 texture hangar textures/units/hangar.png
 texture wall textures/units/wall.png
+
+animation death textures/animations/death.png
