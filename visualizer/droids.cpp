@@ -111,6 +111,7 @@ namespace visualizer
       const float gustLength = 2.0f;
       static float time = 0.0f;
       static float nextGust = rand() % 4 + 2.0f;
+      static bool direction = 0;
 
 	  time += timeManager->getDt();
 
@@ -148,6 +149,7 @@ namespace visualizer
       if(time > nextGust + gustLength)
       {
           nextGust = time + rand() % 4 + 4.0f;
+          direction = !direction;
       }
 
       if(time > nextGust)
@@ -160,7 +162,14 @@ namespace visualizer
         renderer->setColor({1.0f, 1.0f, 1.0f,0.0f});
       }
 
-	  renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+      if (direction)
+      {
+        renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+      }
+      else
+      {
+        renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", -fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+      }
 
 	  // Draw horizontal lines
 	  renderer->setColor({0.0f,0.0f,0.0f,1.0f});
@@ -207,7 +216,7 @@ namespace visualizer
       {
           // bars for alive hangars
           // too dark, i'm doing it manulally
-          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
           renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -216,7 +225,7 @@ namespace visualizer
       for(;interval < m_NumHangers; interval++)
       {
           // bars for dead hangars
-          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
           renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -228,7 +237,7 @@ namespace visualizer
       for(interval = 0; interval < m_NumHangers - m_Player1Hangars; interval++)
       {
           // bars for dead hangars
-          renderer->setColor(Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 1.0f));
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
           renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -237,7 +246,7 @@ namespace visualizer
       for(;interval < m_NumHangers; interval ++)
       {
           // bars for alive hangars
-          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->setColor(Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 1.0f));
           renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
