@@ -87,9 +87,12 @@ class AI(BaseAI):
     if self.dropY > self.maxY:
       self.dropY = self.minY
     for droid in self.droids:
-      if droid.owner == self.playerID and droid.variant != 7 and droid.variant != 5:
-        movez = 4
+      if ((droid.owner == self.playerID and droid.hackedTurnsLeft <= 0) or\
+          (droid.owner != self.playerID and droid.hackedTurnsLeft > 0))\
+           and droid.variant != 7 and droid.variant != 5:
+        movez = droid.maxMovement
         while movez > 0:
+          movey = 1
           droid.operate(droid.x + self.change, droid.y)
           #attack around too
           droid.operate(droid.x, droid.y - 1)
@@ -97,25 +100,32 @@ class AI(BaseAI):
 
           move = True
           for droid2 in self.droids:
-            if abs(droid2.y - droid.y) == 1 and droid2.x == droid.x:
-              if droid2.variant == 7 and droid2.owner != droid.owner:
-                move = False
+            if droid2.id != droid.id:
+              if abs(droid2.y - droid.y) + abs(droid2.x - droid.x) == 1:
+                if droid2.owner != droid.owner:
+                  move = False
 
           if move:
+            bleh = False
             if droid.x > self.enemyMaxX:
-              droid.move(droid.x - 1, droid.y)
+             bleh = droid.move(droid.x - 1, droid.y)
             elif droid.x < self.enemyMinX:
-              droid.move(droid.x + 1, droid.y)
-            
-            if not droid.move(droid.x + self.change, droid.y):
-              if droid.y == self.maxY:
-                droid.move(droid.x, droid.y + 1)
-              elif droid.y == self.minY:
-                droid.move(droid.x, droid.y - 1)
-            if droid.y < self.minY:
-              droid.move(droid.x, droid.y + 1)
-            elif droid.y > self.maxY:
-              droid.move(droid.x, droid.y - 1)
+              bleh = droid.move(droid.x + 1, droid.y)
+
+            if not bleh:
+              if not droid.move(droid.x + self.change, droid.y):
+                morved = False
+                if droid.y == self.maxY:
+                  droid.move(droid.x, droid.y + 1)
+                  morved = True
+                elif droid.y == self.minY:
+                  droid.move(droid.x, droid.y - 1)
+                  morved = True
+                if not morved:
+                  if droid.y < self.minY:
+                    droid.move(droid.x, droid.y + 1)
+                  elif droid.y > self.maxY:
+                    droid.move(droid.x, droid.y - 1)
 
           droid.operate(droid.x + self.change, droid.y)
           #attack around too
