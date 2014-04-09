@@ -262,7 +262,7 @@ class Droid(Mappable):
         return "Turn %i: The opponent's %s is too far away from your %s."%(self.game.turnNumber, opponentName, variantName)
       elif self.variant == hackerVariantVal and target.hackedTurnsLeft > 0 and target.owner == self.game.playerID:
         return "Turn %i: Your %s cannot operate on your %s."%(self.game.turnNumber, variantName, opponentName)
-      elif self.attack > 0 and target.owner != (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
+      elif self.attack > 0 and target.owner == (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
         return "Turn %i: Your %s cannot operate on the %s."%(self.game.turnNumber, variantName, opponentName)
       elif self.variant == hackerVariantVal and (target.variant == wall or target.variant == hangar):
         return "Turn %i: Your %s cannot operate on a wall or a hangar"%(self.game.turnNumber, variantName)
