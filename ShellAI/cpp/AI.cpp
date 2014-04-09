@@ -185,10 +185,7 @@ bool AI::run()
                (target->owner() != playerID() && target->hackedTurnsLeft() <= 0))
             {
               //attack the target
-              if(!droids[i].operate(target->x(), target->y()))
-              {
-                while(true);
-              }
+              droids[i].operate(target->x(), target->y());
             }
           }
         }
