@@ -246,9 +246,12 @@ class Droid(Mappable):
     wall = 5
     hangar = 7
 
+    targetId = None
+
     #length of 2 = droid on tile
     if len(self.game.grid[x][y]) == 2:
       target = self.game.grid[x][y][1]
+      targetId = target.id
       #droid logic here
       opponentName = self.game.variantStrings[target.variant]
       if self.attack < 0 and target.owner != (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
@@ -280,14 +283,13 @@ class Droid(Mappable):
     else:
       return "Turn %i: Your %s cannot operate on an empty tile."%(self.game.turnNumber, variantName)
 
-    target = self.game.grid[x][y][1]
     self.attacksLeft -= 1
     if self.attack > 0 and self.variant != hackerVariantVal:
-      self.game.addAnimation(AttackAnimation(self.id, target.id))
+      self.game.addAnimation(AttackAnimation(self.id, targetId))
     elif self.attack > 0:
-      self.game.addAnimation(HackAnimation(self.id, target.id))
+      self.game.addAnimation(HackAnimation(self.id, targetId))
     else:
-      self.game.addAnimation(RepairAnimation(self.id, target.id))
+      self.game.addAnimation(RepairAnimation(self.id, targetId))
 
     return True
 
