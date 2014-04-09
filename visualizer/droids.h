@@ -87,6 +87,9 @@ namespace visualizer
             bool m_suicide;
 
             int m_NumHangers;
+            int m_Player0Hangars;
+            int m_Player1Hangars;
+
             static const unsigned int GRID_OFFSET = 2;
     }; 
 

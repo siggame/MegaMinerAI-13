@@ -13,6 +13,9 @@ namespace visualizer
   {
     m_game = 0;
     m_suicide=false;
+    m_NumHangers = 0;
+    m_Player0Hangars = 0;
+    m_Player1Hangars = 0;
   } // Droids::Droids()
 
   Droids::~Droids()
@@ -176,6 +179,7 @@ namespace visualizer
   {
       float x = m_mapWidth / 2;
       float y = m_mapHeight + 1.5;
+
       const float boxOffset = 16;
       const float boxWidth = 10;
       const float boxHeight = 3.5;
@@ -189,10 +193,51 @@ namespace visualizer
       const int numPipeSections = static_cast<int>(pipeLength) * 2;
       float pipeSectionWidth = pipeLength/ numPipeSections;
 
-      // render the health bars
-      for(int owner : {0, 1})
-      {
+      const float healthWidth = healthBarWidth - 1.5f;
+      const float healthHeight = healthBarHeight - 0.2f;
+      const float healthUnitWidth = healthWidth/m_NumHangers;
 
+      // player 0 health
+      int interval = 0;
+      glm::vec3 color = GetTeamColor(0);
+      for(interval = 0; interval < (m_NumHangers - m_Player0Hangars); interval++)
+      {
+          // bars for alive hangars
+          // too dark, i'm doing it manulally
+          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
+          renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
+                                    (y + (boxHeight/2) - (healthHeight/2)),
+                                     healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
+      }
+
+      for(;interval < m_NumHangers; interval++)
+      {
+          // bars for dead hangars
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
+                                    (y + (boxHeight/2) - (healthHeight/2)),
+                                     healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
+      }
+
+
+      // player 1 health
+      color = GetTeamColor(1);
+      for(interval = 0; interval < m_NumHangers - m_Player1Hangars; interval++)
+      {
+          // bars for dead hangars
+          renderer->setColor(Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 1.0f));
+          renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
+                                    (y + (boxHeight/2) - (healthHeight/2)),
+                                     healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
+      }
+
+      for(;interval < m_NumHangers; interval ++)
+      {
+          // bars for alive hangars
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
+                                    (y + (boxHeight/2) - (healthHeight/2)),
+                                     healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
       }
 
       for(int side : {-1,1})
@@ -246,6 +291,7 @@ namespace visualizer
           renderer->drawRotatedTexturedQuad(x + (side * boxOffset) + boxWidth/2 - 0.5, y + boxHeight,
                                             0.5, 0.5, 1, 180, "rivet_corner");
 
+          // draw the health tank
           renderer->drawTexturedQuad(x + (side *healthBarOffset) - healthBarWidth/2, (y + (boxHeight/2) - (healthBarHeight /2)),
                                      healthBarWidth, healthBarHeight , 1, "health_bar");
 
@@ -319,7 +365,11 @@ namespace visualizer
         if(droid.second.variant == DROID_HANGAR && droid.second.owner == 0)
         {
             m_NumHangers++;
+            m_Player0Hangars++;
         }
+
+        if(droid.second.variant == DROID_HANGAR && droid.second.owner == 1)
+            m_Player1Hangars++;
     }
 
 	// Look through each turn in the gamelog
@@ -399,8 +449,7 @@ namespace visualizer
 				  assert("Unknown Droid Variant" && false);
           }
 
-         // SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(unit.x,unit.y), glm::vec2(1), texture);
-           SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
+          SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
 
           const auto& iter = currentState.animations.find(unit.id);
           if(iter != currentState.animations.end())
@@ -411,7 +460,6 @@ namespace visualizer
                   {
                       case parser::MOVE:
                       {
-                          //.std::cout << "Found move animation." << endl;
                           parser::move& move = (parser::move&)*anim;
                           sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(move.toX, move.toY), glm::vec2(move.fromX, move.fromY)));
                           break;
@@ -454,18 +502,24 @@ namespace visualizer
                   SmartPointer<AnimatedSprite> deathAnim = new AnimatedSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), "death", 63);
                   deathAnim->addKeyFrame(new DrawAnimatedSprite(deathAnim, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
                   nextFrame.addAnimatable(deathAnim);
+
+                  if(unit.variant == DROID_HANGAR)
+                  {
+                      if(unit.owner == 0)
+                          m_Player0Hangars--;
+                      if(unit.owner == 1)
+                          m_Player1Hangars--;
+                  }
               }
           }
 
           if(sprite->m_Moves.empty())
           {
-                //cout << unit.x << " " << unit.y << endl;
                 sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
           }
           sprite->addKeyFrame(new DrawSmoothMoveSprite(sprite, glm::vec4(GetTeamColor(unit.owner), 1.0f)));
           turn.addAnimatable(sprite);
 
-          //std::cout << texture << " made.\n";
       }
   }
 
