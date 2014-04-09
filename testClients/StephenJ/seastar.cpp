@@ -16,6 +16,7 @@ vector< vector< int > > ADJACENCY_LIST;
 
 int MAP_HEIGHT;
 int MAP_WIDTH;
+int MAX_DEPTH = 200;
 
 int position_to_index(const int &x, const int &y)
 {
@@ -196,9 +197,10 @@ DLLEXPORT int* astar(int *startv, const int startc, int *endv, const int endc, i
         best_est[first.index] = min;
         openset.push( first );
     }
-
-    while( openset.size() > 0 && endpoint == false )
+    int maxd = 0;
+    while( openset.size() > 0 && endpoint == false  && maxd < MAX_DEPTH)
     {
+        maxd++;
         //While there's still entries in the openset and we've not found
         //an endpoint.
         OpenPt consider = openset.top();

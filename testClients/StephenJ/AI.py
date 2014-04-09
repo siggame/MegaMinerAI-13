@@ -277,9 +277,9 @@ class AI(BaseAI):
     self.mydroids_h = filter(hf, self.mydroids)
    
     # Enemy Droids
-    self.enemyunits = set([ x for x in self.droids if x.getOwner() == self.enemyid
-        and x.getHealthLeft() > 0 ])
-    self.enemydroids = set([ x for x in self.enemyunits if x.getVariant() != UNIT_HANGAR])
+    self.enemyunits = [ x for x in self.droids if x.getOwner() == self.enemyid
+        and x.getHealthLeft() > 0 ]
+    self.enemydroids = [ x for x in self.enemyunits if x.getVariant() != UNIT_HANGAR]
 
     # Droids filter on hacked ness
     self.enemydroids_g = filter(gf, self.enemydroids)
@@ -348,6 +348,8 @@ class AI(BaseAI):
         self.tilesxy[(tile.getX(),tile.getY())] = tile
     self.unitsxy = {}
     for unit in self.droids:
+        if unit.getHealthLeft <= 0:
+            continue
         self.unitsxy[(unit.getX(),unit.getY())] = unit
 
     # Seastar layers
