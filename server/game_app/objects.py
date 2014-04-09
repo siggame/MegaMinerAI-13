@@ -258,7 +258,7 @@ class Droid(Mappable):
       elif self.attack > 0 and target.owner == (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
         return "Turn %i: Your %s cannot attack your %s."%(self.game.turnNumber, variantName, opponentName)
       elif self.variant == hackerVariantVal and (target.variant == wall or target.variant == hangar):
-        return "Turn %i: You cannot hack attack a wall or hangar"%(self.game.turnNumber)
+        return "Turn %i: Your %s cannot operate on a wall or a hangar"%(self.game.turnNumber, variantName)
 
       if self.attack < 0:
         #heal the armor by the attack amount [attack is negative, subtracting will increase]
@@ -280,7 +280,14 @@ class Droid(Mappable):
     else:
       return "Turn %i: Your %s cannot operate on an empty tile."%(self.game.turnNumber, variantName)
 
+    target = self.game.grid[x][y][1]
     self.attacksLeft -= 1
+    if self.attack > 0 and self.variant != hackerVariantVal:
+      self.game.addAnimation(AttackAnimation(self.id, target.id))
+    elif self.attack > 0:
+      self.game.addAnimation(HackAnimation(self.id, target.id))
+    else:
+      self.game.addAnimation(RepairAnimation(self.id, target.id))
 
     return True
 

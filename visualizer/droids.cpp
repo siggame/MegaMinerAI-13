@@ -13,6 +13,9 @@ namespace visualizer
   {
     m_game = 0;
     m_suicide=false;
+    m_NumHangers = 0;
+    m_Player0Hangars = 0;
+    m_Player1Hangars = 0;
   } // Droids::Droids()
 
   Droids::~Droids()
@@ -50,11 +53,6 @@ namespace visualizer
   void Droids::postDraw()
   {
 	  renderer->pop();
-  }
-
-  void Droids::DrawPlayerName()
-  {
-
   }
 
   void Droids::GetSelectedRect(Rect &out) const
@@ -181,43 +179,126 @@ namespace visualizer
   {
       float x = m_mapWidth / 2;
       float y = m_mapHeight + 1.5;
+
       const float boxOffset = 16;
       const float boxWidth = 10;
       const float boxHeight = 3.5;
 
-      for(int owner : {-1,1})
+      const float healthBarOffset = 6;
+      const float healthBarWidth = 6;
+      const float healthBarHeight = healthBarWidth/ 2;
+
+      const float pipeHeight = healthBarHeight /2;
+      const float pipeLength = (x - healthBarOffset - (healthBarWidth/2)) - (x - boxOffset + (boxWidth/2)) ;
+      const int numPipeSections = static_cast<int>(pipeLength) * 2;
+      float pipeSectionWidth = pipeLength/ numPipeSections;
+
+      const float healthWidth = healthBarWidth - 1.5f;
+      const float healthHeight = healthBarHeight - 0.2f;
+      const float healthUnitWidth = healthWidth/m_NumHangers;
+
+      // player 0 health
+      int interval = 0;
+      glm::vec3 color = GetTeamColor(0);
+      for(interval = 0; interval < (m_NumHangers - m_Player0Hangars); interval++)
       {
+          // bars for alive hangars
+          // too dark, i'm doing it manulally
+          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
+          renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
+                                    (y + (boxHeight/2) - (healthHeight/2)),
+                                     healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
+      }
+
+      for(;interval < m_NumHangers; interval++)
+      {
+          // bars for dead hangars
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
+                                    (y + (boxHeight/2) - (healthHeight/2)),
+                                     healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
+      }
+
+
+      // player 1 health
+      color = GetTeamColor(1);
+      for(interval = 0; interval < m_NumHangers - m_Player1Hangars; interval++)
+      {
+          // bars for dead hangars
+          renderer->setColor(Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 1.0f));
+          renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
+                                    (y + (boxHeight/2) - (healthHeight/2)),
+                                     healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
+      }
+
+      for(;interval < m_NumHangers; interval ++)
+      {
+          // bars for alive hangars
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
+                                    (y + (boxHeight/2) - (healthHeight/2)),
+                                     healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
+      }
+
+      for(int side : {-1,1})
+      {
+          // render the pipe from the health tank to the status screen
+          renderer->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
+          for(int i = 0; i < numPipeSections; i++)
+          {
+              if(side == -1)
+              {
+                  renderer->drawTexturedQuad((x + (side * boxOffset) + (boxWidth/2) ) + (pipeSectionWidth * i),
+                                              y + (boxHeight/2) - (pipeHeight/2),
+                                             pipeSectionWidth, pipeHeight,  1, "pipe_section");
+              }
+              else
+              {
+                  renderer->drawTexturedQuad((x + (side * healthBarOffset) + (healthBarWidth/2) ) + (pipeSectionWidth * i),
+                                              y + (boxHeight/2) - (pipeHeight/2),
+                                             pipeSectionWidth, pipeHeight,  1, "pipe_section");
+              }
+          }
+
+          // render the status screen
           renderer->setColor(Color(0.0f, 0.0f, 0.0f, 1.0f));
-          renderer->drawQuad(x + (owner * boxOffset) - boxWidth/2, y,
+          renderer->drawQuad(x + (side * boxOffset) - boxWidth/2, y,
                              boxWidth, boxHeight);
 
           renderer->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
           for(int i = 1; i < (boxWidth * 2) - 1; i++)
           {
-              renderer->drawTexturedQuad((x + (owner * boxOffset) - boxWidth /2) + i/2.0f, y,
+              renderer->drawTexturedQuad((x + (side * boxOffset) - boxWidth /2) + i/2.0f, y,
                                          0.5, 0.5, 1, "rivet");
-              renderer->drawRotatedTexturedQuad((x + (owner * boxOffset)  - boxWidth /2) + i/2.0f, y + boxHeight,
+              renderer->drawRotatedTexturedQuad((x + (side * boxOffset)  - boxWidth /2) + i/2.0f, y + boxHeight,
                                                 0.5, 0.5, 1, 180, "rivet");
           }
 
           for(int i = 1; i < (boxHeight * 2); i++)
           {
-              renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) - boxWidth/2, y + i/2.0f,
+              renderer->drawRotatedTexturedQuad(x + (side * boxOffset) - boxWidth/2, y + i/2.0f,
                                          0.5, 0.5, 1, 270, "rivet");
-              renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2 - 0.5, y + i/2.0f,
+              renderer->drawRotatedTexturedQuad(x + (side * boxOffset) + boxWidth/2 - 0.5, y + i/2.0f,
                                          0.5, 0.5, 1, 90, "rivet");
           }
 
-          renderer->drawTexturedQuad(x + (owner * boxOffset) - boxWidth/2, y,
+          renderer->drawTexturedQuad(x + (side* boxOffset) - boxWidth/2, y,
                                      0.5, 0.5, 1, "rivet_corner");
-          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2 - 0.5, y,
+          renderer->drawRotatedTexturedQuad(x + (side* boxOffset) + boxWidth/2 - 0.5, y,
                                      0.5, 0.5, 1, 90, "rivet_corner");
-          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) - boxWidth/2 , y + boxHeight,
+          renderer->drawRotatedTexturedQuad(x + (side * boxOffset) - boxWidth/2 , y + boxHeight,
                                             0.5, 0.5, 1, 270, "rivet_corner");
-          renderer->drawRotatedTexturedQuad(x + (owner * boxOffset) + boxWidth/2 - 0.5, y + boxHeight,
+          renderer->drawRotatedTexturedQuad(x + (side * boxOffset) + boxWidth/2 - 0.5, y + boxHeight,
                                             0.5, 0.5, 1, 180, "rivet_corner");
+
+          // draw the health tank
+          renderer->drawTexturedQuad(x + (side *healthBarOffset) - healthBarWidth/2, (y + (boxHeight/2) - (healthBarHeight /2)),
+                                     healthBarWidth, healthBarHeight , 1, "health_bar");
+
+
       }
 
+      // draw the names of the teams on the status screen
       for (int owner : {0,1})
       {
           int namePos = owner == 0 ? (x - boxOffset - (boxWidth/2) + 1) : (x + boxOffset + (boxWidth/2) - 1);
@@ -260,9 +341,8 @@ namespace visualizer
 	assert("Gamelog is empty" && !m_game->states.empty());
 
 	m_mapWidth = m_game->states[0].mapWidth;
-	m_mapHeight = m_game->states[0].mapHeight;
-    //cout << "Map Width: " << m_mapWidth << endl;
-    //cout << "Map Height: " << m_mapHeight << endl;
+    m_mapHeight = m_game->states[0].mapHeight;
+
 	renderer->setCamera( 0, 0, m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
 	renderer->setGridDimensions( m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
  
@@ -272,24 +352,36 @@ namespace visualizer
   // The "main" function
   void Droids::run()
   {
+    Frame * turn = new Frame;
+    Frame * nextTurn = new Frame;
+
 	gui->setDebugOptions(this);
     timeManager->setNumTurns( 0 );
 
     animationEngine->registerGame(0, 0);
 
+    for(auto & droid : m_game->states[0].droids)
+    {
+        if(droid.second.variant == DROID_HANGAR && droid.second.owner == 0)
+        {
+            m_NumHangers++;
+            m_Player0Hangars++;
+        }
+
+        if(droid.second.variant == DROID_HANGAR && droid.second.owner == 1)
+            m_Player1Hangars++;
+    }
+
 	// Look through each turn in the gamelog
 	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
-	{
-		Frame turn;  // The frame that will be drawn
-
+    {
         //cout << "Turn " << state << " there are " << m_game->states[state].droids.size() << " droids" << endl;
 
-        PrepareUnits(state, turn);
-        PrepareStructures(state, turn);
+        PrepareUnits(state, *turn, *nextTurn);
+        PrepareTiles(state, *turn, *nextTurn);
 
-
-		animationEngine->buildAnimations(turn);
-		addFrame(turn);
+        animationEngine->buildAnimations(*turn);
+        addFrame(*turn);
 
 		// Register the game and begin playing delayed due to multithreading
 		if(state > 5)
@@ -303,17 +395,23 @@ namespace visualizer
 				timeManager->play();
 			}
 		}
+
+        delete turn;
+        turn = nextTurn;
+        nextTurn = new Frame;
 	}
 
 	if(!m_suicide)
 	{
 		timeManager->setNumTurns( m_game->states.size() );
-		timeManager->play();
+        timeManager->play();
 	}
 
+    delete turn;
+    delete nextTurn;
   } // Droids::run()
 
-  void Droids::PrepareUnits(const int& frameNum, Frame& turn) const
+  void Droids::PrepareUnits(const int& frameNum, Frame& turn, Frame& nextFrame)
   {
       std::string texture;
       parser::GameState& currentState = m_game->states[frameNum];
@@ -321,7 +419,6 @@ namespace visualizer
       for(auto& it: currentState.droids)
       {
           parser::Droid& unit = it.second;
-          //cout << unit.variant << endl;
           switch(unit.variant)
           {
 			case DROID_CLAW:
@@ -352,8 +449,7 @@ namespace visualizer
 				  assert("Unknown Droid Variant" && false);
           }
 
-         // SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(unit.x,unit.y), glm::vec2(1), texture);
-           SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
+          SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
 
           const auto& iter = currentState.animations.find(unit.id);
           if(iter != currentState.animations.end())
@@ -364,7 +460,6 @@ namespace visualizer
                   {
                       case parser::MOVE:
                       {
-                          //.std::cout << "Found move animation." << endl;
                           parser::move& move = (parser::move&)*anim;
                           sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(move.toX, move.toY), glm::vec2(move.fromX, move.fromY)));
                           break;
@@ -395,27 +490,42 @@ namespace visualizer
               }
           }
 
+          // check for deaths
+          if(frameNum < m_game->states.size() - 2)
+          {
+              auto& nextState = m_game->states[frameNum+1];
+              auto next = nextState.droids.find(unit.id);
+
+              if(next == nextState.droids.end())
+              {
+                  std::cout << "died\n";
+                  SmartPointer<AnimatedSprite> deathAnim = new AnimatedSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), "death", 63);
+                  deathAnim->addKeyFrame(new DrawAnimatedSprite(deathAnim, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+                  nextFrame.addAnimatable(deathAnim);
+
+                  if(unit.variant == DROID_HANGAR)
+                  {
+                      if(unit.owner == 0)
+                          m_Player0Hangars--;
+                      if(unit.owner == 1)
+                          m_Player1Hangars--;
+                  }
+              }
+          }
+
           if(sprite->m_Moves.empty())
           {
-                //cout << unit.x << " " << unit.y << endl;
                 sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
           }
           sprite->addKeyFrame(new DrawSmoothMoveSprite(sprite, glm::vec4(GetTeamColor(unit.owner), 1.0f)));
           turn.addAnimatable(sprite);
 
-          //std::cout << texture << " made.\n";
       }
   }
 
-  void Droids::PrepareStructures(const int &frameNum, Frame &turn) const
+  void Droids::PrepareTiles(const int &frameNum, Frame &turn, Frame& nextTurn)
   {
-      parser::GameState& currentState = m_game->states[frameNum];
 
-	  for(auto& it : currentState.tiles)
-      {
-          parser::Tile& tile = it.second;
-
-      }
   }
 
 } // visualizer
