@@ -257,11 +257,13 @@ class Droid(Mappable):
       #droid logic here
       opponentName = self.game.variantStrings[target.variant]
       if self.attack < 0 and target.owner != (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
-        return "Turn %i: Your %s cannot heal your opponent's %s."%(self.game.turnNumber, variantName, opponentName)
+        return "Turn %i: Your %s cannot heal the %s."%(self.game.turnNumber, variantName, opponentName)
       elif self.taxiDist(self, target.x, target.y) > self.range:
         return "Turn %i: The opponent's %s is too far away from your %s."%(self.game.turnNumber, opponentName, variantName)
-      elif self.attack > 0 and target.owner == (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
-        return "Turn %i: Your %s cannot attack your %s."%(self.game.turnNumber, variantName, opponentName)
+      elif self.variant == hackerVariantVal and target.hackedTurnsLeft > 0 and target.owner == self.game.playerID:
+        return "Turn %i: Your %s cannot operate on your %s."%(self.game.turnNumber, variantName, opponentName)
+      elif self.attack > 0 and target.owner != (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
+        return "Turn %i: Your %s cannot operate on the %s."%(self.game.turnNumber, variantName, opponentName)
       elif self.variant == hackerVariantVal and (target.variant == wall or target.variant == hangar):
         return "Turn %i: Your %s cannot operate on a wall or a hangar"%(self.game.turnNumber, variantName)
 
@@ -278,7 +280,7 @@ class Droid(Mappable):
         self.doDamage(self, target)
       elif self.attack > 0 and self.variant == hackerVariantVal:
         target.hackets += self.attack
-        if target.hackets > target.hacketsMax:
+        if target.hackets >= target.hacketsMax:
           target.hackedTurnsLeft = target.turnsToBeHacked
           target.hackets = 0
 
