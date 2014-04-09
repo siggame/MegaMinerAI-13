@@ -41,6 +41,10 @@ int distance(const int &x1, const int &y1, const int &x2, const int &y2)
    return abs(x1-x2)+abs(y1-y2); 
 }
 
+int xoptimize(const int &x1, const int &y1, const int &x2, const int &y2)
+{
+   return abs(x1-x2); 
+}
 int indextox(const int &p)
 {
     return p % MAP_WIDTH;
