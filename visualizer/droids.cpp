@@ -216,7 +216,7 @@ namespace visualizer
       {
           // bars for alive hangars
           // too dark, i'm doing it manulally
-          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
           renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -225,7 +225,7 @@ namespace visualizer
       for(;interval < m_NumHangers; interval++)
       {
           // bars for dead hangars
-          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
           renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -237,7 +237,7 @@ namespace visualizer
       for(interval = 0; interval < m_NumHangers - m_Player1Hangars; interval++)
       {
           // bars for dead hangars
-          renderer->setColor(Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 1.0f));
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
           renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -246,7 +246,7 @@ namespace visualizer
       for(;interval < m_NumHangers; interval ++)
       {
           // bars for alive hangars
-          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->setColor(Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 1.0f));
           renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
