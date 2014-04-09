@@ -173,6 +173,8 @@ class Droid(Mappable):
         self.game.objects.players[playerNum].scrapAmont = self.game.maxScrap
       self.game.grid[self.x][self.y].remove(self)
       self.game.removeObject(self)
+      #This is actually a death animation, shhhhhhhhhh
+      self.game.addAnimation(OrbitalDropAnimation(self.id))
 
   def nextTurn(self):
     if self.owner == (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
