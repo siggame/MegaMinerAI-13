@@ -69,14 +69,20 @@ class AI(BaseAI):
   def distance(self, c1, c2):
     return abs(c1[0]-c2[0])+abs(c1[1]-c2[1])
 
-  def engineer_behavior(self, units):
+  def engineer_behavior(self, units, retreats=True):
     if len(units) == 0:
         return
 
-    healing_targets = filter(lambda x: x.getHealthLeft() < x.getMaxHealth(), self.mydroids_g)
-    hacking_targets = filter(lambda x: x.getHackets() > 0, self.mydroids_g) 
-    
-    self.engage_objectives(units, healing_targets, hacking_targets, within=units[0].getRange())
+    for unit in units:
+        healing_targets = filter(lambda x: (x.getHealthLeft() < x.getMaxHealth() or
+                                           x.getArmor() < x.getMaxArmor() or
+                                           x.getHackets() > 0) and
+                                           x.getId() != unit.getId(), self.mydroids_g)
+        potential_targets = filter(lambda x: x.getVariant() != UNIT_ENGINEER and
+                                             x.getId() != unit.getId(), self.mydroids_g) 
+        retreats = retreats and len(healing_targets) > 0
+        self.engage_objectives([unit], healing_targets, potential_targets,
+            within=units[0].getRange(), retreat_dance=retreats)
 
   def unit_only_behavior(self, units):
     if len(units) == 0:
@@ -97,14 +103,15 @@ class AI(BaseAI):
     self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange())
    
    
-  def balanced_behavior(self, units):
+  def balanced_behavior(self, units, retreats=True):
     if len(units) == 0:
         return
 
     primary_targets = filter(lambda x: x.getHealthLeft() > 0 and x.getHackedTurnsLeft() == 0, self.enemyunits)
     secondary_targets = [] 
     
-    self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange())
+    self.engage_objectives(units, primary_targets, secondary_targets,
+        within=units[0].getRange(),retreat_dance=retreats)
    
  
   def base_focused_behavior(self, units):
@@ -127,7 +134,7 @@ class AI(BaseAI):
 
     self.engage_objectives(units, primary_targets, secondary_targets, within=units[0].getRange()) 
 
-  def engage_objectives(self, units, primary, secondary, within=1):
+  def engage_objectives(self, units, primary, secondary, within=1, retreat_dance=True):
     tomove = {}
     if len(primary) == 0:
         primary = secondary
@@ -139,8 +146,8 @@ class AI(BaseAI):
         tomove[unit.getId()] = unit
     
     while len(tomove) > 0:
-        starts = [ (unit.getX(), unit.getY()) for (_,unit) in tomove.iteritems() ]
-        ends = [ (unit.getX(), unit.getY()) for unit in primary ]
+        starts = set([ (unit.getX(), unit.getY()) for (_,unit) in tomove.iteritems() ])
+        ends = set([ (unit.getX(), unit.getY()) for unit in primary ])
         p = self.sea.get_path(starts,ends)
         if len(p) > 0:
             unit = self.unitsxy[p[0]]
@@ -153,28 +160,70 @@ class AI(BaseAI):
     for unit in units:
         self.attack_set(unit, primary)
         self.attack_set(unit, secondary)
+
+    if retreat_dance:
+        tomove = {}
+        for unit in units:
+            if unit.getMovementLeft() <= 0:
+                continue
+            tomove[unit.getId()] = unit
+
+        while len(tomove) > 0:
+            starts = [ (unit.getX(), unit.getY()) for (_,unit) in tomove.iteritems() ]
+            ends = [ (unit.getX(), unit.getY()) for unit in self.mybases ]
+            p = self.sea.get_path(starts,ends)
+            if len(p) > 0:
+                unit = self.unitsxy[p[0]]
+                self.follow_path(unit,p,primary+secondary,1)
+                self.update_state()
+                tomove.pop(unit.getId(),None)
+            else:
+                # No unit can reach an objective
+                break
+
     self.update_state()
-  
+ 
+        
+ 
   def follow_path(self, unit, path, operables, within):
+    origpath = list(path)
     if len(path) == 0:
         return
     if path[0] == (unit.getX(), unit.getY()):
         path.pop(0)
     else:
-        print "Path doesn't start with locatio"
+        print "Path doesn't start with location"
         return
     for i in range(within):
         if len(path) == 0:
             return
         path.pop()
+    for i in range(len(path)-1):
+        assert(self.distance(path[i], path[i+1]) == 1)
     for step in path:
         if unit.getMovementLeft() <= 0:
             break
         d = self.distance(step,(unit.getX(),unit.getY()))
         if d != 1:
             print "Distance is {}".format(d)
+            print "Bad Unit is"
+            print unit
             break
-        unit.move(step[0],step[1])
+        if not unit.move(step[0],step[1]): #Seastar should only yield good moves
+            print "Moving Unit:"
+            print unit
+            print "Failed at {}".format(step)
+            print "Path was:"
+            for step2 in origpath:
+                try:
+                    contains = self.unitsxy[step2]
+                except KeyError:
+                    contains = "None"
+                print "{} (Has {})".format(step2, contains) 
+                if step2 == step:
+                    break
+            assert False        
+        
         self.attack_set(unit,operables)
 
   def attack_set(self, unit, targets):
@@ -184,7 +233,7 @@ class AI(BaseAI):
     if unit.getAttacksLeft() == 0:
         return
     targets = filter(lambda x: x.getHealthLeft() > 0 and
-        self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) <= unit.getRange(), targets) 
+        1 <= self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) <= unit.getRange(), targets) 
     if len(targets) == 0:
         return
     targs = sorted(targets, key=lambda x: self.distance( (x.getX(),x.getY()), (unit.getX(), unit.getY()) ) )
@@ -323,8 +372,8 @@ class AI(BaseAI):
     self.sea.reset_obstacles()
     
     # Seastar: Add layers
-    self.sea.add_mappables(self.mycontrol, layers['MY_CONTROL'])
-    self.sea.add_mappables(self.enemycontrol, layers['ENEMY_CONTROL'])    
+    self.sea.add_mappables(self.myunits, layers['MY_CONTROL'])
+    self.sea.add_mappables(self.enemyunits, layers['ENEMY_CONTROL'])    
     self.sea.add_mappables(self.nexttiles, layers['DROP_NEXT'])    
     self.sea.add_mappables(self.enemywalls, layers['ENEMY_WALLS'])    
     self.sea.add_mappables(self.mywalls, layers['MY_WALLS'])    
@@ -387,7 +436,7 @@ class AI(BaseAI):
                 spawntarget = (self.getMapWidth()-1, self.getMapHeight()/2)
         else:
             spawntarget = self.vtobuild[1]
-        spawnpts.sort(key=lambda x: self.distance(spawntarget, (x.getX(), x.getY()) ) )
+        spawnpts.sort(key=lambda x: (abs(spawntarget[0]-x.getX()), abs(spawntarget[1]-x.getY()))  )
         
         if self.me.getScrapAmount() < variant.getCost():
             break
@@ -430,7 +479,7 @@ class AI(BaseAI):
     self.engineer_behavior(engineers)
     self.balanced_behavior(claws)
     self.balanced_behavior(archers)
-    self.balanced_behavior(terminators)
+    self.balanced_behavior(terminators, retreats=True)
     self.unit_only_behavior(hackers)
     self.balanced_behavior(turrets)
 
