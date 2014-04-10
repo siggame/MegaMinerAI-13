@@ -9,11 +9,11 @@ texture health_bar textures/health_bar.png
 texture pipe_section textures/pipe_section.png
 
 texture hacker textures/units/hackedit.png
-texture claw textures/units/ghost1.png
+texture claw textures/units/longneck.png
 texture archer textures/units/ghost2.png
-texture repairer textures/units/ghost3.png
+texture repairer textures/units/welder.png
 texture turret textures/units/turret.png
-texture terminator textures/units/ghost4.png
+texture terminator textures/units/tank.png
 texture hangar textures/units/hangar.png
 texture wall textures/units/wall.png
 
