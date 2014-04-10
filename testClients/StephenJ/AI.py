@@ -72,17 +72,12 @@ class AI(BaseAI):
   def engineer_behavior(self, units, retreats=True):
     if len(units) == 0:
         return
-
-    for unit in units:
-        healing_targets = filter(lambda x: (x.getHealthLeft() < x.getMaxHealth() or
-                                           x.getArmor() < x.getMaxArmor() or
-                                           x.getHackets() > 0) and
-                                           x.getId() != unit.getId(), self.mydroids_g)
-        potential_targets = filter(lambda x: x.getVariant() != UNIT_ENGINEER and
-                                             x.getId() != unit.getId(), self.mydroids_g) 
-        retreats = retreats and len(healing_targets) > 0
-        self.engage_objectives([unit], healing_targets, potential_targets,
-            within=units[0].getRange(), retreat_dance=retreats)
+    healing_targets = filter(lambda x: (x.getArmor() < x.getMaxArmor() or
+                                        x.getHackets() > 0), self.mydroids_g+self.mybases)
+    potential_targets = filter(lambda x: x.getVariant() != UNIT_ENGINEER, self.mydroids_g)
+    retreats = retreats and len(healing_targets) > 0
+    self.engage_objectives(units, healing_targets, potential_targets,
+        within=units[0].getRange(), retreat_dance=retreats)
 
   def unit_only_behavior(self, units):
     if len(units) == 0:
@@ -143,6 +138,8 @@ class AI(BaseAI):
     for unit in units:
         if unit.getMovementLeft() <= 0:
             continue
+        if unit.getHealthLeft() <= 0:
+            continue
         tomove[unit.getId()] = unit
     
     while len(tomove) > 0:
@@ -151,20 +148,26 @@ class AI(BaseAI):
         p = self.sea.get_path(starts,ends)
         if len(p) > 0:
             unit = self.unitsxy[p[0]]
-            self.follow_path(unit,p,primary+secondary,within)
-            self.update_state()
+            if unit.getHealthLeft() > 0:
+                self.follow_path(unit,p,primary+secondary,within)
+                self.update_state()
             tomove.pop(unit.getId(),None)
         else:
             # No unit can reach an objective
             break
+    
+    self.update_state()
     for unit in units:
         self.attack_set(unit, primary)
         self.attack_set(unit, secondary)
+    self.update_state()
 
     if retreat_dance:
         tomove = {}
         for unit in units:
             if unit.getMovementLeft() <= 0:
+                continue
+            if unit.getHealthLeft() <= 0:
                 continue
             tomove[unit.getId()] = unit
 
@@ -174,7 +177,7 @@ class AI(BaseAI):
             p = self.sea.get_path(starts,ends)
             if len(p) > 0:
                 unit = self.unitsxy[p[0]]
-                self.follow_path(unit,p,primary+secondary,1)
+                self.follow_path(unit,p,primary+secondary,within)
                 self.update_state()
                 tomove.pop(unit.getId(),None)
             else:
@@ -247,7 +250,15 @@ class AI(BaseAI):
                 continue
             if unit.getAttacksLeft() == 0:
                 break
-            result += int(unit.operate(enemy.getX(), enemy.getY()))
+            if not unit.operate(enemy.getX(), enemy.getY()):
+                print "OPERATING FAILED:"
+                print "attacker:"
+                print unit
+                print "Target:"
+                print enemy
+                assert False
+            else:
+                result += 1 
         if not result:
             return
   
@@ -478,6 +489,7 @@ class AI(BaseAI):
     turrets = filter(lambda x: x.getVariant() == UNIT_TURRET, self.mycontrol)
     terminators = filter(lambda x: x.getVariant() == UNIT_TERMINATOR, self.mycontrol)
 
+    self.update_state()
     self.engineer_behavior(engineers)
     self.balanced_behavior(claws)
     self.balanced_behavior(archers)

@@ -59,7 +59,10 @@ class Seastar(object):
             POINTER(c_int), c_int, c_int]
         self.library.astar.restype = POINTER(c_int)
 
+        self.library.freepath.argtypes = [POINTER(c_int)]
+
         self.library.init_astar(c_int(map_width), c_int(map_height))
+
         self.map_width = map_width
         self.map_height = map_height
 
@@ -138,4 +141,6 @@ class Seastar(object):
             self.c_obstacles, c_obstacles_c, self.c_blocking)
         if not rslt:
             return []
-        return list(clist_to_xytuples(rslt))
+        r = list(clist_to_xytuples(rslt))
+        self.library.freepath(rslt)
+        return r

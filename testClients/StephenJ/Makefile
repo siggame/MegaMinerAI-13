@@ -1,4 +1,4 @@
-all: libclient.so
+all: libseastar.so libclient.so
 
 submit: libclient.so
 	@echo "$(shell cd ..;sh submit.sh c)"
@@ -14,10 +14,11 @@ libseastar.o: seastar.cpp seastar.h
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
 
 
-libseastar.so: seastar.o
+libseastar.so: libseastar.o
 	$(CXX) -shared -Wl,-soname,libseastar.so $(LDFLAGS) $(LOADLIBES) $(LDLIBS) $^ -o libseastar.so
 
 clean:
 	rm -f libclient.so
+	rm -f libseastar.so
 	rm -f *.pyc
 	make -C ../library clean

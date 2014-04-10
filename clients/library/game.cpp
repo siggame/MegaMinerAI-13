@@ -327,7 +327,7 @@ DLLEXPORT int droidMove(_Droid* object, int x, int y)
   // Check collision with droids
   for (int i = 0; i < getDroidCount(c); ++i)
   {
-    if (getDroid(c,i)->healthLeft >= 0 && getDroid(c, i)->x == x && getDroid(c, i)->y == y)
+    if (getDroid(c,i)->healthLeft > 0 && getDroid(c, i)->x == x && getDroid(c, i)->y == y)
       return 0;
   }
 

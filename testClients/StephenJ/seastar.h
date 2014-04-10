@@ -26,8 +26,7 @@ extern "C"
 {
 #endif
 
-
-/// Create the adjacency list.
+DLLEXPORT void freepath(int* path);
 DLLEXPORT void init_astar(const int map_width, const int map_height);
 DLLEXPORT int* astar(int *startv, const int startc, int *endv, const int endc, int* obstaclev,
              const int obstaclec, const int blocking);

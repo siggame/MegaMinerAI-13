@@ -61,6 +61,11 @@ int indexdistance(const int &p1, const int &p2)
     return distance( indextox(p1), indextoy(p1), indextox(p2), indextoy(p2) );
 }
 
+DLLEXPORT void freepath(int* path)
+{
+    delete[] path;
+}
+
 /// Create the adjacency list.
 DLLEXPORT void init_astar(const int map_width, const int map_height)
 {
@@ -156,6 +161,7 @@ DLLEXPORT int* astar(int *startv, const int startc, int *endv, const int endc, i
     int traveled;
     int min;
     int tmp;
+    int *result;
 
     // Start by making the best estimate the size of the map
     best_est.resize(obstaclec);
@@ -183,8 +189,12 @@ DLLEXPORT int* astar(int *startv, const int startc, int *endv, const int endc, i
         {
             if(startv[i] == endv[j] && startv[i+1] == endv[j+1])
             {
-                cerr<<"Start point is in ends set"<<endl; 
-                return NULL;
+                cerr<<"Start point is in ends set"<<endl;
+                result = new int[3];
+                result[0] = startv[i];
+                result[1] = startv[i+1];
+                result[2] = -1;
+                return result;
             }
             tmp = distance(startv[i],startv[i+1],endv[j],endv[j+1]);
             if(tmp < min) min = tmp;
@@ -286,7 +296,7 @@ DLLEXPORT int* astar(int *startv, const int startc, int *endv, const int endc, i
     }
     
     int length = path.size()*2+1;
-    int *result = new int[length];
+    result = new int[length];
     int c = 0;
     for(rit = path.rbegin(); rit != path.rend(); rit++)
     {
