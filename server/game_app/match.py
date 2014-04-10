@@ -82,7 +82,7 @@ class Match(DefaultGameWorld):
       self.spectators.remove(connection)
   
 
-  def createhangars():
+  def createhangars(self):
     return self.createhangars0()
 
   def createhangars1(self):
