@@ -1,7 +1,6 @@
 def buildorder(ai):
     while 1:
-        yield (1, None)
-        yield (3, None)
+        yield (6, None)
     while 1:
         bases = set([ (x.getX(), x.getY()) for x in ai.mybases ])
         walls = set([ (x.getX(), x.getY()) for x in ai.mywalls ])

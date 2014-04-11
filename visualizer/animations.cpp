@@ -4,6 +4,9 @@
 
 namespace visualizer
 {
+
+    float DrawDeltaRotater::m_Rotation = 0;
+
 	void RenderProgressBar(const IRenderer& renderer,
 					   float xPos, float yPos,
 					   float width, float height,
@@ -113,17 +116,30 @@ namespace visualizer
         game->renderer->drawTexturedQuad(m_pos.x, m_pos.y, 1.0f, 1.0f, 1.0f, m_Sprite->m_sprite);
 	}
 
-    /*void DrawFlippedSmoothMoveSprite::animate(const float &t, AnimData *d, IGame *game)
-	{
-		DrawSmoothMoveSprite::animate(t, d, game);
-		game->renderer->drawTexturedQuad(m_pos.x, m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, 1.0f, m_Sprite->m_sprite, m_Flipped);
-	}
+    void DrawSmoothMoveRotatedSprite::animate(const float& t, AnimData*d, IGame* game)
+    {
+        unsigned int index = (unsigned int) (m_Sprite->m_Moves.size() * t);
+        float subT = m_Sprite->m_Moves.size() * t - index;
+        MoveableSprite::Move& thisMove = m_Sprite->m_Moves[index];
 
-	void DrawRotatedSmoothMoveSprite::animate(const float &t, AnimData *d, IGame *game)
-	{
-		DrawSmoothMoveSprite::animate(t, d, game);
-		game->renderer->drawRotatedTexturedQuad(m_pos.x, m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, 1.0f, m_angle, m_Sprite->m_sprite);
-    }*/
+        glm::vec2 diff = thisMove.to - thisMove.from;
+        m_pos = thisMove.from + diff * subT;
+
+        ColorSprite::animate(t, d, game);
+
+        game->renderer->drawRotatedTexturedQuad(m_pos.x, m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, 1.0f, m_Rotation, m_Sprite->m_sprite);
+    }
+
+    void DrawDeltaRotater::animate(const float &t, AnimData *d, IGame *game)
+    {
+        const float deltaRot = 20;
+        float dt = game->timeManager->getDt();
+        m_Rotation += deltaRot * dt;
+
+        ColorSprite::animate(t, d, game);
+
+        game->renderer->drawRotatedTexturedQuad(m_Sprite->m_pos.x, m_Sprite->m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, 1.0f, m_Rotation, m_Sprite->m_sprite);
+    }
 
 	void DrawAnimatedSprite::animate(const float &t, AnimData*d, IGame* game)
 	{
