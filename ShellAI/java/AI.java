@@ -166,31 +166,34 @@ public class AI extends BaseAI
   {
 		int offset = 0;
 		boolean found = false;
-		//find a location without a hangar
-		for(int i = 0; i < tiles.length; i++)
+		while(!found)
 		{
-		  //make sure that the tile is near the edge
-		  if(tiles[i].getX() == (mapWidth() - 1) * playerID() + offset)
-		  {
-		    spawnX = tiles[i].getX();
-		    spawnY = tiles[i].getY();
-		    found = true;
-		    break;
-		  }
-		}
-		//if nothing was found then move away from the edge
-		if(!found)
-		{
-	    //if on the left
-	    if(playerID() == 0)
-		  {
-		    offset++;
-		  }
-		  else
-		  {
-		    //on the right
-		    offset--;
-		  }
+  		//find a location without a hangar
+  		for(int i = 0; i < tiles.length; i++)
+  		{
+  		  //make sure that the tile is near the edge
+  		  if(tiles[i].getX() == (mapWidth() - 1) * playerID() + offset)
+  		  {
+  		    spawnX = tiles[i].getX();
+  		    spawnY = tiles[i].getY();
+  		    found = true;
+  		    break;
+  		  }
+  		}
+  		//if nothing was found then move away from the edge
+  		if(!found)
+  		{
+  	    //if on the left
+  	    if(playerID() == 0)
+  		  {
+  		    offset++;
+  		  }
+  		  else
+  		  {
+  		    //on the right
+  		    offset--;
+  		  }
+  		}
 		}
   }
 
