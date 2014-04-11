@@ -72,6 +72,8 @@ namespace visualizer
 
             void DrawHUD() const;
 
+            void DrawScrapAmount() const;
+
             void UpdateHangarCount();
 
             glm::vec3 GetTeamColor(int owner) const;

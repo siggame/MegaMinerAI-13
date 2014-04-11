@@ -1,4 +1,6 @@
 font Roboto textures/fonts/Roboto.png Roboto.dat
+font DroidSansMono textures/fonts/DroidSansMono.png DroidSansMono.dat
+
 texture grid textures/grid.png
 texture desolate textures/desolate.png
 texture cliffside textures/cliffside.png

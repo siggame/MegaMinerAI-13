@@ -362,6 +362,9 @@ namespace visualizer
       const float healthHeight = healthBarHeight - 0.2f;
       const float healthUnitWidth = healthWidth/m_NumHangers;
 
+      const int pieChartResolution = 100;
+      const int pieChartRadius = 1.5;
+
       // player 0 health
       int interval = 0;
       glm::vec3 color = GetTeamColor(0);
@@ -457,7 +460,40 @@ namespace visualizer
           renderer->drawRotatedTexturedQuad(x + (side * boxOffset) + boxWidth/2 - 0.5, y + boxHeight,
                                             0.5, 0.5, 1, 180, "rivet_corner");
 
+
+          // scrap chart
+          {
+              int curPlayer = (side == -1)?0:1;
+              auto player = m_game->states[timeManager->getTurn()].players.find(curPlayer);
+
+              if(player != m_game->states[timeManager->getTurn()].players.end())
+              {
+                  const float pieCenterX = (x +(side*boxOffset) + (side* boxWidth/2)) + (-side*8.0);
+                  const float pieCenterY = (y + 1.8f);
+                  float percentScrap = static_cast<float>(player->second.scrapAmount) / m_game->states[timeManager->getTurn()].maxScrap;
+                  std::stringstream stream;
+                  stream << player->second.scrapAmount << " / " << m_game->states[timeManager->getTurn()].maxScrap;
+
+                  glm::vec3 col = (side == -1)?GetTeamColor(0):GetTeamColor(1);
+                  renderer->setColor(Color(col.x, col.y, col.z, 1.0f));
+                  renderer->drawLine(pieCenterX, pieCenterY, pieCenterX + side, pieCenterY + 1);
+                  renderer->drawLine(pieCenterX + side, pieCenterY + 1, pieCenterX +side + (side*2.0), pieCenterY + 1);
+                  renderer->drawText(pieCenterX + side + (side * 2.0), pieCenterY + 0.4, "Roboto", stream.str(), 1.8f,  (curPlayer)?(IRenderer::Right):(IRenderer::Left));
+                  renderer->drawText(pieCenterX + side + (side *1.5),pieCenterY + 1.0f, "Roboto", "scrap", 2.0f, (curPlayer)?(IRenderer::Right):(IRenderer::Left));
+
+                  renderer->setColor(Color(col.x, col.y, col.z, 1.0f));
+                  renderer->drawCircle(pieCenterX, pieCenterY, pieChartRadius, percentScrap, pieChartResolution);
+
+                  renderer->setColor(Color(col.x*0.5, col.y *0.5, col.z * 0.5, 1.0f));
+                  renderer->drawCircle(pieCenterX, pieCenterY, pieChartRadius, 1 - percentScrap, pieChartResolution, 2*PI * percentScrap);
+
+               }
+
+          }
+
+
           // draw the health tank
+          renderer->setColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
           renderer->drawTexturedQuad(x + (side *healthBarOffset) - healthBarWidth/2, (y + (boxHeight/2) - (healthBarHeight /2)),
                                      healthBarWidth, healthBarHeight , 1, "health_bar");
 
@@ -476,6 +512,11 @@ namespace visualizer
           renderer->drawText(namePos, y+(1/2.0f) , "Roboto", m_game->states[0].players[owner].playerName, 3.0f, alignment);
 
       }
+  }
+
+  void Droids::DrawScrapAmount() const
+  {
+
   }
 
   void Droids::UpdateHangarCount()
@@ -748,7 +789,6 @@ namespace visualizer
           {
               SmartPointer<BaseSprite> reticle;
               reticle = new BaseSprite(glm::vec2(tile.second.x, tile.second.y), glm::vec2(1, 1), "med_reticle");
-              std::cout << tile.second.owner << std::endl;
               glm::vec3 col = GetTeamColor(tile.second.owner);
               reticle->addKeyFrame(new DrawDeltaRotater(reticle, glm::vec4(col.x, col.y, col.z, 0.5)));
               turn.addAnimatable(reticle);
@@ -768,8 +808,6 @@ namespace visualizer
       std::string texture;
       auto& lastState = m_game->states[frameNum];
 
-
-      std::cout << "LAST FRAME:\n";
       for(auto & droid: lastState.droids)
       {
           switch(droid.second.variant)
@@ -816,7 +854,6 @@ namespace visualizer
               for(auto& anim : droidAnims->second)
               {
 
-                  std::cout << "AnimType = " << anim->type;
                   if(anim->type == parser::ORBITALDROP)
                   {
                       died = true;
