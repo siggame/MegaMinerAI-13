@@ -32,7 +32,7 @@ namespace visualizer
         Q_INTERFACES( visualizer::IGame );
 
         private:
-            static const int IDLE = 6;
+            const float PI = 3.141592f;
 
 			enum DROID_TYPE
 			{
@@ -79,6 +79,8 @@ namespace visualizer
             void PrepareUnits(const int& frameNum,Frame& turn, Frame& nextTurn);
 
             void PrepareTiles(const int& frameNum, Frame& turn, Frame& nextTurn);
+
+            void PrepareLastFrame(const int& frameNum, Frame& turn);
 
 			void UpdateHangarCount();
 

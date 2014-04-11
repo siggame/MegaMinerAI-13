@@ -211,11 +211,10 @@ namespace visualizer
       int interval = 0;
       glm::vec3 color = GetTeamColor(0);
 
-	  std::cout << m_NumHangers << "   " << m_Player0Hangars << "  " << m_Player1Hangars <<  std::endl;
-	  for(interval = 0; interval < m_Player0Hangars; interval++)
+      for(interval = 0; interval < m_Player0Hangars; interval++)
       {
           // bars for alive hangars
-          // too dark, i'm doing it manulally
+          // too dark, i'm doing it manually
           renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
           renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
@@ -237,7 +236,7 @@ namespace visualizer
       for(interval = 0; interval < m_NumHangers - m_Player1Hangars; interval++)
       {
           // bars for dead hangars
-          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->setColor(Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 1.0f));
           renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -246,7 +245,7 @@ namespace visualizer
       for(;interval < m_NumHangers; interval ++)
       {
           // bars for alive hangars
-          renderer->setColor(Color(color.r * 0.5, color.g * 0.5, color.b * 0.5, 1.0f));
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
           renderer->drawTexturedQuad((x + healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -399,13 +398,9 @@ namespace visualizer
         }
     }
 
-	std::cout << m_NumHangers << "  " << m_Player0Hangars << "  " << m_Player1Hangars << std::endl;
-
 	// Look through each turn in the gamelog
 	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
     {
-        //cout << "Turn " << state << " there are " << m_game->states[state].droids.size() << " droids" << endl;
-
         PrepareUnits(state, *turn, *nextTurn);
         PrepareTiles(state, *turn, *nextTurn);
 
@@ -429,6 +424,11 @@ namespace visualizer
         turn = nextTurn;
         nextTurn = new Frame;
 	}
+
+    PrepareLastFrame(m_game->states.size() - 1, *turn);
+    animationEngine->buildAnimations(*turn);
+    addFrame(*turn);
+    timeManager->setNumTurns( timeManager->getNumTurns() + 1);
 
 	if(!m_suicide)
 	{
@@ -530,42 +530,6 @@ namespace visualizer
                   SmartPointer<AnimatedSprite> deathAnim = new AnimatedSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), "death", 63);
                   deathAnim->addKeyFrame(new DrawAnimatedSprite(deathAnim, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
                   nextFrame.addAnimatable(deathAnim);
-
-				  std::cout << "FRAME: " << frameNum << std::endl;
-				  switch(unit.variant)
-				  {
-					  case DROID_CLAW:
-						  std::cout << "claw died\n";
-						  break;
-					  case DROID_ARCHER:
-						  std::cout << "archer died\n";
-						  break;
-					  case DROID_HACKER:
-						  std::cout << "hacker died\n";
-						  break;
-					  case DROID_REPAIRER:
-						  std::cout << "repairer died\n";
-						  break;
-					  case DROID_TERMINATOR:
-						  std::cout << "terminator died\n";
-						  break;
-					  case DROID_TURRET:
-						  std::cout << "turret died\n";
-						  break;
-					  case DROID_WALL:
-						  std:cout << "wall died\n";
-						  break;
-					  case DROID_HANGAR:
-					  {
-						  std::cout << "hangar died\n";
-						  if(unit.owner == 0)
-							  m_Player0Hangars--;
-						  if(unit.owner == 1)
-							  m_Player1Hangars--;
-						  break;
-					 }
-				  }
-
               }
           }
 
@@ -581,9 +545,102 @@ namespace visualizer
 
   void Droids::PrepareTiles(const int &frameNum, Frame &turn, Frame& nextTurn)
   {
+      auto& tiles = m_game->states[frameNum].tiles;
 
+      SmartPointer<MoveableSprite> sprite;
+
+      for(auto & tile : tiles)
+      {
+          if(tile.second.turnsUntilAssembled == 1 && frameNum - 1 >= 0)
+          {
+              auto& prevState = m_game->states[frameNum - 1];
+
+              if(prevState.tiles[tile.second.id].turnsUntilAssembled == 1)
+              {
+                  float h = sqrt( pow(3, 2) + pow(tile.second.y +3, 2));
+                  float angle = asin( tile.second.y / h);
+                  angle = 180/PI + 180;
+
+
+                  sprite = new MoveableSprite("fireball");
+                  sprite->addKeyFrame(new DrawSmoothMoveRotatedSprite(sprite, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), angle));
+                  sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2( tile.second.x, tile.second.y), glm::vec2(tile.second.x - 3, -3)));
+                  turn.addAnimatable(sprite);
+              }
+          }
+      }
   }
 
+  void Droids::PrepareLastFrame(const int &frameNum, Frame &turn)
+  {
+      std::string texture;
+      auto& lastState = m_game->states[frameNum];
+
+
+      std::cout << "LAST FRAME:\n";
+      for(auto & droid: lastState.droids)
+      {
+          switch(droid.second.variant)
+          {
+            case DROID_CLAW:
+                  texture = "claw";
+                  break;
+            case DROID_ARCHER:
+                  texture = "archer";
+                  break;
+            case DROID_REPAIRER:
+                  texture = "repairer";
+                  break;
+            case DROID_HACKER:
+                  texture = "hacker";
+                  break;
+            case DROID_TURRET:
+                  texture = "turret";
+                  break;
+            case DROID_WALL:
+                  texture = "wall";
+                  break;
+            case DROID_TERMINATOR:
+                  texture = "terminator";
+                  break;
+            case DROID_HANGAR:
+                  texture = "hangar";
+                  break;
+            default:
+                  assert("Unknown Droid Variant" && false);
+          }
+
+          auto droidAnims = lastState.animations.find(droid.second.id);
+          if(droidAnims == lastState.animations.end())
+          {
+              SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(droid.second.x, droid.second.y), glm::vec2(1,1), "texture");
+              sprite->addKeyFrame(new DrawSprite(sprite, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+              turn.addAnimatable(sprite);
+          }
+          else
+          {
+              bool died = false;
+
+              for(auto& anim : droidAnims->second)
+              {
+
+                  std::cout << "AnimType = " << anim->type;
+                  if(anim->type == parser::ORBITALDROP)
+                  {
+                      died = true;
+                  }
+              }
+
+              if(!died)
+              {
+                  SmartPointer<BaseSprite> sprite = new BaseSprite(glm::vec2(droid.second.x, droid.second.y), glm::vec2(1,1), "texture");
+                  sprite->addKeyFrame(new DrawSprite(sprite, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+                  turn.addAnimatable(sprite);
+              }
+          }
+
+      }
+  }
 } // visualizer
 
 Q_EXPORT_PLUGIN2( Droids, visualizer::Droids );

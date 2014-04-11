@@ -17,4 +17,6 @@ texture terminator textures/units/tank.png
 texture hangar textures/units/hangar.png
 texture wall textures/units/wall.png
 
+texture fireball textures/fireball.png
+
 animation death textures/animations/death.png
