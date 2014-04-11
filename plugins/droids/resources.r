@@ -1,4 +1,6 @@
 font Roboto textures/fonts/Roboto.png Roboto.dat
+font DroidSansMono textures/fonts/DroidSansMono.png DroidSansMono.dat
+
 texture grid textures/grid.png
 texture desolate textures/desolate.png
 texture cliffside textures/cliffside.png
@@ -18,5 +20,6 @@ texture hangar textures/units/hangar.png
 texture wall textures/units/wall.png
 
 texture fireball textures/fireball.png
+texture med_reticle textures/med_reticle.png
 
 animation death textures/animations/death.png
