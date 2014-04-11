@@ -58,7 +58,7 @@ int indextoy(const int &p)
 
 int indexdistance(const int &p1, const int &p2)
 {
-    return distance( indextox(p1), indextoy(p1), indextox(p2), indextoy(p2) );
+    return abs((p1-p2) % MAP_WIDTH) + abs((p1-p2)/MAP_WIDTH);
 }
 
 DLLEXPORT void freepath(int* path)
@@ -172,38 +172,37 @@ DLLEXPORT int* astar(int *startv, const int startc, int *endv, const int endc, i
         closedset[i] = false;
     }
     // Convert the input arrays to index sets.
-    for(int i=0; i < startc; i+=2)
+    for(int i=0; i < startc; i++)
     {   
-        starts.insert( position_to_index(startv[i],startv[i+1]) );
+        starts.insert( startv[i] );
     }
-    for(int i=0; i < endc; i+=2)
+    for(int i=0; i < endc; i++)
     {
-        ends.insert( position_to_index(endv[i],endv[i+1]) );
+        ends.insert( endv[i] );
     }
     // For each starting point, estimate the best end point and seed the open
     // set with it.
-    for(int i=0; i < startc; i+=2)
+    for(int i=0; i < startc; i++)
     {
         int min = obstaclec;
-        for(int j=0; j < endc; j+=2)
+        for(int j=0; j < endc; j++)
         {
             if(startv[i] == endv[j] && startv[i+1] == endv[j+1])
             {
                 cerr<<"Start point is in ends set"<<endl;
-                result = new int[3];
+                result = new int[2];
                 result[0] = startv[i];
-                result[1] = startv[i+1];
-                result[2] = -1;
+                result[1] = -1;
                 return result;
             }
-            tmp = distance(startv[i],startv[i+1],endv[j],endv[j+1]);
+            tmp = indexdistance(startv[i],endv[j]);
             if(tmp < min) min = tmp;
         }
         // Make an open set entry for that estimate.
         OpenPt first;
         first.est = min;
         first.sofar = 0;
-        first.index = position_to_index(startv[i],startv[i+1]);
+        first.index = startv[i];
         best_est[first.index] = min;
         openset.push( first );
     }
@@ -247,9 +246,9 @@ DLLEXPORT int* astar(int *startv, const int startc, int *endv, const int endc, i
             {
                 //Check to see if the cell is blocked by our mask
                 min = obstaclec; // The estimated distance to the best goal.
-                for(int j=0; j < endc; j+=2)
+                for(int j=0; j < endc; j++)
                 {
-                    tmp = distance(indextox(*it), indextoy(*it), endv[j], endv[j+1]);
+                    tmp = indexdistance(*it, endv[j]);
                     if(tmp < min) min = tmp;
                 }
                 OpenPt next;
@@ -295,15 +294,14 @@ DLLEXPORT int* astar(int *startv, const int startc, int *endv, const int endc, i
         return NULL;
     }
     
-    int length = path.size()*2+1;
+    int length = path.size()+1;
     result = new int[length];
     int c = 0;
     for(rit = path.rbegin(); rit != path.rend(); rit++)
     {
         //Reverse the path and put it to the output array.
-        result[c] = indextox(*rit);
-        result[c+1] = indextoy(*rit);
-        c += 2;
+        result[c] = *rit;
+        c += 1;
     }
     // Indicate the end of the result.
     result[length-1] = -1;
