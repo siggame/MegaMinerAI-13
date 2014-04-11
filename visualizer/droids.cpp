@@ -238,7 +238,7 @@ namespace visualizer
 
   glm::vec3 Droids::GetTeamColor(int owner) const
   {
-    return owner == 1 ? glm::vec3(0.5f,1.0f,0.5f) : glm::vec3(0.5f,0.5f,1.0f);
+    return owner == 1 ? glm::vec3(0.75f,1.0f,0.75f) : glm::vec3(0.75f,0.75f,1.0f);
   }
 
   PluginInfo Droids::getPluginInfo()
