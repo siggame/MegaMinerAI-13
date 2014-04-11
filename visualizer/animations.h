@@ -127,6 +127,22 @@ namespace visualizer
         glm::vec2 m_pos;
     };
 
+    class DrawDeltaRotater :
+        public ColorSprite
+    {
+    public:
+        DrawDeltaRotater(BaseSprite * sprite, const glm::vec4& c) :
+            ColorSprite(c),
+            m_Sprite(sprite)
+            {}
+
+        void animate(const float& t, AnimData* d, IGame* game);
+
+    private:
+        BaseSprite * m_Sprite;
+        static float m_Rotation;
+    };
+
 	class DrawProgressBar : public Anim
 	{
 	public:

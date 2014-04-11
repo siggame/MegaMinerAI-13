@@ -401,8 +401,8 @@ namespace visualizer
 	// Look through each turn in the gamelog
 	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
     {
-        PrepareUnits(state, *turn, *nextTurn);
         PrepareTiles(state, *turn, *nextTurn);
+        PrepareUnits(state, *turn, *nextTurn);
 
         animationEngine->buildAnimations(*turn);
         addFrame(*turn);
@@ -567,6 +567,16 @@ namespace visualizer
                   sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2( tile.second.x, tile.second.y), glm::vec2(tile.second.x - 3, -3)));
                   turn.addAnimatable(sprite);
               }
+          }
+
+          if(tile.second.turnsUntilAssembled > 2 && tile.second.owner == 0 || tile.second.owner == 1)
+          {
+              SmartPointer<BaseSprite> reticle;
+              reticle = new BaseSprite(glm::vec2(tile.second.x, tile.second.y), glm::vec2(1, 1), "med_reticle");
+              std::cout << tile.second.owner << std::endl;
+              glm::vec3 col = GetTeamColor(tile.second.owner);
+              reticle->addKeyFrame(new DrawDeltaRotater(reticle, glm::vec4(col.x, col.y, col.z, 0.5)));
+              turn.addAnimatable(reticle);
           }
       }
   }

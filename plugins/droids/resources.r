@@ -18,5 +18,6 @@ texture hangar textures/units/hangar.png
 texture wall textures/units/wall.png
 
 texture fireball textures/fireball.png
+texture med_reticle textures/med_reticle.png
 
 animation death textures/animations/death.png

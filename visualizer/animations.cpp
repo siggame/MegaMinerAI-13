@@ -4,6 +4,9 @@
 
 namespace visualizer
 {
+
+    float DrawDeltaRotater::m_Rotation = 0;
+
 	void RenderProgressBar(const IRenderer& renderer,
 					   float xPos, float yPos,
 					   float width, float height,
@@ -125,6 +128,17 @@ namespace visualizer
         ColorSprite::animate(t, d, game);
 
         game->renderer->drawRotatedTexturedQuad(m_pos.x, m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, 1.0f, m_Rotation, m_Sprite->m_sprite);
+    }
+
+    void DrawDeltaRotater::animate(const float &t, AnimData *d, IGame *game)
+    {
+        const float deltaRot = 20;
+        float dt = game->timeManager->getDt();
+        m_Rotation += deltaRot * dt;
+
+        ColorSprite::animate(t, d, game);
+
+        game->renderer->drawRotatedTexturedQuad(m_Sprite->m_pos.x, m_Sprite->m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, 1.0f, m_Rotation, m_Sprite->m_sprite);
     }
 
 	void DrawAnimatedSprite::animate(const float &t, AnimData*d, IGame* game)
