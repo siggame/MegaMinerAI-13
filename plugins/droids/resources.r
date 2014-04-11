@@ -16,7 +16,7 @@ texture archer textures/units/ghost2.png
 texture repairer textures/units/welder.png
 texture turret textures/units/turret.png
 texture terminator textures/units/tank.png
-texture hangar textures/units/hangar.png
+texture hangar textures/units/hub.png
 texture wall textures/units/wall.png
 
 texture fireball textures/fireball.png
