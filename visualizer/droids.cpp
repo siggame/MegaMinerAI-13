@@ -44,7 +44,9 @@ namespace visualizer
 	renderer->push();
 	renderer->translate(GRID_OFFSET, GRID_OFFSET);
 
-	UpdateHangarCount();
+    ProcessInput();
+
+    UpdateHangarCount();
 	RenderGrid();
     DrawHUD();
 
@@ -54,6 +56,8 @@ namespace visualizer
   void Droids::postDraw()
   {
 	  renderer->pop();
+
+      DrawObjectSelection();
   }
 
   void Droids::GetSelectedRect(Rect &out) const
@@ -72,6 +76,164 @@ namespace visualizer
       out.top = min(y,bottom);
       out.right = max(x,right);
       out.bottom = max(y,bottom);
+  }
+
+  void Droids::ProcessInput()
+  {
+      const Input& input = gui->getInput();
+      int turn = timeManager->getTurn();
+      int unitSelectable = gui->getDebugOptionState("Units Selectable");
+      int tilesSelectable = gui->getDebugOptionState("Tiles Selectable");
+
+      if(input.leftRelease && turn < (int) m_game->states.size())
+      {
+          Rect R;
+          GetSelectedRect(R);
+
+          m_SelectedUnits.clear();
+
+          if(unitSelectable)
+          {
+              for(auto& iter : m_game->states[turn].droids)
+              {
+                  const auto& unit = iter.second;
+
+                  if(R.left <= unit.x && R.right >= unit.x &&
+                     R.top <= unit.y && R.bottom >= unit.y )
+                  {
+                      m_SelectedUnits.push_back(unit.id);
+                  }
+              }
+          }
+
+          if(tilesSelectable)
+          {
+              for(auto& iter : m_game->states[turn].tiles)
+              {
+                  const auto& tile = iter.second;
+
+                  if(R.left <= tile.x && R.right >= tile.x &&
+                     R.top <= tile.y && R.bottom >= tile.y)
+                  {
+                      m_SelectedUnits.push_back(tile.id);
+                  }
+              }
+          }
+
+          gui->updateDebugWindow();
+          gui->updateDebugUnitFocus();
+      }
+  }
+
+  void Droids::pruneSelection()
+  {
+      int turn = timeManager->getTurn();
+      bool changed = false;
+      int focus = gui->getCurrentUnitFocus();
+
+      if(turn < (int) m_game->states.size())
+      {
+          auto iter = m_SelectedUnits.begin();
+
+          while(iter != m_SelectedUnits.end())
+          {
+              if(m_game->states[turn].droids.find(*iter) == m_game->states[turn].droids.end() &&
+                (m_game->states[turn].tiles.find(*iter) == m_game->states[turn].tiles.end()))
+              {
+                  iter = m_SelectedUnits.erase(iter);
+                  changed = true;
+              }
+              else
+                  iter++;
+
+              if(changed == true)
+                gui->updateDebugWindow();
+
+              if(std::find(m_SelectedUnits.begin(), m_SelectedUnits.end(), focus) == m_SelectedUnits.end())
+                gui->updateDebugUnitFocus();
+          }
+      }
+  }
+
+  void Droids::DrawObjectSelection() const
+  {
+      int turn = timeManager->getTurn();
+      if(turn < (int) m_game->states.size())
+      {
+          for(auto& iter: m_SelectedUnits)
+          {
+              if(m_game->states[turn].tiles.find(iter) != m_game->states[turn].tiles.end())
+              {
+                  auto tile = m_game->states[turn].tiles.at(iter);
+
+                  DrawQuadAroundObj(parser::Mappable({tile.id, tile.x +2, tile.y +2}), glm::vec4(0.3, 0.0, 1.0f, 0.4));
+              }
+          }
+
+          for(auto & iter : m_SelectedUnits)
+          {
+              if(m_game->states[turn].droids.find(iter) != m_game->states[turn].droids.end())
+              {
+                  auto & droid = m_game->states[turn].droids.at(iter);
+                  DrawQuadAroundObj(parser::Mappable({droid.id, droid.x + 2, droid.y + 2}), glm::vec4(1.0f, 0.4, 0.4, 0.6));
+              }
+          }
+
+          int focus = gui->getCurrentUnitFocus();
+
+          if(focus >= 0)
+          {
+              if(m_game->states[turn].droids.find(focus) != m_game->states[turn].droids.end())
+              {
+                  auto& droid = m_game->states[turn].droids.at(focus);
+                  DrawBoxAroundObj(parser::Mappable({droid.id, droid.x + 2, droid.y + 2}), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+              }
+          }
+      }
+  }
+
+  std::list<IGUI::DebugOption> Droids::getDebugOptions()
+  {
+      return std::list<IGUI::DebugOption>({{"Units Selectable", true},
+                                          {"Tiles Selectable", false}
+                                         });
+
+  }
+
+  void Droids::DrawBoxAroundObj(const parser::Mappable& obj, const glm::vec4 &color) const
+  {
+      renderer->setColor(Color(color.r, color.g, color.b, color.a));
+      renderer->drawLine(obj.x + 0.1f, obj.y + 0.1f, obj.x + 0.9, obj.y + 0.1);
+      renderer->drawLine(obj.x + 0.1f, obj.y + 0.1f, obj.x + 0.1, obj.y + 0.9);
+      renderer->drawLine(obj.x + 0.9f, obj.y + 0.1f, obj.x + 0.9, obj.y + 0.9);
+      renderer->drawLine(obj.x + 0.1f, obj.y + 0.9f, obj.x + 0.9, obj.y + 0.9);
+    }
+
+  void Droids::DrawBoxAroundObj(const glm::vec2 topLeft, const int width, const int height, const glm::vec4 color) const
+  {
+      renderer->setColor(Color(color.r, color.g, color.b, color.a));
+      renderer->drawLine(topLeft.x + 0.1f, topLeft.y + 0.1f, topLeft.x + (width - 0.1), topLeft.y + 0.1);
+      renderer->drawLine(topLeft.x + 0.1f, topLeft.y + 0.1f, topLeft.x + 0.1, topLeft.y + (height - 0.1));
+      renderer->drawLine(topLeft.x + (width - 0.1), topLeft.y + 0.1f, topLeft.x + (width - 0.1), topLeft.y + (height - 0.1));
+      renderer->drawLine(topLeft.x + 0.1f, topLeft.y + (height - 0.1), topLeft.x + (width - 0.1), topLeft.y + (height - 0.1));
+
+  }
+
+  void Droids::DrawQuadAroundObj(const parser::Mappable& obj, const glm::vec4 &color) const
+  {
+      renderer->setColor( Color( color.r, color.g, color.b, color.a) );
+      renderer->drawQuad(obj.x,obj.y,1,1);
+  }
+
+  void Droids::DrawQuadAroundObj(const glm::vec2 topLeft, const int width, const int height, const glm::vec4 color) const
+  {
+      renderer->setColor(Color(color.r, color.g, color.b, color.a));
+          renderer->drawQuad(topLeft.x, topLeft.y, width, height);
+  }
+
+  std::list<int> Droids::getSelectedUnits()
+  {
+      return m_SelectedUnits;
   }
 
   glm::vec3 Droids::GetTeamColor(int owner) const
@@ -99,13 +261,6 @@ namespace visualizer
     resourceManager->loadResourceFile( "./plugins/droids/resources.r" );
   }
   
-  // Give the Debug Info widget the selected object IDs in the Gamelog
-  list<int> Droids::getSelectedUnits()
-  {
-    // TODO Selection logic
-    return list<int>();  // return the empty list
-  }
-
   void Droids::RenderGrid() const
   {
       const float gustLength = 2.0f;
@@ -325,21 +480,21 @@ namespace visualizer
 
   void Droids::UpdateHangarCount()
   {
-	int curTurn = timeManager->getTurn();
-	auto & curState = m_game->states[curTurn];
+      int curTurn = timeManager->getTurn();
+      auto & curState = m_game->states[curTurn];
 
-	m_Player0Hangars = m_Player1Hangars = 0;
+      m_Player0Hangars = m_Player1Hangars = 0;
 
-	for(auto& droid : curState.droids)
-	{
-		if(droid.second.variant == DROID_HANGAR)
-		{
-			if(droid.second.owner == 0)
-				m_Player0Hangars++;
-			else
-				m_Player1Hangars++;
-		}
-	}
+      for(auto& droid : curState.droids)
+      {
+          if(droid.second.variant == DROID_HANGAR)
+          {
+              if(droid.second.owner == 0)
+                  m_Player0Hangars++;
+              else
+                  m_Player1Hangars++;
+          }
+      }
   }
 
   void Droids::loadGamelog( std::string gamelog )
@@ -540,6 +695,26 @@ namespace visualizer
           sprite->addKeyFrame(new DrawSmoothMoveSprite(sprite, glm::vec4(GetTeamColor(unit.owner), 1.0f)));
           turn.addAnimatable(sprite);
 
+          turn[unit.id]["id"] = unit.id;
+          turn[unit.id]["X"] = unit.x;
+          turn[unit.id]["Y"] = unit.y;
+          turn[unit.id]["owner"] = unit.owner;
+          turn[unit.id]["variant"] = unit.variant;
+          turn[unit.id]["attackLeft"] = unit.attacksLeft;
+          turn[unit.id]["maxAttacks"] = unit.maxAttacks;
+          turn[unit.id]["healthLeft"] = unit.healthLeft;
+          turn[unit.id]["maxHealth"] = unit.maxHealth;
+          turn[unit.id]["movementLeft"] = unit.movementLeft;
+          turn[unit.id]["maxMovement"] = unit.maxMovement;
+          turn[unit.id]["range"] = unit.range;
+          turn[unit.id]["attack"] = unit.attack;
+          turn[unit.id]["armor"] = unit.armor;
+          turn[unit.id]["maxArmor"] = unit.maxArmor;
+          turn[unit.id]["scrapWorth"] = unit.scrapWorth;
+          turn[unit.id]["turnsToBeHacked"] = unit.turnsToBeHacked;
+          turn[unit.id]["hackedTurnsLeft"] = unit.hackedTurnsLeft;
+          turn[unit.id]["hackets"] = unit.hackets;
+          turn[unit.id]["hacketsMax"] = unit.hacketsMax;
       }
   }
 
@@ -578,6 +753,13 @@ namespace visualizer
               reticle->addKeyFrame(new DrawDeltaRotater(reticle, glm::vec4(col.x, col.y, col.z, 0.5)));
               turn.addAnimatable(reticle);
           }
+
+          turn[tile.second.id]["x"] = tile.second.x;
+          turn[tile.second.id]["y"] = tile.second.y;
+          turn[tile.second.id]["id"] = tile.second.id;
+          turn[tile.second.id]["owner"] = tile.second.owner;
+          turn[tile.second.id]["turnsUntilAssembled"] = tile.second.turnsUntilAssembled;
+          turn[tile.second.id]["variantToAssemble"] = tile.second.variantToAssemble;
       }
   }
 
