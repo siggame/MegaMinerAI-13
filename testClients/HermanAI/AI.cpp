@@ -46,7 +46,7 @@ void AI::spawnDemDroids()
 {
   spawnX=rand()%mapWidth();
   spawnY=rand()%mapHeight();
-  int unitType=HACKER;
+  int unitType=2;
   if(players[playerID()].scrapAmount() >= modelVariants[unitType].cost())
   {
     if(getTile(spawnX, spawnY)->turnsUntilAssembled() == 0)
@@ -187,6 +187,11 @@ void AI::doStuffs()
       if(droids[i].variant()== HACKER)
       {
         Droid* droid = getNearestEnemy(droids[i].x(), droids[i].y());
+        moveTo(droids[i], droid->x(), droid->y());
+      }
+      else if(droids[i].variant()== REPAIRER)
+      {
+        Droid* droid = getNearestFriend(droids[i].x(), droids[i].y());
         moveTo(droids[i], droid->x(), droid->y());
       }
       else
@@ -350,6 +355,26 @@ Droid* AI::getNearestEnemy(int xloc, int yloc)
     }
   }
   return enemyDroids[droidNum];
+}
+
+Droid* AI::getNearestFriend(int xloc, int yloc)
+{
+  int minDist=10000;
+  int xMin, yMin;
+  int distance;
+  int droidNum;
+  for(int i=0; i<friendDroids.size(); i++)
+  {
+    distance = abs(friendDroids[i]->x()-xloc) + abs(friendDroids[i]->y()-yloc);
+    if(distance<minDist && distance !=0)
+    {
+      minDist=distance;
+      xMin=friendDroids[i]->x();
+      yMin=friendDroids[i]->y();
+      droidNum=i;
+    }
+  }
+  return friendDroids[droidNum];
 }
 
 bool AI::validMove(const int x, const int y)
