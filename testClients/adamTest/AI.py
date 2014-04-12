@@ -130,7 +130,7 @@ class AI(BaseAI):
             if ((droid.x <= self.mapWidth/2 and self.playerID == 0) or \
                (droid.x >= self.mapWidth/2 and self.playerID == 1)):
               print "YO IN HERE"
-              if droid.x  + self.change >= self.mapWidth and droid.x + self.change < 0:
+              if droid.x  + self.change >= self.mapWidth and droid.x + self.change > 0:
                   if not droid.move(droid.x + self.change, droid.y):
                     if droid.y != 0:
                       if not droid.move(droid.x, droid.y - 1):
