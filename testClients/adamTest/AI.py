@@ -79,24 +79,21 @@ class AI(BaseAI):
 
     if self.players[self.playerID].scrapAmount > 80:
       bleh = 0
-      while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost or bleh > 20:
+      while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost:
+        if bleh > 10:
+          break
         bleh += 1
         xDROPU = random.randint(0, 1)
         yDROPU = random.randint(0, self.mapHeight/2)
         if self.playerID == 1:
           xDROPU = self.mapWidth - xDROPU - 1
           yDROPU = self.mapHeight - yDROPU - 1
-        while not self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, meh):
-          xDROPU = random.randint(0, self.mapWidth)
-          yDROPU = random.randint(0, self.mapHeight)
-          if self.playerID == 1:
-            xDROPU = self.mapWidth - xDROPU - 1
-            yDROPU = self.mapHeight - yDROPU - 1
+        self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, meh)
 
     for droid in self.droids:
       if ((droid.owner == self.playerID and droid.hackedTurnsLeft <= 0) or\
           (droid.owner != self.playerID and droid.hackedTurnsLeft > 0))\
-           and droid.variant != 7 and droid.variant != 5 and droid.variant != 4:
+           and droid.variant != 7 and droid.variant != 5:
         bleh = []
         if droid.attack > 0:
           for droid2 in self.droids:
@@ -110,10 +107,12 @@ class AI(BaseAI):
                 bleh.append(droid2)
         movez = droid.maxMovement
         while movez > 0:
+          movez -= 1
           movey = 1
 
           for droid2 in bleh:
-            droid.operate(droid2.x, droid2.y)
+            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0:
+              droid.operate(droid2.x, droid2.y)
 
           move = True
           for droid2 in self.droids:
@@ -122,7 +121,7 @@ class AI(BaseAI):
                 if droid2.owner != droid.owner:
                   move = False
 
-          if move:
+          if move and droid.movementLeft > 0:
             if (droid.x <= self.mapWidth/2 and self.playerID == 0) or \
                (droid.x >= self.mapWidth/2 and self.playerID == 1):
               if not droid.move(droid.x + self.change, droid.y):
@@ -138,12 +137,12 @@ class AI(BaseAI):
                       self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                       target2 = target
                 elif droid.attack < 0:
-                  if target.variant != 7 and target.owner != self.playerID:
+                  if target.variant != 7 and target.owner == self.playerID:
                     if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
                       self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                       target2 = target
                 else:
-                  if target.owner == self.playerID:
+                  if target.owner != self.playerID:
                     if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
                       self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                       target2 = target
@@ -167,12 +166,7 @@ class AI(BaseAI):
                     droid.move(droid.x - 1, droid.y)
 
           for droid2 in bleh:
-            droid.operate(droid2.x, droid2.y)
-          movez -= 1
-      elif droid.variant == 4:
-        for droid2 in self.droids:
-          if droid2.owner != self.playerID:
-            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) < droid.range:
+            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0:
               droid.operate(droid2.x, droid2.y)
     return 1
 
