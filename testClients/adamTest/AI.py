@@ -80,21 +80,21 @@ class AI(BaseAI):
 
     if self.players[self.playerID].scrapAmount > 80:
       bleh = 0
-      while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost:
-        if bleh > 10:
-          break
+      while bleh < 10:
         bleh += 1
         xDROPU = random.randint(0, 1)
         yDROPU = random.randint(0, self.mapHeight/2)
         if self.playerID == 1:
           xDROPU = self.mapWidth - xDROPU - 1
           yDROPU = self.mapHeight - yDROPU - 1
-        self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, meh)
+        if self.players[self.playerID].scrapAmount > self.modelVariants[meh].cost:
+          self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, meh)
 
     for droid in self.droids:
       if ((droid.owner == self.playerID and droid.hackedTurnsLeft <= 0) or\
           (droid.owner != self.playerID and droid.hackedTurnsLeft > 0))\
            and droid.variant != 7 and droid.variant != 5:
+        print "ID: {}".format(droid.id)
         bleh = []
         if droid.attack > 0:
           for droid2 in self.droids:
@@ -106,8 +106,10 @@ class AI(BaseAI):
             if droid2.owner == self.playerID:
               if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range + droid.maxMovement:
                 bleh.append(droid2)
+        print "Done gettin' bleh"
         movez = droid.maxMovement
         while movez > 0:
+          print "Moves: {}".format(movez)
           movez -= 1
           movey = 1
 
@@ -122,9 +124,11 @@ class AI(BaseAI):
                 if droid2.owner != droid.owner:
                   move = False
 
+          print "move: {}".format(move)
+
           if move and droid.movementLeft > 0:
             if ((droid.x <= self.mapWidth/2 and self.playerID == 0) or \
-               (droid.x >= self.mapWidth/2 and self.playerID == 1)) and droid.variant != 3:
+               (droid.x >= self.mapWidth/2 and self.playerID == 1)):
               if not droid.move(droid.x + self.change, droid.y):
                 if not droid.move(droid.x, droid.y - 1):
                   droid.move(droid.x, droid.y + 1)
@@ -149,28 +153,28 @@ class AI(BaseAI):
                         self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                         target2 = target
 
+              print "got target: {}".format(target2)
+
               target = target2
               if target is not None:
                 if target.x > droid.x:
-                  if not droid.move(droid.x + 1, droid.y):
-                    if not droid.move(droid.x, droid.y - 1):
-                      droid.move(droid.x, droid.y + 1)
+                  if not droid.move(droid.x - 1, droid.y ):
+                    if not droid.move(droid.x + self.change, droid.y):
+                      droid.move(droid.x - self.change, droid.y)
                 elif target.x < droid.x:
-                  if not droid.move(droid.x - 1, droid.y):
-                    if not droid.move(droid.x, droid.y - 1):
-                      droid.move(droid.x, droid.y + 1)
+                  if not droid.move(droid.x + 1, droid.y ):
+                    if not droid.move(droid.x + self.change, droid.y):
+                      droid.move(droid.x - self.change, droid.y)
                 elif target.y > droid.y:
-                  if not droid.move(droid.x, droid.y + 1):
-                    if not droid.move(droid.x + 1, droid.y):
-                      droid.move(droid.x - 1, droid.y)
+                  if not droid.move(droid.x , droid.y - 1):
+                    if not droid.move(droid.x, droid.y + 1):
+                      droid.move(droid.x, droid.y - 1)
                 elif target.y < droid.y:
-                  if not droid.move(droid.x, droid.y - 1):
-                    if not droid.move(droid.x + 1, droid.y):
-                      droid.move(droid.x - 1, droid.y)
+                  if not droid.move(droid.x, droid.y + 1):
+                    if not droid.move(droid.x, droid.y + 1):
+                      droid.move(droid.x, droid.y - 1)
 
-          for droid2 in bleh:
-            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0  and droid2.healthLeft > 0:
-              droid.operate(droid2.x, droid2.y)
+              print "done with move."
     return 1
 
   def __init__(self, conn):
