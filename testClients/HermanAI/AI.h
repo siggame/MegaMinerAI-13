@@ -20,24 +20,19 @@ public:
   virtual void end();
   
   //vectors! vectors everywhere
-  std::vector<Droid*> enemyClaw;
-  std::vector<Droid*> friendClaw;
-  std::vector<Droid*> enemyArcher;
-  std::vector<Droid*> friendArcher;
-  std::vector<Droid*> enemyRepairer;
-  std::vector<Droid*> friendRepairer;
-  std::vector<Droid*> enemyHacker;
-  std::vector<Droid*> friendHacker;
-  std::vector<Droid*> enemyTurret;
-  std::vector<Droid*> friendTurret;
-  std::vector<Droid*> enemyWall;
-  std::vector<Droid*> friendWall;
-  std::vector<Droid*> enemyTerminator;
-  std::vector<Droid*> friendTerminator;
+  std::vector<Droid*> enemyDroids;
+  std::vector<Droid*> friendDroids;
+  std::vector<Droid*> enemyHangars;
+  
   
   virtual Tile* getTile(int x, int y);
-  void spawnBitches();
+  void spawnDemDroids();
   void doStuffs();
+  void getDemDroids();
+  Droid* getEnemyInRange(int xloc, int yloc, int range);
+  Droid* getFriendInRange(int xloc, int yloc, int range);
+  Droid* getNearestHangar(int xloc, int yloc);
+  
 };
 
 #endif

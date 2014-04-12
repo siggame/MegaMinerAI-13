@@ -29,22 +29,25 @@ const char* AI::password()
 
 //This function is run once, before your first turn.
 void AI::init(){
-  spawnX=5;
-  spawnY=1;
+
 }
 
 //This function is called each time it is your turn.
 //Return true to end your turn, return false to ask the server for updated information.
 bool AI::run()
 {
-  spawnBitches();
+  spawnDemDroids();
+  getDemDroids();
+  doStuffs();
   return true;
 }
 
-void AI::spawnBitches()
+void AI::spawnDemDroids()
 {
-  int unitType=TURRET;
-  if(players[playerID()].scrapAmount() >= modelVariants[TURRET].cost())
+  spawnX=rand()%mapWidth();
+  spawnY=rand()%mapHeight();
+  int unitType=TERMINATOR;
+  if(players[playerID()].scrapAmount() >= modelVariants[unitType].cost())
   {
     if(getTile(spawnX, spawnY)->turnsUntilAssembled() == 0)
     {
@@ -67,7 +70,7 @@ void AI::spawnBitches()
       if(spawn)
       {
         //spawn the turret
-        players[playerID()].orbitalDrop(spawnX, spawnY, TURRET);
+        players[playerID()].orbitalDrop(spawnX, spawnY, unitType);
       }
     }
   }
@@ -112,24 +115,19 @@ void AI::doStuffs()
           droids[i].move(droids[i].x() + changeX, droids[i].y());
         }
       }
+     
       //if there are any attacks left
       if(droids[i].attacksLeft() > 0)
       {
-        //find a target towards the enemy
-        int changeX = 1;
-        //enemy is to the left if playerID is one
-        if(playerID() == 1)
-        {
-          changeX = -1;
-        }
+        
         Droid* target = NULL;
-        for(int z = 0; z < droids.size(); z++)
+        if(droids[i].variant() == REPAIRER)
         {
-          //if the droid is there make it a target
-          if(droids[z].x() == droids[i].x() + changeX && droids[z].y() == droids[i].y() && droids[z].healthLeft() > 0)
-          {
-            target = &droids[z];
-          }
+          target = getFriendInRange(droids[i].x(), droids[i].y(), droids[i].range());
+        }
+        else
+        {
+          target = getEnemyInRange(droids[i].x(), droids[i].y(), droids[i].range());
         }
         //if a target was found
         if(target != NULL)
@@ -190,6 +188,45 @@ Tile* AI::getTile(const int x, const int y)
         return NULL;
 }
 
+void AI::getDemDroids()
+{
+  enemyDroids.clear();
+  friendDroids.clear();
+  enemyHangars.clear();
+  for(int i=0; i< droids.size(); i++)
+  {
+    if(droids[i].owner() != playerID())
+    {
+      enemyDroids.push_back(& droids[i]);
+      if(droids[i].variant() == HANGAR)
+      {
+        enemyHangars.push_back(& droids[i]);
+      }
+    }
+    else if(droids[i].owner() == playerID())
+    {
+      friendDroids.push_back(& droids[i]);
+    }
+  }
+}
 
-
-
+Droid* AI::getEnemyInRange(int xloc, int yloc, int range)
+{
+  for(int i=0; i< enemyDroids.size(); i++)
+  {
+    if(abs(xloc - enemyDroids[i]->x()) + abs(yloc - enemyDroids[i]->y()) <= range &&
+       !(xloc == enemyDroids[i]->x() && yloc == enemyDroids[i]->y()))
+      return enemyDroids[i];
+  }
+  return NULL;
+}
+Droid* AI::getFriendInRange(int xloc, int yloc, int range)
+{
+  for(int i=0; i< friendDroids.size(); i++)
+  {
+    if(abs(xloc - friendDroids[i]->x()) + abs(yloc - friendDroids[i]->y()) <= range &&
+       !(xloc == friendDroids[i]->x() && yloc == friendDroids[i]->y()))
+      return enemyDroids[i];
+  }
+  return NULL;
+}
