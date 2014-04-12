@@ -168,7 +168,7 @@ namespace visualizer
               {
                   auto tile = m_game->states[turn].tiles.at(iter);
 
-                  DrawQuadAroundObj(parser::Mappable({tile.id, tile.x +2, tile.y +2}), glm::vec4(0.3, 0.0, 1.0f, 0.4));
+				  DrawQuadAroundObj(parser::Mappable({tile.id, tile.x, tile.y}), glm::vec4(0.3, 0.0, 1.0f, 0.4));
               }
           }
 
@@ -177,7 +177,7 @@ namespace visualizer
               if(m_game->states[turn].droids.find(iter) != m_game->states[turn].droids.end())
               {
                   auto & droid = m_game->states[turn].droids.at(iter);
-                  DrawQuadAroundObj(parser::Mappable({droid.id, droid.x + 2, droid.y + 2}), glm::vec4(1.0f, 0.4, 0.4, 0.6));
+				  DrawQuadAroundObj(parser::Mappable({droid.id, droid.x, droid.y}), glm::vec4(1.0f, 0.4, 0.4, 0.6));
               }
           }
 
@@ -188,7 +188,7 @@ namespace visualizer
               if(m_game->states[turn].droids.find(focus) != m_game->states[turn].droids.end())
               {
                   auto& droid = m_game->states[turn].droids.at(focus);
-                  DrawBoxAroundObj(parser::Mappable({droid.id, droid.x + 2, droid.y + 2}), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+				  DrawBoxAroundObj(parser::Mappable({droid.id, droid.x, droid.y}), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
               }
           }
       }
@@ -752,17 +752,19 @@ namespace visualizer
 		  if(!bAnimationSprite)
 		  {
 
-			  sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.15f,
+			  sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.075f,
 																unit.healthLeft / (float)unit.maxHealth,
+																unit.armor / (float)unit.maxArmor,
 																glm::vec4(GetTeamColor(unit.owner),1.0f)));
-
 		  }
 		  else
 		  {
 			  sprite->addKeyFrame(new DrawAnimatedMovingSprite(sprite,
 															   glm::vec4(GetTeamColor(unit.owner),1.0f),
 															   numFrame,
-															   0.5f));
+															   0.1f,
+															   unit.healthLeft / (float)unit.maxHealth,
+															   unit.armor / (float)unit.maxArmor));
 
 		  }
 		  turn.addAnimatable(sprite);

@@ -171,10 +171,14 @@ namespace visualizer
 	public:
 
 		DrawSmoothSpriteProgressBar(MoveableSprite * sprite,
-									float width, float height, float percent,
+									float width, float height, float healthPercent, float armorPercent,
 									const glm::vec4& c,
 									Fade f = None) :
-			DrawSmoothMoveSprite(sprite,c,f), m_width(width), m_height(height), m_percent(percent)  {}
+			DrawSmoothMoveSprite(sprite,c,f),
+			m_width(width),
+			m_height(height),
+			m_healthPercent(healthPercent),
+			m_armorPercent(armorPercent) {}
 
 
 		void animate( const float& t, AnimData* d, IGame* game );
@@ -182,7 +186,8 @@ namespace visualizer
 	private:
 		float m_width;
 		float m_height;
-		float m_percent;
+		float m_healthPercent;
+		float m_armorPercent;
 	};
 
 	/** @name DrawAnimatedSprite
@@ -270,20 +275,27 @@ namespace visualizer
 		public ColorSprite
 	{
 	public:
-		DrawAnimatedMovingSprite(MoveableSprite * sprite, const glm::vec4& c, const int numFrames, const float start) :
+		DrawAnimatedMovingSprite(MoveableSprite * sprite,
+								 const glm::vec4& c,
+								 const int numFrames,
+								 const float start,
+								 float healthPercent,
+								 float armorPercent) :
 			ColorSprite(c),
 			m_Sprite(sprite),
 			m_numFrames(numFrames),
-			m_startTime(start)
-			{}
+			m_startTime(start),
+			m_healthPercent(healthPercent),
+			m_armorPercent(armorPercent) {}
 
 		void animate(const float &t, AnimData *d, IGame *game);
 
 	private:
 		MoveableSprite * m_Sprite;
-
 		int m_numFrames;
 		float m_startTime;
+		float m_healthPercent;
+		float m_armorPercent;
 	};
 
 }

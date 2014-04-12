@@ -175,12 +175,18 @@ namespace visualizer
 	{
 		DrawSmoothMoveSprite::animate(t,d,game);
 
-		if(m_percent < 1.0f)
+		if(m_armorPercent < 1.0f)
 		{
 			RenderProgressBar(*game->renderer, this->m_pos.x, m_pos.y,
 							  this->m_width, this->m_height,
-							  this->m_percent,1.0f,{1.0f,0.0f,0.0f,0.6f});
+							  this->m_healthPercent,1.0f,{1.0f,0.0f,0.0f,0.6f});
+
+			RenderProgressBar(*game->renderer, this->m_pos.x, m_pos.y + m_height,
+								  this->m_width, this->m_height,
+								  this->m_armorPercent,1.0f,{1.0f,1.0f,0.0f,0.6f});
 		}
+
+
 	}
 
 	void DrawTextBox::animate(const float &, AnimData*, IGame* game)
@@ -194,8 +200,6 @@ namespace visualizer
 	{
 		if(game->options->getNumber("Enable Victory Screen") > 0.0f)
 		{
-			//game->timeManager->setSpeed(1 - t);
-
 			game->renderer->setColor(Color(1.0f,1.0f,1.0f,0.8f * t));
 
 			game->renderer->drawQuad(0.0f,0.0f,m_SplashScreen->width,m_SplashScreen->height);
@@ -206,17 +210,12 @@ namespace visualizer
 									 "Roboto",
 									 m_SplashScreen->winReason,8.0f,
 									 IRenderer::Center);
-
-			/*if(game->timeManager->getSpeed() >= 0.0f && game->timeManager->getSpeed() <= 0.01f )
-			{
-				game->timeManager->setSpeed(1.0f);
-			}*/
 		}
 	}
 
 	void DrawAnimatedMovingSprite::animate(const float &t, AnimData *d, IGame *game)
 	{
-		unsigned int index = (unsigned int) (m_Sprite->m_Moves.size() * t);
+		unsigned int index = (unsigned int)(m_Sprite->m_Moves.size() * t);
 		float subT = m_Sprite->m_Moves.size() * t - index;
 		MoveableSprite::Move& thisMove = m_Sprite->m_Moves[index];
 
@@ -231,12 +230,16 @@ namespace visualizer
 			frame = m_numFrames * ((t - m_startTime) / (1 - m_startTime));
 		}
 
-		game->renderer->drawAnimQuad(pos.x,
-								 pos.y,
-								 1.0f,
-								 1.0f,
-								 m_Sprite->m_sprite,
-								 (int)frame);
+		game->renderer->drawAnimQuad(pos.x, pos.y,
+									 1.0f, 1.0f,
+									 m_Sprite->m_sprite,
+									 (int)frame);
+
+		if(m_armorPercent < 1.0f)
+		{
+			RenderProgressBar(*game->renderer, pos.x, pos.y + 0.075f, 1.0f, 0.075f, m_armorPercent, 1.0f, {1,1,0,0.6f});
+			RenderProgressBar(*game->renderer, pos.x, pos.y, 1.0f, 0.075f, m_healthPercent, 1.0f, {1,0,0,0.6f});
+		}
 	}
 
 }
