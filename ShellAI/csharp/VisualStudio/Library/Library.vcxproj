@@ -37,7 +37,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\Client\bin\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\CSClient\bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>client</TargetName>
@@ -47,7 +47,7 @@
     <IntDir>$(ProjectDir)$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <OutDir>$(SolutionDir)\Client\bin\$(Configuration)\</OutDir>
+    <OutDir>$(SolutionDir)\CSClient\bin\$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>client</TargetName>

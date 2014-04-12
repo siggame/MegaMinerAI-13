@@ -1,4 +1,5 @@
 CSFILES=$(shell ls *.cs 2> /dev/null)
+VSFILES=$(shell ls VisualStudio/CSClient/*.cs 2> /dev/null)
 
 all: libclient.so client.exe
 
@@ -11,7 +12,7 @@ libclient.so: ../library/*.cpp ../library/*.h
 	cp -f ../library/libclient.so libclient.so
 
 client.exe: $(CSFILES) libclient.so
-	gmcs -out:client.exe  $(CSFILES)
+	gmcs -out:client.exe $(CSFILES) $(VSFILES)
 
 clean:
 	rm -f client.exe
