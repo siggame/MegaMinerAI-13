@@ -30,30 +30,33 @@ void AI::init()
 {
   int offset = 0;
   bool found = false;
-  //find a location without a hangar
-  for(int i = 0; i < tiles.size(); i++)
+  while(!found)
   {
-    //make sure that the tile is near the edge
-    if(tiles[i].x() == (mapWidth() - 1) * playerID() + offset)
+    //find a location without a hangar
+    for(int i = 0; i < tiles.size(); i++)
     {
-      spawnX = tiles[i].x();
-      spawnY = tiles[i].y();
-      found = true;
-      break;
+      //make sure that the tile is near the edge
+      if(tiles[i].x() == (mapWidth() - 1) * playerID() + offset)
+      {
+        spawnX = tiles[i].x();
+        spawnY = tiles[i].y();
+        found = true;
+        break;
+      }
     }
-  }
-  //if nothing was found then move away from the edge
-  if(!found)
-  {
-    //if on the left
-    if(playerID() == 0)
+    //if nothing was found then move away from the edge
+    if(!found)
     {
-      offset++;
-    }
-    else
-    {
-      //on the right
-      offset--;
+      //if on the left
+      if(playerID() == 0)
+      {
+        offset++;
+      }
+      else
+      {
+        //on the right
+        offset--;
+      }
     }
   }
 }
@@ -64,7 +67,7 @@ bool AI::run()
 {
   //try to spawn a claw near your side
   //make sure you own enough scrap
-  if(players[playerID()].scrapAmount() > modelVariants[CLAW].cost())
+  if(players[playerID()].scrapAmount() >= modelVariants[CLAW].cost())
   {
     //make sure nothing is spawning there
     if(getTile(spawnX, spawnY)->turnsUntilAssembled() == 0)
@@ -185,10 +188,7 @@ bool AI::run()
                (target->owner() != playerID() && target->hackedTurnsLeft() <= 0))
             {
               //attack the target
-              if(!droids[i].operate(target->x(), target->y()))
-              {
-                while(true);
-              }
+              droids[i].operate(target->x(), target->y());
             }
           }
         }
