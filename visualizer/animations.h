@@ -118,10 +118,11 @@ namespace visualizer
         public ColorSprite
     {
     public:
-        DrawSmoothMoveRotatedSprite(MoveableSprite * sprite, const glm::vec4& c, const float& rotation, Fade f = None) :
+		DrawSmoothMoveRotatedSprite(MoveableSprite * sprite, const glm::vec4& c, const float& rotation, bool flipped, Fade f = None) :
             ColorSprite(c),
             m_Sprite(sprite),
-            m_Rotation(rotation)
+			m_Rotation(rotation),
+			m_flipped(flipped)
             {}
 
         void animate( const float& t, AnimData* d, IGame* game );
@@ -130,6 +131,7 @@ namespace visualizer
         MoveableSprite * m_Sprite;
         const float m_Rotation;
         glm::vec2 m_pos;
+		bool m_flipped;
     };
 
     class DrawDeltaRotater :
@@ -203,15 +205,17 @@ namespace visualizer
 		public ColorSprite
 	{
 	public:
-		DrawAnimatedSprite(AnimatedSprite* sprite, const glm::vec4& c, Fade f = None) :
+		DrawAnimatedSprite(AnimatedSprite* sprite, const glm::vec4& c, bool flipped, Fade f = None) :
 			ColorSprite(c, f),
-			m_Sprite(sprite)
+			m_Sprite(sprite),
+			m_flipped(flipped)
 			{}
 
         void animate( const float& t, AnimData* d, IGame* game );
 
 	private:
 		AnimatedSprite * m_Sprite;
+		bool m_flipped;
 	};
 
     /** @name DrawRotatedAnimatedSprite
@@ -223,10 +227,11 @@ namespace visualizer
         public ColorSprite
     {
     public:
-        DrawRotatedAnimatedSprite(AnimatedSprite* sprite, const glm::vec4& c, const float& degrees, Fade f = None) :
+		DrawRotatedAnimatedSprite(AnimatedSprite* sprite, const glm::vec4& c, const float& degrees, bool flipped, Fade f = None) :
             ColorSprite(c, f),
             m_Sprite(sprite),
-            m_Rotation(degrees)
+			m_Rotation(degrees),
+			m_flipped(flipped)
             {}
 
         void animate( const float& t, AnimData* d, IGame* game);
@@ -234,6 +239,7 @@ namespace visualizer
     private:
         AnimatedSprite * m_Sprite;
         float m_Rotation;
+		bool m_flipped;
     };
 
 	/** @name DrawTextBox
@@ -279,14 +285,6 @@ namespace visualizer
 		public ColorSprite
 	{
 	public:
-        DrawAnimatedMovingSprite(MoveableSprite * sprite, const glm::vec4& c, const int numFrames, const float start, bool flipped) :
-			ColorSprite(c),
-			m_Sprite(sprite),
-			m_numFrames(numFrames),
-            m_startTime(start),
-            m_flipped(flipped)
-			{}
-
 		DrawAnimatedMovingSprite(MoveableSprite * sprite,
 								 const glm::vec4& c,
 								 const int numFrames,

@@ -78,8 +78,7 @@ namespace visualizer
 
             glm::vec3 GetTeamColor(int owner) const;
 
-            void PrepareUnits(const int& frameNum, std::map<int, bool>& m_prevList,
-                              std::map<int, bool>& thisList,Frame& turn, Frame& nextTurn);
+			void PrepareUnits(const int& frameNum, std::map<int, bool>& thisList, Frame& turn, Frame& nextTurn);
 
             void PrepareTiles(const int& frameNum, Frame& turn, Frame& nextTurn);
 

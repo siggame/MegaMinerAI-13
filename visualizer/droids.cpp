@@ -593,8 +593,7 @@ namespace visualizer
   void Droids::run()
   {
     Frame * turn = new Frame;
-    Frame * nextTurn = new Frame;
-    std::map<int, bool> lastflipped;
+	Frame * nextTurn = new Frame;
     std::map<int, bool> thisflipped;
 
 	gui->setDebugOptions(this);
@@ -620,9 +619,7 @@ namespace visualizer
 	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
     {
         PrepareTiles(state, *turn, *nextTurn);
-        PrepareUnits(state, lastflipped, thisflipped, *turn, *nextTurn);
-        lastflipped = thisflipped;
-        thisflipped.clear();
+		PrepareUnits(state, thisflipped, *turn, *nextTurn);
 
 		if(state >= (int)(m_game->states.size() - 1))
 		{
@@ -665,7 +662,7 @@ namespace visualizer
     delete nextTurn;
   } // Droids::run()
 
-  void Droids::PrepareUnits(const int& frameNum, std::map<int, bool>& prevflipped, std::map<int, bool>& nextflipped, Frame& turn, Frame& nextFrame)
+  void Droids::PrepareUnits(const int& frameNum, std::map<int, bool>& nextflipped, Frame& turn, Frame& nextFrame)
   {
       std::string texture;
       parser::GameState& currentState = m_game->states[frameNum];
@@ -769,7 +766,7 @@ namespace visualizer
 
 								  SmartPointer<MoveableSprite> pLaser = new MoveableSprite(spriteName,glm::vec2(1.0f,0.5f));
 								  pLaser->m_Moves.push_back(MoveableSprite::Move(to,from));
-								  pLaser->addKeyFrame(new DrawSmoothMoveRotatedSprite(pLaser, glm::vec4(1.0f,1.0f,1.0f,0.7f),angle));
+								  pLaser->addKeyFrame(new DrawSmoothMoveRotatedSprite(pLaser, glm::vec4(1.0f,1.0f,1.0f,0.7f),angle, false));
 
 								  turn.addAnimatable(pLaser);
 								  //animList.push(pLaser);
@@ -796,32 +793,19 @@ namespace visualizer
               if(next == nextState.droids.end())
               {
                   SmartPointer<AnimatedSprite> deathAnim = new AnimatedSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), "death", 63, true);
-                  deathAnim->addKeyFrame(new DrawAnimatedSprite(deathAnim, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+				  deathAnim->addKeyFrame(new DrawAnimatedSprite(deathAnim, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), nextflipped[unit.id]));
                   nextFrame.addAnimatable(deathAnim);
               }
           }
 
-          nextflipped[unit.id] = false;
-
           if(sprite->m_Moves.empty())
           {
-                sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
-
-                if(frameNum > 0 &&
-                    prevflipped.find(unit.id) != prevflipped.end() &&
-                    prevflipped[unit.id])
-                {
-                    nextflipped[unit.id] = true;
-                }
-          }
-          else
+				sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
+		  }
+		  else
           {
-              if(sprite->m_Moves.back().to.x > sprite->m_Moves.front().from.x)
-                  nextflipped[unit.id] = true;
-              else if(sprite->m_Moves.back().to.x == sprite->m_Moves.front().from.x &&
-                      prevflipped.find(unit.id) != prevflipped.end())
-                  nextflipped[unit.id] = prevflipped[unit.id];
-          }
+				nextflipped[unit.id] = (sprite->m_Moves.back().to.x >= sprite->m_Moves.front().from.x);
+		  }
 
 		  glm::vec4 teamColor;
 
@@ -837,7 +821,7 @@ namespace visualizer
 		  if(!bAnimationSprite)
 		  {
 
-              sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.075f,
+			  sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.075f,
 																teamColor,nextflipped[unit.id],
 																unit.healthLeft / (float)unit.maxHealth,
                                                                 unit.armor / (float)unit.maxArmor
@@ -847,9 +831,9 @@ namespace visualizer
 		  {
               sprite->addKeyFrame(new DrawAnimatedMovingSprite(sprite,
 															   teamColor,
-                                                               numFrame,
-                                                               nextflipped[unit.id],
-                                                               1.5f,
+															   numFrame,
+															   0.1f,
+															   nextflipped[unit.id],
                                                               unit.healthLeft / (float)unit.maxHealth,
                                                               unit.armor / (float)unit.maxArmor));
 
@@ -905,7 +889,7 @@ namespace visualizer
                   angle = 180/PI + 180;
 
                   sprite = new MoveableSprite("fireball");
-                  sprite->addKeyFrame(new DrawSmoothMoveRotatedSprite(sprite, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), angle));
+				  sprite->addKeyFrame(new DrawSmoothMoveRotatedSprite(sprite, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), angle, false));
                   sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2( tile.second.x, tile.second.y), glm::vec2(tile.second.x - 3, -3)));
                   turn.addAnimatable(sprite);
               }
