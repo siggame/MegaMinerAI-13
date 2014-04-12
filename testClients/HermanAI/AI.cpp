@@ -1,6 +1,8 @@
 #include "AI.h"
 #include "util.h"
-
+#include <iostream>
+#include "string"
+using namespace std;
 enum
 {
   CLAW = 0,
@@ -26,21 +28,23 @@ const char* AI::password()
 }
 
 //This function is run once, before your first turn.
-void AI::init(){}
+void AI::init(){
+  spawnX=5;
+  spawnY=1;
+}
 
 //This function is called each time it is your turn.
 //Return true to end your turn, return false to ask the server for updated information.
 bool AI::run()
 {
-  
+  spawnBitches();
   return true;
 }
 
-void AI::spawn()
+void AI::spawnBitches()
 {
-  int unitType=rand()%7;
-  int spawnX = rand()%
-  if(players[playerID()].scrapAmount() >= modelVariants[unitType].cost())
+  int unitType=TURRET;
+  if(players[playerID()].scrapAmount() >= modelVariants[TURRET].cost())
   {
     if(getTile(spawnX, spawnY)->turnsUntilAssembled() == 0)
     {
@@ -63,7 +67,7 @@ void AI::spawn()
       if(spawn)
       {
         //spawn the claw
-        players[playerID()].orbitalDrop(spawnX, spawnY, unitType);
+        players[playerID()].orbitalDrop(spawnX, spawnY, TURRET);
       }
     }
   }
@@ -72,6 +76,14 @@ void AI::spawn()
 //This function is run once, after your last turn.
 void AI::end(){
   cout<<"WINNING!!"<<endl;
+}
+
+Tile* AI::getTile(const int x, const int y)
+{
+    if(0 <= x && x < mapWidth() && 0 <= y && y < mapHeight())
+        return &tiles[x * mapHeight() + y];
+    else
+        return NULL;
 }
 
 
