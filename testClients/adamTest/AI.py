@@ -105,6 +105,10 @@ class AI(BaseAI):
             if droid2.owner == self.playerID:
               if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range + droid.maxMovement:
                 bleh.append(droid2)
+        #attack even if a turret
+        for droid2 in bleh:
+          if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0 and droid2.healthLeft > 0:
+            droid.operate(droid2.x, droid2.y)
         movez = droid.maxMovement
         while movez > 0:
           movez -= 1
