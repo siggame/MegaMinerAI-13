@@ -120,7 +120,6 @@ class AI(BaseAI):
               self.distance = 99999
               for target in self.droids:
                 if target.variant == 7 and target.owner != self.playerID:
-                  print (abs(target.x - droid.x) + abs(target.y - droid.y))
                   if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
                     self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                     target2 = target
