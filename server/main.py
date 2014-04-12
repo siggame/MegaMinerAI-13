@@ -191,7 +191,8 @@ emptyLog = False
 
 if __name__ == "__main__":
   import timer
-  timer.install()
+  if '-notimeout' not in sys.argv:
+    timer.install()
   portNumber = 19000
   if '-arena' in sys.argv:
     emptyLog = True
