@@ -9,6 +9,7 @@
 #include <string>
 #include <list>
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 // The Codegen's Parser
 #include "parser/parser.h"
@@ -32,7 +33,6 @@ namespace visualizer
         Q_INTERFACES( visualizer::IGame );
 
         private:
-            const float PI = 3.141592f;
 
 			enum DROID_TYPE
 			{

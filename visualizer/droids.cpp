@@ -320,7 +320,7 @@ namespace visualizer
 
 		  if(time > nextGust)
 		  {
-			float alphaValue = 0.15f * sin( ((time - nextGust)/ gustLength) * 3.141592f );
+			float alphaValue = 0.15f * sin( ((time - nextGust)/ gustLength) * glm::pi<float>() );
 			renderer->setColor({1.0f, 1.0f, 1.0f, alphaValue});
 		  }
 		  else
@@ -886,7 +886,7 @@ namespace visualizer
               {
                   float h = sqrt( pow(3, 2) + pow(tile.second.y +3, 2));
                   float angle = asin( tile.second.y / h);
-                  angle = 180/PI + 180;
+				  angle = 180/glm::pi<float>() + 180;
 
                   sprite = new MoveableSprite("fireball");
 				  sprite->addKeyFrame(new DrawSmoothMoveRotatedSprite(sprite, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), angle, false));
