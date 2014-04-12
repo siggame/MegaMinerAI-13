@@ -484,12 +484,12 @@ namespace visualizer
                   renderer->drawText(pieCenterX + side + (side * 2.0), pieCenterY + 0.4, "Roboto", stream.str(), 1.8f,  (curPlayer)?(IRenderer::Right):(IRenderer::Left));
                   renderer->drawText(pieCenterX + side + (side *1.5),pieCenterY + 1.0f, "Roboto", "scrap", 2.0f, (curPlayer)?(IRenderer::Right):(IRenderer::Left));
 
+                  renderer->setColor(Color(col.x*0.5, col.y *0.5, col.z * 0.5, 1.0f));
+                  renderer->drawCircle(pieCenterX, pieCenterY, pieChartRadius, 1.0f, pieChartResolution);
+
                   renderer->setColor(Color(col.x, col.y, col.z, 1.0f));
                   renderer->drawCircle(pieCenterX, pieCenterY, pieChartRadius, percentScrap, pieChartResolution);
-
-                  renderer->setColor(Color(col.x*0.5, col.y *0.5, col.z * 0.5, 1.0f));
-                  renderer->drawCircle(pieCenterX, pieCenterY, pieChartRadius, 1 - percentScrap, pieChartResolution, 2*PI * percentScrap);
-               }
+                  }
           }
 
 
