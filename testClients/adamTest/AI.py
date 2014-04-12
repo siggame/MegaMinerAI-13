@@ -78,7 +78,7 @@ class AI(BaseAI):
                 self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                 target2 = target
           elif droid.attack < 0:
-            if target.variant != 7 and target.owner == self.playerID and target.id != droid.id and droid2.maxArmor != droid2.armor:
+            if target.owner == self.playerID and target.id != droid.id and droid2.maxArmor != droid2.armor:
               if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
                 self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                 target2 = target
