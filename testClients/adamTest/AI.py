@@ -58,6 +58,7 @@ class AI(BaseAI):
 
   ##This function is called once, after your last turn
   def end(self):
+    print "This was called"
     pass
 
   ##This function is called each time it is your turn
@@ -111,7 +112,7 @@ class AI(BaseAI):
           movey = 1
 
           for droid2 in bleh:
-            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0:
+            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0 and droid2.healthLeft > 0:
               droid.operate(droid2.x, droid2.y)
 
           move = True
@@ -142,7 +143,7 @@ class AI(BaseAI):
                       self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                       target2 = target
                 else:
-                  if target.owner != self.playerID:
+                  if target.owner != self.playerID and target.turnsToBeHacked == 0:
                     if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
                       self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                       target2 = target
@@ -166,7 +167,7 @@ class AI(BaseAI):
                     droid.move(droid.x - 1, droid.y)
 
           for droid2 in bleh:
-            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0:
+            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0  and droid2.healthLeft > 0:
               droid.operate(droid2.x, droid2.y)
     return 1
 
