@@ -39,7 +39,7 @@ class AI : BaseAI
   {
       //try to spawn a claw near your side
       //make sure you own enough scrap
-      if (players[playerID()].ScrapAmount > modelVariants[(int)Unit.CLAW].Cost)
+      if (players[playerID()].ScrapAmount >= modelVariants[(int)Unit.CLAW].Cost)
       {
           //make sure nothing is spawning there
           if (getTile(spawnX, spawnY).TurnsUntilAssembled == 0)
@@ -177,30 +177,33 @@ class AI : BaseAI
   {
   int offset = 0;
   bool found = false;
-  //find a location without a hangar
-  for(int i = 0; i < tiles.Length; i++)
+  while(!found)
   {
-    //make sure that the tile is near the edge
-    if(tiles[i].X == (mapWidth() - 1) * playerID() + offset)
+    //find a location without a hangar
+    for(int i = 0; i < tiles.Length; i++)
     {
-      spawnX = tiles[i].X;
-      spawnY = tiles[i].Y;
-      found = true;
-      break;
+      //make sure that the tile is near the edge
+      if(tiles[i].X == (mapWidth() - 1) * playerID() + offset)
+      {
+        spawnX = tiles[i].X;
+        spawnY = tiles[i].Y;
+        found = true;
+        break;
+      }
     }
-  }
-  //if nothing was found then move away from the edge
-  if(!found)
-  {
-    //if on the left
-    if(playerID() == 0)
+    //if nothing was found then move away from the edge
+    if(!found)
     {
-      offset++;
-    }
-    else
-    {
-      //on the right
-      offset--;
+      //if on the left
+      if(playerID() == 0)
+      {
+        offset++;
+      }
+      else
+      {
+        //on the right
+        offset--;
+      }
     }
   }
   
