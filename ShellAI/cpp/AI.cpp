@@ -38,10 +38,23 @@ void AI::init()
       //make sure that the tile is near the edge
       if(tiles[i].x() == (mapWidth() - 1) * playerID() + offset)
       {
-        spawnX = tiles[i].x();
-        spawnY = tiles[i].y();
-        found = true;
-        break;
+        bool hangarPresent = false;
+        //check for hangar
+        for(int z = 0; z < droids.size(); z++)
+        {
+          if(droids[z].x() == tiles[i].x() && droids[z].y() == tiles[i].y())
+          {
+            hangarPresent = true;
+            break;
+          }
+        }
+        if(!hangarPresent)
+        {
+          spawnX = tiles[i].x();
+          spawnY = tiles[i].y();
+          found = true;
+          break;
+        }
       }
     }
     //if nothing was found then move away from the edge
