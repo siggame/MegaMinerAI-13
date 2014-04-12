@@ -129,10 +129,15 @@ class AI(BaseAI):
           if move and droid.movementLeft > 0:
             if ((droid.x <= self.mapWidth/2 and self.playerID == 0) or \
                (droid.x >= self.mapWidth/2 and self.playerID == 1)):
-              if not droid.move(droid.x + self.change, droid.y):
-                if not droid.move(droid.x, droid.y - 1):
-                  droid.move(droid.x, droid.y + 1)
+              print "YO IN HERE"
+              if droid.x  + self.change <= self.mapWidth and droid.x + self.change < 0:
+                  if not droid.move(droid.x + self.change, droid.y):
+                    if droid.y != 0:
+                      if not droid.move(droid.x, droid.y - 1):
+                        if droid.y != self.mapHeight - 1:
+                          droid.move(droid.x, droid.y + 1)
             else:
+              print "NO OUT HERE"
               target2 = None
               self.distance = 99999
               for target in self.droids:
@@ -147,7 +152,7 @@ class AI(BaseAI):
                       self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                       target2 = target
                 else:
-                  if target.owner != self.playerID and target.turnsToBeHacked == 0:
+                  if target.owner != self.playerID and target.hackedTurnsLeft == 0:
                     if target.variant != 7 and target.variant != 5:
                       if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
                         self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
