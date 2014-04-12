@@ -100,15 +100,18 @@ namespace visualizer
 		public ColorSprite
 	{
 	public:
-		DrawSmoothMoveSprite(MoveableSprite * sprite, const glm::vec4& c, Fade f = None) : ColorSprite(c,f), m_Sprite(sprite) {}
+        DrawSmoothMoveSprite(MoveableSprite * sprite, const glm::vec4& c, bool flipped, Fade f = None) :
+            ColorSprite(c,f),
+            m_Sprite(sprite),
+            m_flipped(flipped)
+            {}
 
 		void animate( const float& t, AnimData* d, IGame* game );
 
 	protected:
-
 		MoveableSprite * m_Sprite;
 		glm::vec2 m_pos;
-
+        bool m_flipped;
 	};
 
     class DrawSmoothMoveRotatedSprite :
@@ -172,9 +175,9 @@ namespace visualizer
 
 		DrawSmoothSpriteProgressBar(MoveableSprite * sprite,
 									float width, float height, float percent,
-									const glm::vec4& c,
+                                    const glm::vec4& c, bool flipped,
 									Fade f = None) :
-			DrawSmoothMoveSprite(sprite,c,f), m_width(width), m_height(height), m_percent(percent)  {}
+            DrawSmoothMoveSprite(sprite,c,flipped,f), m_width(width), m_height(height), m_percent(percent)  {}
 
 
 		void animate( const float& t, AnimData* d, IGame* game );
@@ -270,11 +273,12 @@ namespace visualizer
 		public ColorSprite
 	{
 	public:
-		DrawAnimatedMovingSprite(MoveableSprite * sprite, const glm::vec4& c, const int numFrames, const float start) :
+        DrawAnimatedMovingSprite(MoveableSprite * sprite, const glm::vec4& c, const int numFrames, const float start, bool flipped) :
 			ColorSprite(c),
 			m_Sprite(sprite),
 			m_numFrames(numFrames),
-			m_startTime(start)
+            m_startTime(start),
+            m_flipped(flipped)
 			{}
 
 		void animate(const float &t, AnimData *d, IGame *game);
@@ -284,6 +288,7 @@ namespace visualizer
 
 		int m_numFrames;
 		float m_startTime;
+        bool m_flipped;
 	};
 
 }

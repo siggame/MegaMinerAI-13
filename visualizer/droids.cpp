@@ -168,7 +168,7 @@ namespace visualizer
               {
                   auto tile = m_game->states[turn].tiles.at(iter);
 
-                  DrawQuadAroundObj(parser::Mappable({tile.id, tile.x +2, tile.y +2}), glm::vec4(0.3, 0.0, 1.0f, 0.4));
+                  DrawQuadAroundObj(parser::Mappable({tile.id, tile.x, tile.y}), glm::vec4(0.3, 0.0, 1.0f, 0.4));
               }
           }
 
@@ -177,7 +177,7 @@ namespace visualizer
               if(m_game->states[turn].droids.find(iter) != m_game->states[turn].droids.end())
               {
                   auto & droid = m_game->states[turn].droids.at(iter);
-                  DrawQuadAroundObj(parser::Mappable({droid.id, droid.x + 2, droid.y + 2}), glm::vec4(1.0f, 0.4, 0.4, 0.6));
+                  DrawQuadAroundObj(parser::Mappable({droid.id, droid.x, droid.y}), glm::vec4(1.0f, 0.4, 0.4, 0.6));
               }
           }
 
@@ -188,7 +188,7 @@ namespace visualizer
               if(m_game->states[turn].droids.find(focus) != m_game->states[turn].droids.end())
               {
                   auto& droid = m_game->states[turn].droids.at(focus);
-                  DrawBoxAroundObj(parser::Mappable({droid.id, droid.x + 2, droid.y + 2}), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+                  DrawBoxAroundObj(parser::Mappable({droid.id, droid.x, droid.y}), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
               }
           }
       }
@@ -584,6 +584,8 @@ namespace visualizer
   {
     Frame * turn = new Frame;
     Frame * nextTurn = new Frame;
+    std::map<int, bool> lastflipped;
+    std::map<int, bool> thisflipped;
 
 	gui->setDebugOptions(this);
     timeManager->setNumTurns( 0 );
@@ -608,7 +610,9 @@ namespace visualizer
 	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
     {
         PrepareTiles(state, *turn, *nextTurn);
-        PrepareUnits(state, *turn, *nextTurn);
+        PrepareUnits(state, lastflipped, thisflipped, *turn, *nextTurn);
+        lastflipped = thisflipped;
+        thisflipped.clear();
 
 		if(state >= (int)(m_game->states.size() - 1))
 		{
@@ -651,7 +655,7 @@ namespace visualizer
     delete nextTurn;
   } // Droids::run()
 
-  void Droids::PrepareUnits(const int& frameNum, Frame& turn, Frame& nextFrame)
+  void Droids::PrepareUnits(const int& frameNum, std::map<int, bool>& prevflipped, std::map<int, bool>& nextflipped, Frame& turn, Frame& nextFrame)
   {
       std::string texture;
       parser::GameState& currentState = m_game->states[frameNum];
@@ -738,32 +742,49 @@ namespace visualizer
 
               if(next == nextState.droids.end())
               {
-				  SmartPointer<AnimatedSprite> deathAnim = new AnimatedSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), "death", 63, true);
+                  SmartPointer<AnimatedSprite> deathAnim = new AnimatedSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), "death", 63, true);
                   deathAnim->addKeyFrame(new DrawAnimatedSprite(deathAnim, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
                   nextFrame.addAnimatable(deathAnim);
               }
           }
 
+          nextflipped[unit.id] = false;
+
           if(sprite->m_Moves.empty())
           {
                 sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
+
+                if(frameNum > 0 &&
+                    prevflipped.find(unit.id) != prevflipped.end() &&
+                    prevflipped[unit.id])
+                {
+                    nextflipped[unit.id] = true;
+                }
+          }
+          else
+          {
+              if(sprite->m_Moves.back().to.x > sprite->m_Moves.front().from.x)
+                  nextflipped[unit.id] = true;
+              else if(sprite->m_Moves.back().to.x == sprite->m_Moves.front().from.x &&
+                      prevflipped.find(unit.id) != prevflipped.end())
+                  nextflipped[unit.id] = prevflipped[unit.id];
           }
 
 		  if(!bAnimationSprite)
 		  {
 
-			  sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.15f,
-																unit.healthLeft / (float)unit.maxHealth,
-																glm::vec4(GetTeamColor(unit.owner),1.0f)));
+              sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.15f,
+                                                                unit.healthLeft / (float)unit.maxHealth,
+                                                                  glm::vec4(GetTeamColor(unit.owner), 1.0f),nextflipped[unit.id]));
 
 		  }
 		  else
 		  {
-			  sprite->addKeyFrame(new DrawAnimatedMovingSprite(sprite,
+              sprite->addKeyFrame(new DrawAnimatedMovingSprite(sprite,
 															   glm::vec4(GetTeamColor(unit.owner),1.0f),
-															   numFrame,
-															   0.5f));
-
+                                                               numFrame,
+                                                               nextflipped[unit.id],
+                                                               0.5f));
 		  }
 		  turn.addAnimatable(sprite);
 
@@ -808,7 +829,6 @@ namespace visualizer
                   float angle = asin( tile.second.y / h);
                   angle = 180/PI + 180;
 
-
                   sprite = new MoveableSprite("fireball");
                   sprite->addKeyFrame(new DrawSmoothMoveRotatedSprite(sprite, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f), angle));
                   sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2( tile.second.x, tile.second.y), glm::vec2(tile.second.x - 3, -3)));
@@ -818,11 +838,24 @@ namespace visualizer
 
           if(tile.second.turnsUntilAssembled > 2 && tile.second.owner == 0 || tile.second.owner == 1)
           {
+              std::stringstream stream;
+
               SmartPointer<BaseSprite> reticle;
               reticle = new BaseSprite(glm::vec2(tile.second.x, tile.second.y), glm::vec2(1, 1), "med_reticle");
               glm::vec3 col = GetTeamColor(tile.second.owner);
               reticle->addKeyFrame(new DrawDeltaScalar(reticle, glm::vec4(col.x, col.y, col.z, 0.5), glm::vec2(0.8, 0.8), glm::vec2(1.0f, 1.0f)));
+
+
+              stream << tile.second.variantToAssemble;
+              reticle->addKeyFrame(new DrawTextBox(stream.str(), glm::vec2(tile.second.x + 0.95, tile.second.y + 0.55), glm::vec4(1.0f), 1.6f, IRenderer::Alignment::Right));
+              stream.clear();
+              stream.flush();
+
+              stream << tile.second.turnsUntilAssembled;
+              reticle->addKeyFrame(new DrawTextBox(stream.str(), glm::vec2(tile.second.x + 0.65, tile.second.y + 0.55), glm::vec4(1.0f), 1.6f, IRenderer::Alignment::Right));
+
               turn.addAnimatable(reticle);
+
           }
 
           turn[tile.second.id]["x"] = tile.second.x;
