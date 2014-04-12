@@ -46,7 +46,7 @@ void AI::spawnDemDroids()
 {
   spawnX=rand()%mapWidth();
   spawnY=rand()%mapHeight();
-  int unitType=TERMINATOR;
+  int unitType=HACKER;
   if(players[playerID()].scrapAmount() >= modelVariants[unitType].cost())
   {
     if(getTile(spawnX, spawnY)->turnsUntilAssembled() == 0)
@@ -128,9 +128,73 @@ void AI::doStuffs()
     if((droids[i].owner() == playerID() && droids[i].hackedTurnsLeft() <= 0) ||
        (droids[i].owner() != playerID() && droids[i].hackedTurnsLeft() > 0))
     {
+      //if there are any attacks left
+      if(droids[i].attacksLeft() > 0)
+      {
+        
+        Droid* target = NULL;
+        if(droids[i].variant() == REPAIRER)
+        {
+          target = getFriendInRange(droids[i].x(), droids[i].y(), droids[i].range());
+        }
+        else
+        {
+          target = getEnemyInRange(droids[i].x(), droids[i].y(), droids[i].range());
+        }
+        //if a target was found
+        if(target != NULL)
+        {
+          //repairer logic
+          if(droids[i].variant() == REPAIRER)
+          {
+            //only try to heal your units or hacked enemy units
+            if((target->owner() == playerID() && target->hackedTurnsLeft() <= 0) ||
+               (target->owner() != playerID() && target->hackedTurnsLeft() > 0))
+            {
+              //heal the target
+              droids[i].operate(target->x(), target->y());
+            }
+          }
+          //hacker unit logic
+          else if(droids[i].variant() == HACKER)
+          {
+            //only operate on non-hacked enemy units
+            if(target->owner() != playerID() && target->hackedTurnsLeft() == 0)
+            {
+              //don't hack hangars or walls
+              if(target->variant() != HANGAR && target->variant() != WALL)
+              {
+                //hack the target
+                droids[i].operate(target->x(), target->y());
+              }
+            }
+          }
+          //other unit logic
+          else
+          {
+            //only operate on hacked friendly units or enemy units
+            if((target->owner() == playerID() && target->hackedTurnsLeft() > 0) ||
+               (target->owner() != playerID() && target->hackedTurnsLeft() <= 0))
+            {
+              //attack the target
+              droids[i].operate(target->x(), target->y());
+            }
+          }
+        }
+      }
+      
       //if there are any moves to be done
-      Droid* droid = getNearestHangar(droids[i].x(), droids[i].y());
-      moveTo(droids[i], droid->x(), droid->y());
+      if(droids[i].variant()== HACKER)
+      {
+        Droid* droid = getNearestEnemy(droids[i].x(), droids[i].y());
+        moveTo(droids[i], droid->x(), droid->y());
+      }
+      else
+      {
+        Droid* droid = getNearestHangar(droids[i].x(), droids[i].y());
+        moveTo(droids[i], droid->x(), droid->y());
+      }
+      
      
       //if there are any attacks left
       if(droids[i].attacksLeft() > 0)
@@ -266,6 +330,26 @@ Droid* AI::getNearestHangar(int xloc, int yloc)
     }
   }
   return enemyHangars[hangarNum];
+}
+
+Droid* AI::getNearestEnemy(int xloc, int yloc)
+{
+  int minDist=10000;
+  int xMin, yMin;
+  int distance;
+  int droidNum;
+  for(int i=0; i<enemyDroids.size(); i++)
+  {
+    distance = abs(enemyDroids[i]->x()-xloc) + abs(enemyDroids[i]->y()-yloc);
+    if(distance<minDist && distance !=0)
+    {
+      minDist=distance;
+      xMin=enemyDroids[i]->x();
+      yMin=enemyDroids[i]->y();
+      droidNum=i;
+    }
+  }
+  return enemyDroids[droidNum];
 }
 
 bool AI::validMove(const int x, const int y)

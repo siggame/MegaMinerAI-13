@@ -32,6 +32,7 @@ public:
   Droid* getEnemyInRange(int xloc, int yloc, int range);
   Droid* getFriendInRange(int xloc, int yloc, int range);
   Droid* getNearestHangar(int xloc, int yloc);
+  Droid* getNearestEnemy(int xloc, int yloc);
   void moveTo(Droid & droid, int x, int y);
   bool validMove(const int x, const int y);
 

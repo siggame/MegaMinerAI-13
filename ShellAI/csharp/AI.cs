@@ -142,7 +142,7 @@ class AI : BaseAI
                       else if (droids[i].Variant == (int)Unit.HACKER)
                       {
                           //only operate on non-hacked enemy units
-                          if (target.Owner != playerID() && target.HackedTurnsLeft > 0)
+                          if (target.Owner != playerID() && target.HackedTurnsLeft == 0)
                           {
                               //don't hack hangars or walls
                               if (target.Variant != (int)Unit.HANGAR && target.Variant != (int)Unit.WALL)

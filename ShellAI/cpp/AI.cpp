@@ -183,7 +183,7 @@ bool AI::run()
           else if(droids[i].variant() == HACKER)
           {
             //only operate on non-hacked enemy units
-            if(target->owner() != playerID() && target->hackedTurnsLeft() > 0)
+            if(target->owner() != playerID() && target->hackedTurnsLeft() == 0)
             {
               //don't hack hangars or walls
               if(target->variant() != HANGAR && target->variant() != WALL)
