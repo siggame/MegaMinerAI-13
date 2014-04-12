@@ -117,7 +117,7 @@ namespace visualizer
 
     void DrawDeltaRotater::animate(const float &t, AnimData *d, IGame *game)
     {
-        const float deltaRot = 20;
+		const float deltaRot = 60;
         float dt = game->timeManager->getDt();
         m_Rotation += deltaRot * dt;
 

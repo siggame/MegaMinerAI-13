@@ -702,6 +702,7 @@ namespace visualizer
           SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
 
 		  bool bAnimationSprite = false;
+		  parser::Droid* pHackedDroid = nullptr;
 
           const auto& iter = currentState.animations.find(unit.id);
           if(iter != currentState.animations.end())
@@ -717,6 +718,10 @@ namespace visualizer
                           break;
                       }
                       case parser::HACK:
+					  {
+						   parser::hack& hack = (parser::hack&)*anim;
+						   pHackedDroid = getUnitAt(frameNum, hack.targetID);
+					  }
                       case parser::REPAIR:
                       case parser::ATTACK:
                       {
@@ -771,6 +776,13 @@ namespace visualizer
 
 		  }
 		  turn.addAnimatable(sprite);
+
+		  if(pHackedDroid != nullptr)
+		  {
+			  SmartPointer<BaseSprite> hackAnim = new BaseSprite(glm::vec2(pHackedDroid->x, pHackedDroid->y), glm::vec2(1.0f), "spiral");
+			  hackAnim->addKeyFrame(new DrawDeltaRotater(hackAnim, glm::vec4(1.0f,1.0f,1.0f,0.5f)));
+			  turn.addAnimatable(hackAnim);
+		  }
 
           turn[unit.id]["id"] = unit.id;
           turn[unit.id]["X"] = unit.x;
@@ -907,36 +919,20 @@ namespace visualizer
       }
   }
 
-  bool Droids::isUnitAt(int frameNum, int x, int y)
+  parser::Droid* Droids::getUnitAt(int frameNum, int id)
   {
-      bool exists = false;
-      for(auto& droidIter: m_game->states[frameNum].droids)
-      {
-          auto& droid = droidIter.second;
-          if(droid.x == x && droid.y == y)
-          {
-              exists = true;
-              break;
-          }
-      }
+	  parser::Droid* droidPtr = NULL;
+	  for(auto& droidIter: m_game->states[frameNum].droids)
+	  {
+		  auto& droid = droidIter.second;
+		  if(droid.id == id)
+		  {
+			  droidPtr = &droid;
+			  break;
+		  }
+	  }
 
-      return exists;
-  }
-
-  parser::Droid* Droids::getUnitAt(int frameNum, int x, int y)
-  {
-      parser::Droid* droidPtr = NULL;
-      for(auto& droidIter: m_game->states[frameNum].droids)
-      {
-          auto& droid = droidIter.second;
-          if(droid.x == x && droid.y == y)
-          {
-              droidPtr = &droid;
-              break;
-          }
-      }
-
-      return droidPtr;
+	  return droidPtr;
   }
 
 
