@@ -63,7 +63,7 @@ class AI(BaseAI):
   ##This function is called each time it is your turn
   ##Return true to end your turn, return false to ask the server for updated information
 
-  randVars = [0,1,6]
+  randVars = [0,1,2,3,6]
 
   def run(self):
 
@@ -75,7 +75,7 @@ class AI(BaseAI):
     #if self.dropY > self.maxY:
     #  self.dropY = self.minY
 
-    meh = self.randVars[random.randint(0,2)]
+    meh = self.randVars[random.randint(0,len(self.randVars) - 1)]
 
     if self.players[self.playerID].scrapAmount > 80:
       bleh = 0
@@ -98,10 +98,16 @@ class AI(BaseAI):
           (droid.owner != self.playerID and droid.hackedTurnsLeft > 0))\
            and droid.variant != 7 and droid.variant != 5 and droid.variant != 4:
         bleh = []
-        for droid2 in self.droids:
-          if droid2.owner != self.playerID:
-            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range + droid.maxMovement:
-              bleh.append(droid2)
+        if droid.attack > 0:
+          for droid2 in self.droids:
+            if droid2.owner != self.playerID:
+              if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range + droid.maxMovement:
+                bleh.append(droid2)
+        else:
+          for droid2 in self.droids:
+            if droid2.owner == self.playerID:
+              if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range + droid.maxMovement:
+                bleh.append(droid2)
         movez = droid.maxMovement
         while movez > 0:
           movey = 1
