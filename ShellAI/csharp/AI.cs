@@ -175,38 +175,37 @@ class AI : BaseAI
   /// </summary>
   public override void init() 
   {
-  int offset = 0;
-  bool found = false;
-  while(!found)
-  {
-    //find a location without a hangar
-    for(int i = 0; i < tiles.Length; i++)
+    int offset = 0;
+    bool found = false;
+    while(!found)
     {
-      //make sure that the tile is near the edge
-      if(tiles[i].X == (mapWidth() - 1) * playerID() + offset)
+      //find a location without a hangar
+      for(int i = 0; i < tiles.Length; i++)
       {
-        spawnX = tiles[i].X;
-        spawnY = tiles[i].Y;
-        found = true;
-        break;
+        //make sure that the tile is near the edge
+        if(tiles[i].X == (mapWidth() - 1) * playerID() + offset)
+        {
+          spawnX = tiles[i].X;
+          spawnY = tiles[i].Y;
+          found = true;
+          break;
+        }
+      }
+      //if nothing was found then move away from the edge
+      if(!found)
+      {
+        //if on the left
+        if(playerID() == 0)
+        {
+          offset++;
+        }
+        else
+        {
+          //on the right
+          offset--;
+        }
       }
     }
-    //if nothing was found then move away from the edge
-    if(!found)
-    {
-      //if on the left
-      if(playerID() == 0)
-      {
-        offset++;
-      }
-      else
-      {
-        //on the right
-        offset--;
-      }
-    }
-  }
-  
   }
 
   /// <summary>
