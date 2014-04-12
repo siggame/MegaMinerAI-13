@@ -743,6 +743,21 @@ namespace visualizer
 						  }
                           break;
                       }
+
+					  if(attackerIter != m_game->states[state].units.end() && targetIter != m_game->states[state].units.end())
+										  {
+											  glm::vec2 from(attackerIter->second->x,attackerIter->second->y);
+											  glm::vec2 to(targetIter->second->x,targetIter->second->y);
+											  glm::vec2 diff = to - from;
+											  float angle = glm::degrees(std::atan2(diff.y,diff.x));
+
+											  SmartPointer<MoveableSprite> pLaser = new MoveableSprite("laser",glm::vec2(1.0f,0.5f));
+											  pLaser->m_Moves.push_back(MoveableSprite::Move(to,from));
+											  pLaser->addKeyFrame(new DrawRotatedSmoothMoveSprite(pLaser, glm::vec4(1.0f,1.0f,1.0f,0.7f),angle));
+
+											  animList.push(pLaser);
+
+										  }
                       default:
                       break;
                   }
@@ -873,7 +888,7 @@ namespace visualizer
               }
           }
 
-          if(tile.second.turnsUntilAssembled > 2 && tile.second.owner == 0 || tile.second.owner == 1)
+		  if(tile.second.turnsUntilAssembled > 1)
           {
               std::string variant;
               std::string timetilldrop;
