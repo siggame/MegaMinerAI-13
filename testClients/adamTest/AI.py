@@ -79,7 +79,7 @@ class AI(BaseAI):
 
     if self.players[self.playerID].scrapAmount > 80:
       while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost:
-        xDROPU = random.randint(0, self.mapWidth/2)
+        xDROPU = random.randint(0, 1)
         yDROPU = random.randint(0, self.mapHeight/2)
         if self.playerID == 1:
           xDROPU = self.mapWidth - xDROPU - 1
@@ -98,7 +98,7 @@ class AI(BaseAI):
         bleh = []
         for droid2 in self.droids:
           if droid2.owner != self.playerID:
-            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) < droid.range + droid.maxMovement:
+            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range + droid.maxMovement:
               bleh.append(droid2)
         movez = droid.maxMovement
         while movez > 0:
