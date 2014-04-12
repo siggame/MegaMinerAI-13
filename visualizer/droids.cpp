@@ -52,6 +52,8 @@ namespace visualizer
 	RenderGrid();
     DrawHUD();
 
+	timeManager->setSpeed(options->getNumber("Speed"));
+
     // Handle player input here
   }
 
