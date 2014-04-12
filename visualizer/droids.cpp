@@ -744,7 +744,7 @@ namespace visualizer
                           break;
                       }
 
-					  if(attackerIter != m_game->states[state].units.end() && targetIter != m_game->states[state].units.end())
+					  /*if(attackerIter != m_game->states[state].units.end() && targetIter != m_game->states[state].units.end())
 										  {
 											  glm::vec2 from(attackerIter->second->x,attackerIter->second->y);
 											  glm::vec2 to(targetIter->second->x,targetIter->second->y);
@@ -757,7 +757,7 @@ namespace visualizer
 
 											  animList.push(pLaser);
 
-										  }
+										  }*/
                       default:
                       break;
                   }
