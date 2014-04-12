@@ -66,7 +66,7 @@ class AI(BaseAI):
                 bleh.append(droid2)
         #attack even if a turret
         for droid2 in bleh:
-          if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0:
+          if self.okay(droid, droid2):
             droid.operate(droid2.x, droid2.y)
 
         target2 = None
@@ -98,7 +98,7 @@ class AI(BaseAI):
           movey = 1
 
           for droid2 in bleh:
-            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0:
+            if self.okay(droid, droid2):
               droid.operate(droid2.x, droid2.y)
 
           move = True
@@ -145,6 +145,23 @@ class AI(BaseAI):
       if x == droid.x and y == droid.y:
         return droid
     return None
+
+  def dist(self, me, you):
+    return abs(me.x  - you.x) + abs(me.y - you.y)
+
+  def okay(self, me, target):
+    if me.attacksLeft == 0 or target.healthLeft == 0:
+      return False
+    if me.variant == 3:
+      if target.id != self.playerID and target.hackedTurnsLeft == 0 and self.dist(me, target) <= me.range:
+        return True
+    elif me.attack < 0:
+      if target.id == self.playerID and target.hackedTurnsLeft == 0 and self.dist(me, target) <= me.range and target.id != me.id:
+        return True
+    else:
+      if target.id != (self.playerID ^ (target.hackedTurnsLeft > 0)) and self.dist(me, target) <= me.range:
+        return True
+    return False
 
   def __init__(self, conn):
     BaseAI.__init__(self, conn)
