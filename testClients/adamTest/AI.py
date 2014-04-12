@@ -77,18 +77,19 @@ class AI(BaseAI):
 
     meh = self.randVars[random.randint(0,3)]
 
-    while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost:
-      xDROPU = random.randint(0, self.mapWidth/2)
-      yDROPU = random.randint(0, self.mapHeight/2)
-      if self.playerID == 1:
-        xDROPU = self.mapWidth - xDROPU - 1
-        yDROPU = self.mapHeight - yDROPU - 1
-      while not self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, meh):
-        xDROPU = random.randint(0, self.mapWidth)
-        yDROPU = random.randint(0, self.mapHeight)
+    if self.player[self.playerID].scrapAmount > 80:
+      while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost:
+        xDROPU = random.randint(0, self.mapWidth/2)
+        yDROPU = random.randint(0, self.mapHeight/2)
         if self.playerID == 1:
           xDROPU = self.mapWidth - xDROPU - 1
           yDROPU = self.mapHeight - yDROPU - 1
+        while not self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, meh):
+          xDROPU = random.randint(0, self.mapWidth)
+          yDROPU = random.randint(0, self.mapHeight)
+          if self.playerID == 1:
+            xDROPU = self.mapWidth - xDROPU - 1
+            yDROPU = self.mapHeight - yDROPU - 1
 
     for droid in self.droids:
       if ((droid.owner == self.playerID and droid.hackedTurnsLeft <= 0) or\
