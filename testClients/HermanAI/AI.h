@@ -12,7 +12,11 @@ public:
   virtual const char* password();
   virtual void init();
   virtual bool run();
+  virtual void spawn();
   virtual void end();
+  std::vector<Droid*> friendHangar;
+  std::vector<Droid*> enemyHangar;
+  Tile* getTile(const int x, const int y);
 };
 
 #endif
