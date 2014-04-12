@@ -1,6 +1,7 @@
 #-*-python-*-
 from BaseAI import BaseAI
 from GameObject import *
+import random
 
 class AI(BaseAI):
   """The class implementing gameplay logic."""
@@ -62,30 +63,28 @@ class AI(BaseAI):
   ##This function is called each time it is your turn
   ##Return true to end your turn, return false to ask the server for updated information
   def run(self):
-    y = self.minY
-    notDone = True
-    while notDone:
-      x = self.minX
-      while x <= self.maxX:
-        drop = True
-        for droid in self.droids:
-          if droid.x == x and droid.y == y and droid.owner == self.playerID:
-            drop = False
-            break
-        if drop:
-          self.players[self.playerID].orbitalDrop(x, y, 5)
-        x += 1
-      if y == self.maxY:
-        notDone = False
-      y = self.maxY
 
     if self.dropY == self.maxY or self.dropY == self.minY:
-      self.players[self.playerID].orbitalDrop((self.mapWidth - 1)*self.playerID, self.dropY, 0)
+      self.players[self.playerID].orbitalDrop((self.mapWidth - 1)*self.playerID, self.dropY, 6)
     else:
-      self.players[self.playerID].orbitalDrop(self.dropX, self.dropY, 0)
+      self.players[self.playerID].orbitalDrop(self.dropX, self.dropY, 6)
     self.dropY += 1
     if self.dropY > self.maxY:
       self.dropY = self.minY
+
+    while self.players[self.playerID].scrapAmount >= 70:
+      xDROPU = random.randint(0, self.mapWidth/2)
+      yDROPU = random.randint(0, self.mapHeight/2)
+      if self.playerID == 1:
+        xDROPU = self.mapWidth - xDROPU - 1
+        yDROPU = self.mapHeight - yDROPU - 1
+      while not self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, 6):
+        xDROPU = random.randint(0, self.mapWidth)
+        yDROPU = random.randint(0, self.mapHeight)
+        if self.playerID == 1:
+          xDROPU = self.mapWidth - xDROPU - 1
+          yDROPU = self.mapHeight - yDROPU - 1
+
     for droid in self.droids:
       if ((droid.owner == self.playerID and droid.hackedTurnsLeft <= 0) or\
           (droid.owner != self.playerID and droid.hackedTurnsLeft > 0))\
@@ -94,8 +93,13 @@ class AI(BaseAI):
         while movez > 0:
           movey = 1
           droid.operate(droid.x + self.change, droid.y)
+          droid.operate(droid.x + self.change, droid.y)
+          droid.operate(droid.x - self.change, droid.y)
+          droid.operate(droid.x - self.change, droid.y)
           #attack around too
           droid.operate(droid.x, droid.y - 1)
+          droid.operate(droid.x, droid.y - 1)
+          droid.operate(droid.x, droid.y + 1)
           droid.operate(droid.x, droid.y + 1)
 
           move = True
@@ -128,8 +132,13 @@ class AI(BaseAI):
                     droid.move(droid.x, droid.y - 1)
 
           droid.operate(droid.x + self.change, droid.y)
+          droid.operate(droid.x + self.change, droid.y)
+          droid.operate(droid.x - self.change, droid.y)
+          droid.operate(droid.x - self.change, droid.y)
           #attack around too
           droid.operate(droid.x, droid.y - 1)
+          droid.operate(droid.x, droid.y - 1)
+          droid.operate(droid.x, droid.y + 1)
           droid.operate(droid.x, droid.y + 1)
           movez -= 1
     return 1
