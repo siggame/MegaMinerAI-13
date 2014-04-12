@@ -46,7 +46,7 @@ void AI::spawnDemDroids()
 {
   spawnX=rand()%mapWidth();
   spawnY=rand()%mapHeight();
-  int unitType=2;
+  int unitType=HACKER;
   if(players[playerID()].scrapAmount() >= modelVariants[unitType].cost())
   {
     if(getTile(spawnX, spawnY)->turnsUntilAssembled() == 0)
