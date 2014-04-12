@@ -9,6 +9,8 @@
 
 namespace visualizer
 {
+  const float Droids::GRID_OFFSET = 1.3f;
+
   Droids::Droids()
   {
     m_game = 0;
@@ -343,7 +345,7 @@ namespace visualizer
   void Droids::DrawHUD() const
   {
       float x = m_mapWidth / 2;
-      float y = m_mapHeight + 1.5;
+      float y = m_mapHeight + 1.25;
 
       const float boxOffset = 16;
       const float boxWidth = 10;
@@ -373,7 +375,7 @@ namespace visualizer
       {
           // bars for alive hangars
           // too dark, i'm doing it manually
-          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
           renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -382,7 +384,8 @@ namespace visualizer
       for(;interval < m_NumHangers; interval++)
       {
           // bars for dead hangars
-          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
+
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
           renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -486,9 +489,7 @@ namespace visualizer
 
                   renderer->setColor(Color(col.x*0.5, col.y *0.5, col.z * 0.5, 1.0f));
                   renderer->drawCircle(pieCenterX, pieCenterY, pieChartRadius, 1 - percentScrap, pieChartResolution, 2*PI * percentScrap);
-
                }
-
           }
 
 
@@ -569,7 +570,7 @@ namespace visualizer
 	m_mapWidth = m_game->states[0].mapWidth;
     m_mapHeight = m_game->states[0].mapHeight;
 
-	renderer->setCamera( 0, 0, m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
+    renderer->setCamera( 0, 0, m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
 	renderer->setGridDimensions( m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
  
     start();
@@ -723,7 +724,7 @@ namespace visualizer
 
               if(next == nextState.droids.end())
               {
-                  SmartPointer<AnimatedSprite> deathAnim = new AnimatedSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), "death", 63);
+				  SmartPointer<AnimatedSprite> deathAnim = new AnimatedSprite(glm::vec2(unit.x, unit.y), glm::vec2(1.0f, 1.0f), "death", 63, true);
                   deathAnim->addKeyFrame(new DrawAnimatedSprite(deathAnim, glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
                   nextFrame.addAnimatable(deathAnim);
               }
@@ -792,7 +793,7 @@ namespace visualizer
               SmartPointer<BaseSprite> reticle;
               reticle = new BaseSprite(glm::vec2(tile.second.x, tile.second.y), glm::vec2(1, 1), "med_reticle");
               glm::vec3 col = GetTeamColor(tile.second.owner);
-              reticle->addKeyFrame(new DrawDeltaRotater(reticle, glm::vec4(col.x, col.y, col.z, 0.5)));
+              reticle->addKeyFrame(new DrawDeltaScalar(reticle, glm::vec4(col.x, col.y, col.z, 0.5), glm::vec2(0.8, 0.8), glm::vec2(1.0f, 1.0f)));
               turn.addAnimatable(reticle);
           }
 
