@@ -138,12 +138,12 @@ class AI(BaseAI):
                       self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                       target2 = target
                 elif droid.attack < 0:
-                  if target.variant != 7 and target.owner == self.playerID:
+                  if target.variant != 7 and target.owner == self.playerID and target.id != droid.id:
                     if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
                       self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                       target2 = target
                 else:
-                  if target.owner != self.playerID and target.turnsToBeHacked == 0:
+                  if target.owner != self.playerID and target.turnsToBeHacked == 0 and (target.variant != 7 or target.variant != 5):
                     if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
                       self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                       target2 = target
