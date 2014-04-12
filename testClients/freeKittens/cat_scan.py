@@ -29,6 +29,10 @@ def cat_scan(game):
     game.toys_by_health = list(game.toys)
     game.toys_by_health.sort(key=lambda t: t.healthLeft)
 
+    x_off = game.playerID * (game.mapHeight - 1)
+    game.toys_by_x = list(game.toys)
+    game.toys_by_x.sort(key=lambda t: -abs(t.x - x_off))
+
     game.kittens_by_range = list(game.kittens)
     game.kittens_by_range.sort(key=lambda t: t.range)
 
