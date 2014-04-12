@@ -138,7 +138,9 @@ namespace visualizer
 	{
 		DrawSmoothMoveSprite::animate(t,d,game);
 
-		RenderProgressBar(*game->renderer, this->m_pos.x, m_pos.y, this->m_width, this->m_height,this->m_percent,1.0f,{1.0f,0.0f,0.0f});
+		RenderProgressBar(*game->renderer, this->m_pos.x, m_pos.y,
+						  this->m_width, this->m_height,
+						  this->m_percent,1.0f,{1.0f,0.0f,0.0f,0.6f});
 	}
 
 	void DrawTextBox::animate(const float &, AnimData*, IGame* game)
