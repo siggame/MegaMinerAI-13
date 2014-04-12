@@ -78,7 +78,9 @@ class AI(BaseAI):
     meh = self.randVars[random.randint(0,2)]
 
     if self.players[self.playerID].scrapAmount > 80:
-      while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost:
+      bleh = 0
+      while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost or bleh > 20:
+        bleh += 1
         xDROPU = random.randint(0, 1)
         yDROPU = random.randint(0, self.mapHeight/2)
         if self.playerID == 1:

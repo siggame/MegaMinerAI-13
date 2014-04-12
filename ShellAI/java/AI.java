@@ -13,7 +13,7 @@ public class AI extends BaseAI
                           WALL = 5,
                           TERMINATOR = 6,
                           HANGAR = 7;
-  
+
   public String username()
   {
     return "Shell AI";
@@ -132,7 +132,7 @@ public class AI extends BaseAI
             else if(droids[i].getVariant() == HACKER)
             {
               //only operate on non-hacked enemy units
-              if(target.getOwner() != playerID() && target.getHackedTurnsLeft() > 0)
+              if(target.getOwner() != playerID() && target.getHackedTurnsLeft() == 0)
               {
                 //don't hack hangars or walls
                 if(target.getVariant() != HANGAR && target.getVariant() != WALL)
@@ -212,13 +212,13 @@ public class AI extends BaseAI
 
   //This function is called once, after your last turn
   public void end() {}
-  
-  
+
+
   public AI(Pointer c)
   {
     super(c);
   }
-  
+
   //This functions returns a reference to a tile
   Tile getTile(int x, int y)
   {
