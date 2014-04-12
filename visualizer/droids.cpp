@@ -658,29 +658,36 @@ namespace visualizer
 
       for(auto& it: currentState.droids)
       {
+		  int numFrame = 0;
           parser::Droid& unit = it.second;
           switch(unit.variant)
           {
 			case DROID_CLAW:
 				  texture = "claw";
+				  numFrame = 24;
 				  break;
 			case DROID_ARCHER:
 				  texture = "archer";
+				  numFrame = 18;
 				  break;
 			case DROID_REPAIRER:
 				  texture = "repairer";
+				  numFrame = 9;
 				  break;
 			case DROID_HACKER:
 				  texture = "hacker";
+				  numFrame = 16;
 				  break;
 			case DROID_TURRET:
 				  texture = "turret";
+				  numFrame = 11;
 				  break;
 			case DROID_WALL:
 				  texture = "wall";
 				  break;
 			case DROID_TERMINATOR:
 				  texture = "terminator";
+				  numFrame = 8;
 				  break;
 			case DROID_HANGAR:
 				  texture = "hangar";
@@ -690,6 +697,8 @@ namespace visualizer
           }
 
           SmartPointer<MoveableSprite> sprite = new MoveableSprite(texture);
+
+		  bool bAnimationSprite = false;
 
           const auto& iter = currentState.animations.find(unit.id);
           if(iter != currentState.animations.end())
@@ -705,20 +714,14 @@ namespace visualizer
                           break;
                       }
                       case parser::HACK:
-                      {
-                          break;
-                      }
-                      case parser::ORBITALDROP:
-                      {
-
-                          break;
-                      }
                       case parser::REPAIR:
-                      {
-                          break;
-                      }
                       case parser::ATTACK:
                       {
+						  if(!bAnimationSprite)
+						  {
+							  sprite->m_sprite += "_anim";
+							  bAnimationSprite = true;
+						  }
                           break;
                       }
                       default:
@@ -746,9 +749,23 @@ namespace visualizer
                 sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
           }
 
-		  sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.15f,
-															  unit.healthLeft / (float)unit.maxHealth, glm::vec4(GetTeamColor(unit.owner),1.0f)));
-          turn.addAnimatable(sprite);
+		  if(!bAnimationSprite)
+		  {
+
+			  sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.15f,
+																unit.healthLeft / (float)unit.maxHealth,
+																glm::vec4(GetTeamColor(unit.owner),1.0f)));
+
+		  }
+		  else
+		  {
+			  sprite->addKeyFrame(new DrawAnimatedMovingSprite(sprite,
+															   glm::vec4(GetTeamColor(unit.owner),1.0f),
+															   numFrame,
+															   0.5f));
+
+		  }
+		  turn.addAnimatable(sprite);
 
           turn[unit.id]["id"] = unit.id;
           turn[unit.id]["X"] = unit.x;

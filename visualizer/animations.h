@@ -266,6 +266,26 @@ namespace visualizer
 		SplashScreen* m_SplashScreen;
 	};
 
+	class DrawAnimatedMovingSprite :
+		public ColorSprite
+	{
+	public:
+		DrawAnimatedMovingSprite(MoveableSprite * sprite, const glm::vec4& c, const int numFrames, const float start) :
+			ColorSprite(c),
+			m_Sprite(sprite),
+			m_numFrames(numFrames),
+			m_startTime(start)
+			{}
+
+		void animate(const float &t, AnimData *d, IGame *game);
+
+	private:
+		MoveableSprite * m_Sprite;
+
+		int m_numFrames;
+		float m_startTime;
+	};
+
 }
 
 #endif // ANIMATION_H

@@ -214,4 +214,29 @@ namespace visualizer
 		}
 	}
 
+	void DrawAnimatedMovingSprite::animate(const float &t, AnimData *d, IGame *game)
+	{
+		unsigned int index = (unsigned int) (m_Sprite->m_Moves.size() * t);
+		float subT = m_Sprite->m_Moves.size() * t - index;
+		MoveableSprite::Move& thisMove = m_Sprite->m_Moves[index];
+
+		glm::vec2 diff = thisMove.to - thisMove.from;
+		glm::vec2 pos = thisMove.from + diff * subT;
+
+		ColorSprite::animate(t, d, game);
+
+		int frame = 0;
+		if(t >= m_startTime)
+		{
+			frame = m_numFrames * ((t - m_startTime) / (1 - m_startTime));
+		}
+
+		game->renderer->drawAnimQuad(pos.x,
+								 pos.y,
+								 1.0f,
+								 1.0f,
+								 m_Sprite->m_sprite,
+								 (int)frame);
+	}
+
 }
