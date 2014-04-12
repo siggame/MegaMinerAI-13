@@ -137,6 +137,8 @@ class AI(BaseAI):
                   self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                   target2 = target
 
+        target = target2
+
         movez = droid.maxMovement
 
         while movez > 0:
