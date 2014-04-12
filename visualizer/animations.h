@@ -146,7 +146,7 @@ namespace visualizer
     };
 
     class DrawDeltaScalar :
-        public ColorSprite\
+		public ColorSprite
     {
     public:
         DrawDeltaScalar(BaseSprite* sprite, const glm::vec4 c, const glm::vec2 start, const glm::vec2 end) :

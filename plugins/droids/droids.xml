@@ -2,14 +2,14 @@
   <option>
     <key>Enable Grid Lines</key>
     <type>Integer</type>
-    <value>1</value>
+    <value>0</value>
     <minvalue>0</minvalue>
     <maxvalue>1</maxvalue>
   </option>
   <option>
     <key>Enable Victory Screen</key>
     <type>Integer</type>
-    <value>0</value>
+    <value>1</value>
     <minvalue>0</minvalue>
     <maxvalue>1</maxvalue>
   </option>
