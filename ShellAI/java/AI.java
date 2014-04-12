@@ -29,7 +29,7 @@ public class AI extends BaseAI
   {
   	//try to spawn a claw near your side
     //make sure you own enough scrap
-    if(players[playerID()].getScrapAmount() > modelVariants[CLAW].getCost())
+    if(players[playerID()].getScrapAmount() >= modelVariants[CLAW].getCost())
     {
       //make sure nothing is spawning there
       if(getTile(spawnX, spawnY).getTurnsUntilAssembled() == 0)
