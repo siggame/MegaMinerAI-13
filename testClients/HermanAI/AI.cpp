@@ -191,9 +191,13 @@ void AI::doStuffs()
       }
       else if(droids[i].variant()== REPAIRER)
       {
-        Droid* droid = getNearestFriend(droids[i].x(), droids[i].y());
-        moveTo(droids[i], droid->x(), droid->y());
+        if(getNearestFriend(droids[i].x(), droids[i].y()) != NULL)
+        {
+          Droid* droid = getNearestFriend(droids[i].x(), droids[i].y());
+          moveTo(droids[i], droid->x(), droid->y());
+        }
       }
+        
       else
       {
         Droid* droid = getNearestHangar(droids[i].x(), droids[i].y());
@@ -201,7 +205,6 @@ void AI::doStuffs()
       }
       
      
-      //if there are any attacks left
       if(droids[i].attacksLeft() > 0)
       {
         
@@ -232,7 +235,7 @@ void AI::doStuffs()
           else if(droids[i].variant() == HACKER)
           {
             //only operate on non-hacked enemy units
-            if(target->owner() != playerID() && target->hackedTurnsLeft() > 0)
+            if(target->owner() != playerID() && target->hackedTurnsLeft() == 0)
             {
               //don't hack hangars or walls
               if(target->variant() != HANGAR && target->variant() != WALL)
@@ -366,13 +369,17 @@ Droid* AI::getNearestFriend(int xloc, int yloc)
   for(int i=0; i<friendDroids.size(); i++)
   {
     distance = abs(friendDroids[i]->x()-xloc) + abs(friendDroids[i]->y()-yloc);
-    if(distance<minDist && distance !=0)
+    if(distance<minDist && distance !=0 && friendDroids[i]->armor() != friendDroids[i]->maxArmor())
     {
       minDist=distance;
       xMin=friendDroids[i]->x();
       yMin=friendDroids[i]->y();
       droidNum=i;
     }
+  }
+  if(minDist==10000)
+  {
+    return NULL;
   }
   return friendDroids[droidNum];
 }
