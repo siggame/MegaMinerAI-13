@@ -173,7 +173,7 @@ class AI : BaseAI
   /// <summary>
   /// This function is called once, before your first turn.
   /// </summary>
-  public override void init() 
+  public override void init()
   {
     int offset = 0;
     bool found = false;
@@ -185,10 +185,23 @@ class AI : BaseAI
         //make sure that the tile is near the edge
         if(tiles[i].X == (mapWidth() - 1) * playerID() + offset)
         {
-          spawnX = tiles[i].X;
-          spawnY = tiles[i].Y;
-          found = true;
-          break;
+          bool hangarPresent = false;
+          //check for hangar
+          for(int z = 0; z < droids.Length; z++)
+          {
+            if(droids[z].X == tiles[i].X && droids[z].Y == tiles[i].Y)
+            {
+              hangarPresent = true;
+              break;
+            }
+          }
+          if(!hangarPresent)
+          {
+            spawnX = tiles[i].X;
+            spawnY = tiles[i].Y;
+            found = true;
+            break;
+          }
         }
       }
       //if nothing was found then move away from the edge
@@ -213,7 +226,7 @@ class AI : BaseAI
   /// </summary>
   public override void end() { }
 
-    
+
 //This functions returns a pointer to a tile, or returns null for an invalid tile
 Tile getTile(int x, int y)
 {
@@ -224,6 +237,6 @@ Tile getTile(int x, int y)
   return tiles[y + x * mapHeight()];
 }
 
-  public AI(IntPtr c) 
+  public AI(IntPtr c)
       : base(c) { }
 }

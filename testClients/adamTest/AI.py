@@ -110,26 +110,9 @@ class AI(BaseAI):
                   move = False
 
           if move:
-            bleh = False
-            if droid.x > self.enemyMaxX:
-             bleh = droid.move(droid.x - 1, droid.y)
-            elif droid.x < self.enemyMinX:
-              bleh = droid.move(droid.x + 1, droid.y)
-
-            if not bleh:
-              if not droid.move(droid.x + self.change, droid.y):
-                morved = False
-                if droid.y == self.maxY:
-                  droid.move(droid.x, droid.y + 1)
-                  morved = True
-                elif droid.y == self.minY:
-                  droid.move(droid.x, droid.y - 1)
-                  morved = True
-                if not morved:
-                  if droid.y < self.minY:
-                    droid.move(droid.x, droid.y + 1)
-                  elif droid.y > self.maxY:
-                    droid.move(droid.x, droid.y - 1)
+            if not droid.move(droid.x + self.change, droid.y):
+              if not droid.move(droid.x, droid.y - 1):
+                droid.move(droid.x, droid.y + 1)
 
           droid.operate(droid.x + self.change, droid.y)
           droid.operate(droid.x + self.change, droid.y)

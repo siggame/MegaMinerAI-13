@@ -174,10 +174,23 @@ public class AI extends BaseAI
         //make sure that the tile is near the edge
         if(tiles[i].getX() == (mapWidth() - 1) * playerID() + offset)
         {
-          spawnX = tiles[i].getX();
-          spawnY = tiles[i].getY();
-          found = true;
-          break;
+          boolean hangarPresent = false;
+          //check for hangar
+          for(int z = 0; z < droids.length; z++)
+          {
+            if(droids[z].getX() == tiles[i].getX() && droids[z].getY() == tiles[i].getY())
+            {
+              hangarPresent = true;
+              break;
+            }
+          }
+          if(!hangarPresent)
+          {
+            spawnX = tiles[i].getX();
+            spawnY = tiles[i].getY();
+            found = true;
+            break;
+          }
         }
       }
       //if nothing was found then move away from the edge

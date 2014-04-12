@@ -14,7 +14,30 @@ class AI(BaseAI):
 
   CLAW, ARCHER, REPAIRER, HACKER, TURRET, WALL, TERMINATOR, HANGAR = range(8)
 
-
+#//find a location without a hangar
+#      for(int i = 0; i < tiles.Length; i++)
+#      {
+#        //make sure that the tile is near the edge
+#        if(tiles[i].X == (mapWidth() - 1) * playerID() + offset)
+#        {
+#          bool hangarPresent = false;
+#          //check for hangar
+#          for(int z = 0; z < droids.Length; z++)
+#          {
+#            if(droids[z].X == tiles[i].X && droids[z].Y == tiles[i].Y)
+#            {
+#              hangarPresent = true;
+#              break;
+#            }
+#          }
+#          if(!hangarPresent)
+#          {
+#            spawnX = tiles[i].X;
+#            spawnY = tiles[i].Y;
+#            found = true;
+#            break;
+#          }
+#        }
   ##This function is called once, before your first turn
   def init(self):
     offset = 0
@@ -24,10 +47,17 @@ class AI(BaseAI):
       for tile in self.tiles:
         #make sure tile is near the edge
         if tile.x == (self.mapWidth - 1) * self.playerID + offset:
-          self.spawnX = tile.x
-          self.spawnY = tile.y
-          found = True
-          break
+          hangarPresent = False
+          #check for hangar
+          for droid in self.droids:
+            if droid.x == tile.x and droid.y == tile.y:
+              hangarPresent = True
+              break
+          if not hangarPresent:
+            self.spawnX = tile.x
+            self.spawnY = tile.y
+            found = True
+            break
       #if nothing was found move away from the edge
       if not found:
         if self.playerID == 0:
