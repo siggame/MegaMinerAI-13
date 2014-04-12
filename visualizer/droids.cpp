@@ -169,6 +169,7 @@ namespace visualizer
                   auto tile = m_game->states[turn].tiles.at(iter);
 
                   DrawQuadAroundObj(parser::Mappable({tile.id, tile.x, tile.y}), glm::vec4(0.3, 0.0, 1.0f, 0.4));
+
               }
           }
 
@@ -188,7 +189,7 @@ namespace visualizer
               if(m_game->states[turn].droids.find(focus) != m_game->states[turn].droids.end())
               {
                   auto& droid = m_game->states[turn].droids.at(focus);
-                  DrawBoxAroundObj(parser::Mappable({droid.id, droid.x, droid.y}), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
+				  DrawBoxAroundObj(parser::Mappable({droid.id, droid.x, droid.y}), glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
               }
           }
       }
@@ -303,30 +304,33 @@ namespace visualizer
       renderer->drawRotatedTexturedQuad(-1, m_mapHeight, 1 , 1, 1, 270, "rivet_corner");
       renderer->drawRotatedTexturedQuad(m_mapWidth, m_mapHeight, 1, 1, 1, 180, "rivet_corner");
 
-      if(time > nextGust + gustLength)
-      {
-          nextGust = time + rand() % 4 + 4.0f;
-          direction = !direction;
-      }
+	  if(options->getNumber("Enable Dust Effect") > 0)
+	  {
+		  if(time > nextGust + gustLength)
+		  {
+			  nextGust = time + rand() % 4 + 4.0f;
+			  direction = !direction;
+		  }
 
-      if(time > nextGust)
-      {
-        float alphaValue = 0.15f * sin( ((time - nextGust)/ gustLength) * 3.141592f );
-        renderer->setColor({1.0f, 1.0f, 1.0f, alphaValue});
-      }
-      else
-      {
-        renderer->setColor({1.0f, 1.0f, 1.0f,0.0f});
-      }
+		  if(time > nextGust)
+		  {
+			float alphaValue = 0.15f * sin( ((time - nextGust)/ gustLength) * 3.141592f );
+			renderer->setColor({1.0f, 1.0f, 1.0f, alphaValue});
+		  }
+		  else
+		  {
+			renderer->setColor({1.0f, 1.0f, 1.0f,0.0f});
+		  }
 
-      if (direction)
-      {
-        renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
-      }
-      else
-      {
-        renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", -fmod(time, 1.0f) * 5, fmod(time, 1.0f));
-      }
+		  if (direction)
+		  {
+			renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+		  }
+		  else
+		  {
+			renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", -fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+		  }
+	  }
 
 	  if(options->getNumber("Enable Grid Lines") > 0)
 	  {
@@ -773,10 +777,11 @@ namespace visualizer
 		  if(!bAnimationSprite)
 		  {
 
-              sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.15f,
-                                                                unit.healthLeft / (float)unit.maxHealth,
-                                                                  glm::vec4(GetTeamColor(unit.owner), 1.0f),nextflipped[unit.id]));
-
+              sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.075f,
+                                                                glm::vec4(GetTeamColor(unit.owner),1.0f),nextflipped[unit.id],
+																unit.healthLeft / (float)unit.maxHealth,
+                                                                unit.armor / (float)unit.maxArmor
+                                                                ));
 		  }
 		  else
 		  {
@@ -784,7 +789,10 @@ namespace visualizer
 															   glm::vec4(GetTeamColor(unit.owner),1.0f),
                                                                numFrame,
                                                                nextflipped[unit.id],
-                                                               0.5f));
+                                                               1.5f,
+                                                              unit.healthLeft / (float)unit.maxHealth,
+                                                              unit.armor / (float)unit.maxArmor));
+
 		  }
 		  turn.addAnimatable(sprite);
 
