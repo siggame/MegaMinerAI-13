@@ -1,0 +1,7 @@
+﻿To debug your client in Visual Studio:
+  1. Right-click the CSClient project and choose "Properties".
+  2. In the "Debug" tab, add the following commandline argument: droids.lordcheeto.com
+    a. The droids.lordcheeto.com server is a special build with no timeout.
+  3. Run an opponent ai with csclient.exe droids.lordcheeto.com <game number>.
+
+Breakpoint away!
