@@ -205,33 +205,37 @@ namespace visualizer
 
   void Droids::DrawBoxAroundObj(const parser::Mappable& obj, const glm::vec4 &color) const
   {
+      float posFix = 1.3;
       renderer->setColor(Color(color.r, color.g, color.b, color.a));
-      renderer->drawLine(obj.x + 0.1f, obj.y + 0.1f, obj.x + 0.9, obj.y + 0.1);
-      renderer->drawLine(obj.x + 0.1f, obj.y + 0.1f, obj.x + 0.1, obj.y + 0.9);
-      renderer->drawLine(obj.x + 0.9f, obj.y + 0.1f, obj.x + 0.9, obj.y + 0.9);
-      renderer->drawLine(obj.x + 0.1f, obj.y + 0.9f, obj.x + 0.9, obj.y + 0.9);
+      renderer->drawLine(obj.x + 0.1f +posFix, obj.y + 0.1f+posFix, obj.x + 0.9+posFix, obj.y + 0.1 +posFix);
+      renderer->drawLine(obj.x + 0.1f+posFix, obj.y + 0.1f+posFix, obj.x + 0.1+posFix, obj.y + 0.9+posFix);
+      renderer->drawLine(obj.x + 0.9f+posFix, obj.y + 0.1f+posFix, obj.x + 0.9+posFix, obj.y + 0.9+posFix);
+      renderer->drawLine(obj.x + 0.1f+posFix, obj.y + 0.9f+posFix, obj.x + 0.9+posFix, obj.y + 0.9+posFix);
     }
 
   void Droids::DrawBoxAroundObj(const glm::vec2 topLeft, const int width, const int height, const glm::vec4 color) const
   {
+      float posFix = 1.3;
       renderer->setColor(Color(color.r, color.g, color.b, color.a));
-      renderer->drawLine(topLeft.x + 0.1f, topLeft.y + 0.1f, topLeft.x + (width - 0.1), topLeft.y + 0.1);
-      renderer->drawLine(topLeft.x + 0.1f, topLeft.y + 0.1f, topLeft.x + 0.1, topLeft.y + (height - 0.1));
-      renderer->drawLine(topLeft.x + (width - 0.1), topLeft.y + 0.1f, topLeft.x + (width - 0.1), topLeft.y + (height - 0.1));
-      renderer->drawLine(topLeft.x + 0.1f, topLeft.y + (height - 0.1), topLeft.x + (width - 0.1), topLeft.y + (height - 0.1));
+      renderer->drawLine(topLeft.x + 0.1f+posFix, topLeft.y + 0.1f+posFix, topLeft.x + (width - 0.1)+posFix, topLeft.y + 0.1+posFix);
+      renderer->drawLine(topLeft.x + 0.1f+posFix, topLeft.y + 0.1f+posFix, topLeft.x + 0.1+posFix, topLeft.y + (height - 0.1)+posFix);
+      renderer->drawLine(topLeft.x + (width - 0.1)+posFix, topLeft.y + 0.1f+posFix, topLeft.x + (width - 0.1)+posFix, topLeft.y + (height - 0.1)+posFix);
+      renderer->drawLine(topLeft.x + 0.1f+posFix, topLeft.y + (height - 0.1)+posFix, topLeft.x + (width - 0.1)+posFix, topLeft.y + (height - 0.1)+posFix);
 
   }
 
   void Droids::DrawQuadAroundObj(const parser::Mappable& obj, const glm::vec4 &color) const
   {
+      float posFix = 1.3;
       renderer->setColor( Color( color.r, color.g, color.b, color.a) );
-      renderer->drawQuad(obj.x,obj.y,1,1);
+      renderer->drawQuad(obj.x+posFix,obj.y+posFix,1,1);
   }
 
   void Droids::DrawQuadAroundObj(const glm::vec2 topLeft, const int width, const int height, const glm::vec4 color) const
   {
+      float posFix = 1.3;
       renderer->setColor(Color(color.r, color.g, color.b, color.a));
-          renderer->drawQuad(topLeft.x, topLeft.y, width, height);
+          renderer->drawQuad(topLeft.x+posFix, topLeft.y+posFix, width, height);
   }
 
   std::list<int> Droids::getSelectedUnits()
