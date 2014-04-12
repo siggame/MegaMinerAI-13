@@ -1,8 +1,8 @@
 <options>
   <option>
-    <key>Check Box</key>
+    <key>Enable Grid Lines</key>
     <type>Integer</type>
-    <value>1</value>
+    <value>0</value>
     <minvalue>0</minvalue>
     <maxvalue>1</maxvalue>
   </option>
