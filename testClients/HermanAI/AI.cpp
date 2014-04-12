@@ -46,7 +46,7 @@ void AI::spawnDemDroids()
 {
   spawnX=rand()%mapWidth();
   spawnY=rand()%mapHeight();
-  int unitType=TERMINATOR;
+  int unitType=HACKER;
   if(players[playerID()].scrapAmount() >= modelVariants[unitType].cost())
   {
     if(getTile(spawnX, spawnY)->turnsUntilAssembled() == 0)
@@ -129,7 +129,7 @@ void AI::doStuffs()
        (droids[i].owner() != playerID() && droids[i].hackedTurnsLeft() > 0))
     {
       //if there are any moves to be done
-      Droid* droid = getNearestHangar(droids[i].x(), droids[i].y());
+      Droid* droid = getNearestEnemy(droids[i].x(), droids[i].y());
       moveTo(droids[i], droid->x(), droid->y());
      
       //if there are any attacks left
@@ -266,6 +266,26 @@ Droid* AI::getNearestHangar(int xloc, int yloc)
     }
   }
   return enemyHangars[hangarNum];
+}
+
+Droid* AI::getNearestEnemy(int xloc, int yloc)
+{
+  int minDist=10000;
+  int xMin, yMin;
+  int distance;
+  int droidNum;
+  for(int i=0; i<enemyDroids.size(); i++)
+  {
+    distance = abs(enemyDroids[i]->x()-xloc) + abs(enemyDroids[i]->y()-yloc);
+    if(distance<minDist && distance !=0)
+    {
+      minDist=distance;
+      xMin=enemyDroids[i]->x();
+      yMin=enemyDroids[i]->y();
+      droidNum=i;
+    }
+  }
+  return enemyDroids[droidNum];
 }
 
 bool AI::validMove(const int x, const int y)
