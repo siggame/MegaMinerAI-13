@@ -62,3 +62,6 @@ visualizer/Makefile
 
 #Build Logs don't go in the repository
 *build.log*
+
+common
+interfaces
