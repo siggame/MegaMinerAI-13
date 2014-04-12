@@ -67,13 +67,13 @@ class AI(BaseAI):
 
   def run(self):
 
-    if self.dropY == self.maxY or self.dropY == self.minY:
-      self.players[self.playerID].orbitalDrop((self.mapWidth - 1)*self.playerID, self.dropY, self.randVars[random.randint(0,3)])
-    else:
-      self.players[self.playerID].orbitalDrop(self.dropX, self.dropY, self.randVars[random.randint(0,3)])
-    self.dropY += 1
-    if self.dropY > self.maxY:
-      self.dropY = self.minY
+    #if self.dropY == self.maxY or self.dropY == self.minY:
+    #  self.players[self.playerID].orbitalDrop((self.mapWidth - 1)*self.playerID, self.dropY, self.randVars[random.randint(0,3)])
+    #else:
+    #  self.players[self.playerID].orbitalDrop(self.dropX, self.dropY, self.randVars[random.randint(0,3)])
+    #self.dropY += 1
+    #if self.dropY > self.maxY:
+    #  self.dropY = self.minY
 
     meh = self.randVars[random.randint(0,3)]
 
