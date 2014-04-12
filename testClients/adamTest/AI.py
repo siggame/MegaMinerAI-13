@@ -62,23 +62,28 @@ class AI(BaseAI):
 
   ##This function is called each time it is your turn
   ##Return true to end your turn, return false to ask the server for updated information
+
+  randVars = [0,1,4,6]
+
   def run(self):
 
     if self.dropY == self.maxY or self.dropY == self.minY:
-      self.players[self.playerID].orbitalDrop((self.mapWidth - 1)*self.playerID, self.dropY, 6)
+      self.players[self.playerID].orbitalDrop((self.mapWidth - 1)*self.playerID, self.dropY, self.randVars[random.randint(0,3)])
     else:
-      self.players[self.playerID].orbitalDrop(self.dropX, self.dropY, 6)
+      self.players[self.playerID].orbitalDrop(self.dropX, self.dropY, self.randVars[random.randint(0,3)])
     self.dropY += 1
     if self.dropY > self.maxY:
       self.dropY = self.minY
 
-    while self.players[self.playerID].scrapAmount >= 70:
+    meh = self.randVars[random.randint(0,3)]
+
+    while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost:
       xDROPU = random.randint(0, self.mapWidth/2)
       yDROPU = random.randint(0, self.mapHeight/2)
       if self.playerID == 1:
         xDROPU = self.mapWidth - xDROPU - 1
         yDROPU = self.mapHeight - yDROPU - 1
-      while not self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, 6):
+      while not self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, meh):
         xDROPU = random.randint(0, self.mapWidth)
         yDROPU = random.randint(0, self.mapHeight)
         if self.playerID == 1:
@@ -92,20 +97,15 @@ class AI(BaseAI):
         movez = droid.maxMovement
         while movez > 0:
           movey = 1
-          droid.operate(droid.x + self.change, droid.y)
-          droid.operate(droid.x + self.change, droid.y)
-          droid.operate(droid.x - self.change, droid.y)
-          droid.operate(droid.x - self.change, droid.y)
-          #attack around too
-          droid.operate(droid.x, droid.y - 1)
-          droid.operate(droid.x, droid.y - 1)
-          droid.operate(droid.x, droid.y + 1)
-          droid.operate(droid.x, droid.y + 1)
+          for droid2 in self.droids:
+            if droid2.owner != self.playerID:
+              if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) < droid.range:
+                droid.operate(droid2.x, droid2.y)
 
           move = True
           for droid2 in self.droids:
             if droid2.id != droid.id:
-              if abs(droid2.y - droid.y) + abs(droid2.x - droid.x) == 1:
+              if abs(droid2.y - droid.y) + abs(droid2.x - droid.x) <= droid.range:
                 if droid2.owner != droid.owner:
                   move = False
 
@@ -120,7 +120,6 @@ class AI(BaseAI):
               self.distance = 99999
               for target in self.droids:
                 if target.variant == 7 and target.owner != self.playerID:
-                  print (abs(target.x - droid.x) + abs(target.y - droid.y))
                   if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
                     self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                     target2 = target
@@ -135,15 +134,10 @@ class AI(BaseAI):
               elif target.y < droid.y:
                 droid.move(droid.x, droid.y - 1)
 
-          droid.operate(droid.x + self.change, droid.y)
-          droid.operate(droid.x + self.change, droid.y)
-          droid.operate(droid.x - self.change, droid.y)
-          droid.operate(droid.x - self.change, droid.y)
-          #attack around too
-          droid.operate(droid.x, droid.y - 1)
-          droid.operate(droid.x, droid.y - 1)
-          droid.operate(droid.x, droid.y + 1)
-          droid.operate(droid.x, droid.y + 1)
+          for droid2 in self.droids:
+            if droid2.owner != self.playerID:
+              if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) < droid.range:
+                droid.operate(droid2.x, droid2.y)
           movez -= 1
       elif droid.variant == 4:
         for droid2 in self.droids:
