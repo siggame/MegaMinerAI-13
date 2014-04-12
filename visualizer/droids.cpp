@@ -850,6 +850,8 @@ namespace visualizer
 
           if(tile.second.turnsUntilAssembled > 2 && tile.second.owner == 0 || tile.second.owner == 1)
           {
+              std::string variant;
+              std::string timetilldrop;
               std::stringstream stream;
 
               SmartPointer<BaseSprite> reticle;
@@ -857,14 +859,13 @@ namespace visualizer
               glm::vec3 col = GetTeamColor(tile.second.owner);
               reticle->addKeyFrame(new DrawDeltaScalar(reticle, glm::vec4(col.x, col.y, col.z, 0.5), glm::vec2(0.8, 0.8), glm::vec2(1.0f, 1.0f)));
 
-
+              stream.str(variant);
               stream << tile.second.variantToAssemble;
               reticle->addKeyFrame(new DrawTextBox(stream.str(), glm::vec2(tile.second.x + 0.95, tile.second.y + 0.55), glm::vec4(1.0f), 1.6f, IRenderer::Alignment::Right));
-              stream.clear();
-              stream.flush();
 
+              stream.str(timetilldrop);
               stream << tile.second.turnsUntilAssembled;
-              reticle->addKeyFrame(new DrawTextBox(stream.str(), glm::vec2(tile.second.x + 0.65, tile.second.y + 0.55), glm::vec4(1.0f), 1.6f, IRenderer::Alignment::Right));
+              reticle->addKeyFrame(new DrawTextBox(stream.str(), glm::vec2(tile.second.x - 0.02f, tile.second.y + 0.55), glm::vec4(1.0f), 1.6f, IRenderer::Alignment::Left));
 
               turn.addAnimatable(reticle);
 
