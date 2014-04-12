@@ -212,8 +212,6 @@ class Match(DefaultGameWorld):
 
     self.createhangars()
 
-    self.variantStrings = {variants.variant:variants.name for variants in self.objects.modelVariants}
-
     self.nextTurn()
     return True
 
