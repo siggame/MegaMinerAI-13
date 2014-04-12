@@ -67,7 +67,7 @@ bool AI::run()
 {
   //try to spawn a claw near your side
   //make sure you own enough scrap
-  if(players[playerID()].scrapAmount() > modelVariants[CLAW].cost())
+  if(players[playerID()].scrapAmount() >= modelVariants[CLAW].cost())
   {
     //make sure nothing is spawning there
     if(getTile(spawnX, spawnY)->turnsUntilAssembled() == 0)
