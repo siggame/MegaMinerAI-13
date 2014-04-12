@@ -10,6 +10,7 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #pragma comment(lib, "Ws2_32.lib")
+#pragma warning(disable : 4996)
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>

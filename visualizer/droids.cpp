@@ -328,17 +328,20 @@ namespace visualizer
         renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", -fmod(time, 1.0f) * 5, fmod(time, 1.0f));
       }
 
-	  // Draw horizontal lines
-	  renderer->setColor({0.0f,0.0f,0.0f,1.0f});
-	  for(int i = 0; i <= m_mapHeight; i++)
+	  if(options->getNumber("Enable Grid Lines") > 0)
 	  {
-		  renderer->drawLine(0,i,m_mapWidth,i,1.0f);
-	  }
+		  // Draw horizontal lines
+		  renderer->setColor({0.0f,0.0f,0.0f,1.0f});
+		  for(int i = 0; i <= m_mapHeight; i++)
+		  {
+			  renderer->drawLine(0,i,m_mapWidth,i,1.0f);
+		  }
 
-	  // Draw vertical lines
-	  for(int i = 0; i <= m_mapWidth; i++)
-	  {
-		  renderer->drawLine(i,0,i,m_mapHeight,1.0f);
+		  // Draw vertical lines
+		  for(int i = 0; i <= m_mapWidth; i++)
+		  {
+			  renderer->drawLine(i,0,i,m_mapHeight,1.0f);
+		  }
 	  }
   }
 
@@ -595,11 +598,22 @@ namespace visualizer
         }
     }
 
+	SmartPointer<SplashScreen> splashScreen = new SplashScreen(m_game->winReason,GetTeamColor(m_game->winner),
+															   m_mapWidth,
+															   m_mapHeight);
+
+	splashScreen->addKeyFrame(new DrawSplashScreen(splashScreen));
+
 	// Look through each turn in the gamelog
 	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
     {
         PrepareTiles(state, *turn, *nextTurn);
         PrepareUnits(state, *turn, *nextTurn);
+
+		if(state >= (int)(m_game->states.size() - 1))
+		{
+			turn->addAnimatable(splashScreen);
+		}
 
         animationEngine->buildAnimations(*turn);
         addFrame(*turn);
@@ -688,10 +702,6 @@ namespace visualizer
                       {
                           parser::move& move = (parser::move&)*anim;
                           sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(move.toX, move.toY), glm::vec2(move.fromX, move.fromY)));
-                          break;
-                      }
-                      case parser::SPAWN:
-                      {
                           break;
                       }
                       case parser::HACK:

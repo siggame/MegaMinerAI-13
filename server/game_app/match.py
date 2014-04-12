@@ -82,7 +82,7 @@ class Match(DefaultGameWorld):
   
 
   def createhangars(self):
-    return self.createhangars1()
+    return self.createhangars2()
 
   def createhangars2(self):
     offsets = [(0,1),(0,-1),(1,0),(-1,0),(1,1),(-1,1),(1,-1),(-1,-1)]
@@ -113,7 +113,7 @@ class Match(DefaultGameWorld):
         nodes.append(randc)
 
         val = random.random()
-        if val > .30:
+        if val > .20:
           variant = self.variantToModelVariant(7)
         elif val > .05:
           variant = self.variantToModelVariant(5)
