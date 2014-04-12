@@ -3,6 +3,8 @@
 
 #include "droidsAnimatable.h"
 #include <glm/glm.hpp>
+#include <ctime>
+#include <chrono>
 
 namespace visualizer
 {
@@ -16,10 +18,10 @@ namespace visualizer
 	void RenderProgressBar(const IRenderer& renderer,
 						   float xPos, float yPos,
 						   float width, float height,
-						   float A, float B,
+                           float A, float B,
 						   const Color& col, const Color& backgroundColor = Color(0,0,0,0.8f),
 						   ProgressBarTextMode textMode = Off,
-						   bool bDrawDivider = false);
+                           bool bDrawDivider = false);
 
 	// NOTE: consider combining color sprite and DrawSprite since they are
 	//    essentially the same, except that DrawSprite is drawn with white.
@@ -141,6 +143,27 @@ namespace visualizer
     private:
         BaseSprite * m_Sprite;
         static float m_Rotation;
+    };
+
+    class DrawDeltaScalar :
+        public ColorSprite\
+    {
+    public:
+        DrawDeltaScalar(BaseSprite* sprite, const glm::vec4 c, const glm::vec2 start, const glm::vec2 end) :
+            ColorSprite(c),
+            m_Sprite(sprite),
+            m_Start(start),
+            m_End(end)
+            {}
+
+        void animate(const float& t, AnimData* d, IGame * game);
+
+    private:
+        BaseSprite* m_Sprite;
+        glm::vec2 m_Start;
+        glm::vec2 m_End;
+        float m_Scale;
+        std::chrono::steady_clock::time_point m_prev;
     };
 
 	class DrawProgressBar : public Anim

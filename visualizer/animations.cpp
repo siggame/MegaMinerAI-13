@@ -141,6 +141,31 @@ namespace visualizer
         game->renderer->drawRotatedTexturedQuad(m_Sprite->m_pos.x, m_Sprite->m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, 1.0f, m_Rotation, m_Sprite->m_sprite);
     }
 
+    void DrawDeltaScalar::animate(const float& t, AnimData* d, IGame * game)
+    {
+        const float deltaScale = 3.141592f *2;
+        /*
+        std::chrono::steady_clock::time_point newTime = std::chrono::steady_clock::now();
+        std::chrono::steady_clock::duration duration = newTime - m_prev;
+
+        double dt = double(duration.count()) * std::chrono::steady_clock::period::num / std::chrono::steady_clock::period::den;
+        m_prev = newTime;*/
+        ColorSprite::animate(t,d,game);
+        game->renderer->push();
+
+        float xScale = (m_End.x - m_Start.x)/2 * sin(deltaScale *t) + (m_End.x-m_Start.x)/2;
+        float yScale = (m_End.y - m_Start.y)/2 * sin(deltaScale * t) + (m_End.y - m_Start.y)/2;
+
+        game->renderer->translate(m_Sprite->m_pos.x + (0.5 - (m_Start.x + xScale)/2),
+                                  m_Sprite->m_pos.y + (0.5 - (m_Start.y + yScale)/2));
+        game->renderer->scale(m_Start.x + xScale, m_Start.y + yScale);
+
+        game->renderer->drawTexturedQuad(0, 0, 1, 1, 1, "med_reticle");
+
+        game->renderer->pop();
+
+    }
+
 	void DrawAnimatedSprite::animate(const float &t, AnimData*d, IGame* game)
 	{
 		ColorSprite::animate(t, d, game);

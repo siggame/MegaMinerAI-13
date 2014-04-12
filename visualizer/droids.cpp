@@ -486,9 +486,7 @@ namespace visualizer
 
                   renderer->setColor(Color(col.x*0.5, col.y *0.5, col.z * 0.5, 1.0f));
                   renderer->drawCircle(pieCenterX, pieCenterY, pieChartRadius, 1 - percentScrap, pieChartResolution, 2*PI * percentScrap);
-
                }
-
           }
 
 
@@ -790,7 +788,7 @@ namespace visualizer
               SmartPointer<BaseSprite> reticle;
               reticle = new BaseSprite(glm::vec2(tile.second.x, tile.second.y), glm::vec2(1, 1), "med_reticle");
               glm::vec3 col = GetTeamColor(tile.second.owner);
-              reticle->addKeyFrame(new DrawDeltaRotater(reticle, glm::vec4(col.x, col.y, col.z, 0.5)));
+              reticle->addKeyFrame(new DrawDeltaScalar(reticle, glm::vec4(col.x, col.y, col.z, 0.5), glm::vec2(0.8, 0.8), glm::vec2(1.0f, 1.0f)));
               turn.addAnimatable(reticle);
           }
 
