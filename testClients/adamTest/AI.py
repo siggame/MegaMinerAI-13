@@ -132,10 +132,21 @@ class AI(BaseAI):
               target2 = None
               self.distance = 99999
               for target in self.droids:
-                if target.variant == 7 and target.owner != self.playerID:
-                  if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
-                    self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
-                    target2 = target
+                if droid.attack > 0 and droid.variant != 3:
+                  if target.variant == 7 and target.owner != self.playerID:
+                    if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
+                      self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
+                      target2 = target
+                elif droid.attack < 0:
+                  if target.variant != 7 and target.owner != self.playerID:
+                    if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
+                      self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
+                      target2 = target
+                else:
+                  if target.owner == self.playerID:
+                    if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
+                      self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
+                      target2 = target
 
               target = target2
               if target.x > droid.x:
