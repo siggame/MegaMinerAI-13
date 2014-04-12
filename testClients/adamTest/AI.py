@@ -88,7 +88,7 @@ class AI(BaseAI):
     for droid in self.droids:
       if ((droid.owner == self.playerID and droid.hackedTurnsLeft <= 0) or\
           (droid.owner != self.playerID and droid.hackedTurnsLeft > 0))\
-           and droid.variant != 7 and droid.variant != 5:
+           and droid.variant != 7 and droid.variant != 5 and droid.variant != 4:
         movez = droid.maxMovement
         while movez > 0:
           movey = 1
@@ -124,6 +124,11 @@ class AI(BaseAI):
           droid.operate(droid.x, droid.y + 1)
           droid.operate(droid.x, droid.y + 1)
           movez -= 1
+      elif droid.variant == 4:
+        for droid2 in self.droids:
+          if droid2.owner != self.playerID:
+            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) < droid.range:
+              droid.operate(droid2.x, droid2.y)
     return 1
 
   def __init__(self, conn):
