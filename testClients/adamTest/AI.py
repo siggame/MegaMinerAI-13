@@ -63,32 +63,33 @@ class AI(BaseAI):
   ##This function is called each time it is your turn
   ##Return true to end your turn, return false to ask the server for updated information
 
-  randVars = [0,1,4,6]
+  randVars = [0,1,6]
 
   def run(self):
 
-    if self.dropY == self.maxY or self.dropY == self.minY:
-      self.players[self.playerID].orbitalDrop((self.mapWidth - 1)*self.playerID, self.dropY, self.randVars[random.randint(0,3)])
-    else:
-      self.players[self.playerID].orbitalDrop(self.dropX, self.dropY, self.randVars[random.randint(0,3)])
-    self.dropY += 1
-    if self.dropY > self.maxY:
-      self.dropY = self.minY
+    #if self.dropY == self.maxY or self.dropY == self.minY:
+    #  self.players[self.playerID].orbitalDrop((self.mapWidth - 1)*self.playerID, self.dropY, self.randVars[random.randint(0,3)])
+    #else:
+    #  self.players[self.playerID].orbitalDrop(self.dropX, self.dropY, self.randVars[random.randint(0,3)])
+    #self.dropY += 1
+    #if self.dropY > self.maxY:
+    #  self.dropY = self.minY
 
-    meh = self.randVars[random.randint(0,3)]
+    meh = self.randVars[random.randint(0,2)]
 
-    while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost:
-      xDROPU = random.randint(0, self.mapWidth/2)
-      yDROPU = random.randint(0, self.mapHeight/2)
-      if self.playerID == 1:
-        xDROPU = self.mapWidth - xDROPU - 1
-        yDROPU = self.mapHeight - yDROPU - 1
-      while not self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, meh):
-        xDROPU = random.randint(0, self.mapWidth)
-        yDROPU = random.randint(0, self.mapHeight)
+    if self.players[self.playerID].scrapAmount > 80:
+      while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost:
+        xDROPU = random.randint(0, 1)
+        yDROPU = random.randint(0, self.mapHeight/2)
         if self.playerID == 1:
           xDROPU = self.mapWidth - xDROPU - 1
           yDROPU = self.mapHeight - yDROPU - 1
+        while not self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, meh):
+          xDROPU = random.randint(0, self.mapWidth)
+          yDROPU = random.randint(0, self.mapHeight)
+          if self.playerID == 1:
+            xDROPU = self.mapWidth - xDROPU - 1
+            yDROPU = self.mapHeight - yDROPU - 1
 
     for droid in self.droids:
       if ((droid.owner == self.playerID and droid.hackedTurnsLeft <= 0) or\
@@ -97,7 +98,7 @@ class AI(BaseAI):
         bleh = []
         for droid2 in self.droids:
           if droid2.owner != self.playerID:
-            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) < droid.range + droid.maxMovement:
+            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range + droid.maxMovement:
               bleh.append(droid2)
         movez = droid.maxMovement
         while movez > 0:

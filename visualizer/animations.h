@@ -199,11 +199,33 @@ namespace visualizer
 			m_Sprite(sprite)
 			{}
 
-		void animate( const float& t, AnimData* d, IGame* game );
+        void animate( const float& t, AnimData* d, IGame* game );
 
 	private:
 		AnimatedSprite * m_Sprite;
 	};
+
+    /** @name DrawRotatedAnimatedSprite
+     *  @inherits Anim
+     *  @purpose Will draw a rotated animated sprite. Must know the number of frames
+     *     contained in the sprite to render correctly
+     */
+    class DrawRotatedAnimatedSprite :
+        public ColorSprite
+    {
+    public:
+        DrawRotatedAnimatedSprite(AnimatedSprite* sprite, const glm::vec4& c, const float& degrees, Fade f = None) :
+            ColorSprite(c, f),
+            m_Sprite(sprite),
+            m_Rotation(degrees)
+            {}
+
+        void animate( const float& t, AnimData* d, IGame* game);
+
+    private:
+        AnimatedSprite * m_Sprite;
+        float m_Rotation;
+    };
 
 	/** @name DrawTextBox
 	  * @inherits Anim
