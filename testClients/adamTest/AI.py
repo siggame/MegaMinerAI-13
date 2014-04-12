@@ -91,13 +91,20 @@ class AI(BaseAI):
           self.players[self.playerID].orbitalDrop(xDROPU, yDROPU, meh)
 
     for droid in self.droids:
+      if droid.healthLeft == 0:
+        continue
       if ((droid.owner == self.playerID and droid.hackedTurnsLeft <= 0) or\
           (droid.owner != self.playerID and droid.hackedTurnsLeft > 0))\
            and droid.variant != 7 and droid.variant != 5:
         bleh = []
-        if droid.attack > 0:
+        if droid.variant == 3:
           for droid2 in self.droids:
             if droid2.owner != self.playerID:
+              if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range + droid.maxMovement:
+                bleh.append(droid2)
+        elif droid.attack > 0:
+          for droid2 in self.droids:
+            if droid2.owner != (self.playerID ^ (droid2.hackedTurnsLeft > 0)):
               if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range + droid.maxMovement:
                 bleh.append(droid2)
         else:
@@ -107,73 +114,64 @@ class AI(BaseAI):
                 bleh.append(droid2)
         #attack even if a turret
         for droid2 in bleh:
-          if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0 and droid2.healthLeft > 0:
+          if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0:
             droid.operate(droid2.x, droid2.y)
+
+        target2 = None
+        self.distance = 99999
+        for target in self.droids:
+          if droid.attack > 0 and droid.variant != 3:
+            if target.variant == 7 and target.owner != self.playerID:
+              if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
+                self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
+                target2 = target
+          elif droid.attack < 0:
+            if target.variant != 7 and target.owner == self.playerID and target.id != droid.id:
+              if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
+                self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
+                target2 = target
+          else:
+            if target.owner != self.playerID and target.hackedTurnsLeft == 0:
+              if target.variant != 7 and target.variant != 5:
+                if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
+                  self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
+                  target2 = target
+
         movez = droid.maxMovement
+
         while movez > 0:
           movez -= 1
           movey = 1
 
           for droid2 in bleh:
-            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0 and droid2.healthLeft > 0:
+            if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range and droid.attacksLeft > 0:
               droid.operate(droid2.x, droid2.y)
 
           move = True
           for droid2 in self.droids:
             if droid2.id != droid.id:
               if abs(droid2.y - droid.y) + abs(droid2.x - droid.x) <= droid.range:
-                if droid2.owner != droid.owner:
+                if droid2.owner != (self.playerID ^ (droid2.hackedTurnsLeft > 0)):
                   move = False
 
           if move and droid.movementLeft > 0:
-            #if ((droid.x <= self.mapWidth/2 and self.playerID == 0) or \
-            #   (droid.x >= self.mapWidth/2 and self.playerID == 1)):
-            #  print "YO IN HERE"
-            #  if droid.x  + self.change <= self.mapWidth and droid.x + self.change > 0:
-            #      if not droid.move(droid.x + self.change, droid.y):
-            #        if droid.y != 0:
-            #          if not droid.move(droid.x, droid.y - 1):
-            #            if droid.y != self.mapHeight - 1:
-            #              droid.move(droid.x, droid.y + 1)
-            #else:
-              target2 = None
-              self.distance = 99999
-              for target in self.droids:
-                if droid.attack > 0 and droid.variant != 3:
-                  if target.variant == 7 and target.owner != self.playerID:
-                    if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
-                      self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
-                      target2 = target
-                elif droid.attack < 0:
-                  if target.variant != 7 and target.owner == self.playerID and target.id != droid.id:
-                    if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
-                      self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
-                      target2 = target
-                else:
-                  if target.owner != self.playerID and target.hackedTurnsLeft == 0:
-                    if target.variant != 7 and target.variant != 5:
-                      if (abs(target.x - droid.x) + abs(target.y - droid.y)) < self.distance:
-                        self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
-                        target2 = target
-
-              target = target2
-              if target is not None:
-                if target.x > droid.x:
-                  if not droid.move(droid.x + 1, droid.y ):
-                    if not droid.move(droid.x, droid.y - 1):
-                      droid.move(droid.x, droid.y + 1)
-                elif target.x < droid.x:
-                  if not droid.move(droid.x - 1, droid.y ):
-                    if not droid.move(droid.x, droid.y - 1):
-                      droid.move(droid.x, droid.y + 1)
-                elif target.y > droid.y:
-                  if not droid.move(droid.x , droid.y + 1):
-                    if not droid.move(droid.x + self.change, droid.y):
-                      droid.move(droid.x - self.change, droid.y)
-                elif target.y < droid.y:
+            if target is not None:
+              if target.x > droid.x:
+                if not droid.move(droid.x + 1, droid.y ):
                   if not droid.move(droid.x, droid.y - 1):
-                    if not droid.move(droid.x + self.change, droid.y):
-                      droid.move(droid.x - self.change, droid.y)
+                    droid.move(droid.x, droid.y + 1)
+              elif target.x < droid.x:
+                if not droid.move(droid.x - 1, droid.y ):
+                  if not droid.move(droid.x, droid.y - 1):
+                    droid.move(droid.x, droid.y + 1)
+              elif target.y > droid.y:
+                if not droid.move(droid.x , droid.y + 1):
+                  if not droid.move(droid.x + self.change, droid.y):
+                    droid.move(droid.x - self.change, droid.y)
+              elif target.y < droid.y:
+                if not droid.move(droid.x, droid.y - 1):
+                  if not droid.move(droid.x + self.change, droid.y):
+                    droid.move(droid.x - self.change, droid.y)
 
     return 1
 
