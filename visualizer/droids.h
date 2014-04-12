@@ -114,7 +114,7 @@ namespace visualizer
 
             list<int> m_SelectedUnits;
 
-            static const unsigned int GRID_OFFSET = 2;
+            static const float GRID_OFFSET;
     }; 
 
 } // visualizer

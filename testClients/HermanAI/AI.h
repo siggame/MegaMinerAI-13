@@ -2,21 +2,24 @@
 #define AI_H
 
 #include "BaseAI.h"
-
+#include <iostream>
+#include <string>
+#include <cstdlib>
+#include <ctime>
+#include <cmath>
 ///The class implementing gameplay logic.
 class AI: public BaseAI
 {
+  int spawnX, spawnY;
 public:
   AI(Connection* c);
   virtual const char* username();
   virtual const char* password();
   virtual void init();
   virtual bool run();
-  virtual void spawn();
   virtual void end();
-  std::vector<Droid*> friendHangar;
-  std::vector<Droid*> enemyHangar;
-  Tile* getTile(const int x, const int y);
+  virtual Tile* getTile(int x, int y);
+  void spawnBitches();
 };
 
 #endif

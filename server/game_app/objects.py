@@ -232,16 +232,15 @@ class Droid(Mappable):
       target.handleDeath()
 
   def operate(self, x, y):
-    variantName = self.game.variantStrings[self.variant]
     #make sure valid for operating on either a droid or tile
     if not (0 <= x < self.game.mapWidth and 0 <= y < self.game.mapHeight):
       return "Turn %i: You may only operate in-bounds."%(self.game.turnNumber)
     elif self.owner != (self.game.playerID ^ (self.hackedTurnsLeft > 0)):
       return 'Turn {}: You cannot use the other player\'s droid when it\'s not hacked {}. ({},{}) -> ({},{})'.format(self.game.turnNumber, self.id, self.x, self.y, x, y)
     elif self.attacksLeft == 0:
-      return "Turn %i: Your %s has no attacks left."%(self.game.turnNumber, variantName)
+      return "Turn %i: Droid %i has no attacks left."%(self.game.turnNumber, self.id)
     elif self.healthLeft <= 0:
-      return "Turn %i: Your %s does not have any health left."%(self.game.turnNumber, variantName)
+      return "Turn %i: Droid %i does not have any health left."%(self.game.turnNumber, self.id)
 
     #separate this out so it makes more sense/easier to change
     hackerVariantVal = 3
@@ -255,17 +254,16 @@ class Droid(Mappable):
       target = self.game.grid[x][y][1]
       targetId = target.id
       #droid logic here
-      opponentName = self.game.variantStrings[target.variant]
       if self.attack < 0 and target.owner != (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
-        return "Turn %i: Your %s cannot heal the %s."%(self.game.turnNumber, variantName, opponentName)
+        return "Turn %i: Droid %i cannot heal droid %i."%(self.game.turnNumber, self.id, target.id)
       elif self.taxiDist(self, target.x, target.y) > self.range:
-        return "Turn %i: The opponent's %s is too far away from your %s."%(self.game.turnNumber, opponentName, variantName)
+        return "Turn %i: Droid %i is too far away from droid %i."%(self.game.turnNumber, target.id, self.id)
       elif self.variant == hackerVariantVal and target.hackedTurnsLeft > 0 and target.owner == self.game.playerID:
-        return "Turn %i: Your %s cannot operate on your %s."%(self.game.turnNumber, variantName, opponentName)
+        return "Turn %i: Droid %i cannot operate on droid %i."%(self.game.turnNumber, self.id, target.id)
       elif self.attack > 0 and target.owner == (self.game.playerID ^ (target.hackedTurnsLeft > 0)):
-        return "Turn %i: Your %s cannot operate on the %s."%(self.game.turnNumber, variantName, opponentName)
+        return "Turn %i: Droid %i cannot operate on droid %i."%(self.game.turnNumber, self.id, target.id)
       elif self.variant == hackerVariantVal and (target.variant == wall or target.variant == hangar):
-        return "Turn %i: Your %s cannot operate on a wall or a hangar"%(self.game.turnNumber, variantName)
+        return "Turn %i: Droid %i cannot operate on a wall or a hangar"%(self.game.turnNumber, self.id)
 
       if self.attack < 0:
         #heal the armor by the attack amount [attack is negative, subtracting will increase]
@@ -285,7 +283,7 @@ class Droid(Mappable):
           target.hackets = 0
 
     else:
-      return "Turn %i: Your %s cannot operate on an empty tile."%(self.game.turnNumber, variantName)
+      return "Turn %i: Droid %i cannot operate on an empty tile."%(self.game.turnNumber, self.id)
 
     self.attacksLeft -= 1
     if self.attack > 0 and self.variant != hackerVariantVal:

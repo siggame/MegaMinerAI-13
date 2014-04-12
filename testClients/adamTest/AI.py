@@ -7,11 +7,11 @@ class AI(BaseAI):
   """The class implementing gameplay logic."""
   @staticmethod
   def username():
-    return "Shell AI"
+    return "Pell, May I?"
 
   @staticmethod
   def password():
-    return "password"
+    return "He's bigger, faster, and stronger too."
 
   ##This function is called once, before your first turn
   def init(self):
