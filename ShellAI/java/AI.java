@@ -5,14 +5,14 @@ public class AI extends BaseAI
 {
   int spawnX, spawnY;
   //variant numbers
-  int CLAW = 0;
-  int ARCHER = 1;
-  int REPAIRER = 2;
-  int HACKER = 3;
-  int TURRET = 4;
-  int WALL = 5;
-  int TERMINATOR = 6;
-  int HANGAR = 7;
+  public static final int CLAW = 0,
+                          ARCHER = 1,
+                          REPAIRER = 2,
+                          HACKER = 3,
+                          TURRET = 4,
+                          WALL = 5,
+                          TERMINATOR = 6,
+                          HANGAR = 7;
   
   public String username()
   {
