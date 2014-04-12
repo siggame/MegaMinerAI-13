@@ -35,6 +35,24 @@ def get_empty_cells_in_range(game, x_center, y_center, r):
     return cells
 
 
+def optimal_attack_position(game, attacker, target):
+    best_dis = 0
+    best_position = None
+    for x in range(target.x - attacker.range, target.y + attacker.range + 1):
+        d = attacker.range - abs(x - target.x)
+        for y in range(target.y - d, target.y + d + 1):
+            distance = manhattan(attacker.x, attacker.y, x, y)
+            if inbox(0, 0, game.mapWidth - 1, game.mapHeight - 1, x, y) and\
+                    len(game.grid[x][y]) == 1 and\
+                    distance <= attacker.movementLeft:
+                if distance > best_dis:
+                    best_dis = distance
+                    best_position = game.grid[x][y][0]
+                    if distance == attacker.movementLeft:
+                        return best_position
+    return best_position
+
+
 def a_star_max(game, x1, y1, x2, y2, max_cost):
     if (x1 == x2 and y1 == y2) or max_cost == 0:
         return []

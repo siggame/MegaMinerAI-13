@@ -598,11 +598,22 @@ namespace visualizer
         }
     }
 
+	SmartPointer<SplashScreen> splashScreen = new SplashScreen(m_game->winReason,GetTeamColor(m_game->winner),
+															   m_mapWidth,
+															   m_mapHeight);
+
+	splashScreen->addKeyFrame(new DrawSplashScreen(splashScreen));
+
 	// Look through each turn in the gamelog
 	for(int state = 0; state < (int)m_game->states.size() && !m_suicide; state++)
     {
         PrepareTiles(state, *turn, *nextTurn);
         PrepareUnits(state, *turn, *nextTurn);
+
+		if(state >= (int)(m_game->states.size() - 1))
+		{
+			turn->addAnimatable(splashScreen);
+		}
 
         animationEngine->buildAnimations(*turn);
         addFrame(*turn);

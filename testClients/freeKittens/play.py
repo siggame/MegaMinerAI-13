@@ -61,3 +61,26 @@ def play_fast(game):
     for kitten in available_kittens:
         toy = random.choice(interesting_toys)
         move_towards(game, kitten, toy.x, toy.y)
+
+
+def play_greedy(game):
+    nearest_toy = game.toys_by_x[0]
+    for kitten in game.kittens:
+        if kitten.movementLeft and kitten.attacksLeft:
+            for toy in game.toys_by_x:
+                if tools.manhattan(kitten.x, kitten.y, toy.x, toy.y) <= kitten.range + kitten.movementLeft:
+                    best_position = tools.optimal_attack_position(game, kitten, toy)
+                    if best_position:
+                        move_to(game, kitten, best_position.x, best_position.y)
+                    while kitten.attacksLeft and toy.healthLeft > 0:
+                        if not kitten.operate(toy.x, toy.y):
+                            break
+                    if toy.healthLeft <= 0:
+                        game.toys_by_x.remove(toy)
+                        game.toys.remove(toy)
+                        game.toys_by_health.remove(toy)
+                        break
+                    if kitten.attacksLeft == 0:
+                        break
+            else:
+                move_towards(game, kitten, nearest_toy.x, nearest_toy.y)
