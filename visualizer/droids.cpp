@@ -9,6 +9,8 @@
 
 namespace visualizer
 {
+  const float Droids::GRID_OFFSET = 1.3f;
+
   Droids::Droids()
   {
     m_game = 0;
@@ -238,7 +240,7 @@ namespace visualizer
 
   glm::vec3 Droids::GetTeamColor(int owner) const
   {
-    return owner == 1 ? glm::vec3(0.5f,1.0f,0.5f) : glm::vec3(0.5f,0.5f,1.0f);
+    return owner == 1 ? glm::vec3(0.75f,1.0f,0.75f) : glm::vec3(0.75f,0.75f,1.0f);
   }
 
   PluginInfo Droids::getPluginInfo()
@@ -343,7 +345,7 @@ namespace visualizer
   void Droids::DrawHUD() const
   {
       float x = m_mapWidth / 2;
-      float y = m_mapHeight + 1.5;
+      float y = m_mapHeight + 1.25;
 
       const float boxOffset = 16;
       const float boxWidth = 10;
@@ -373,7 +375,7 @@ namespace visualizer
       {
           // bars for alive hangars
           // too dark, i'm doing it manually
-          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
+          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
           renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -382,7 +384,8 @@ namespace visualizer
       for(;interval < m_NumHangers; interval++)
       {
           // bars for dead hangars
-          renderer->setColor(Color(0.85, 0.85, 1.0f, 1.0f));
+
+          renderer->setColor(Color(color.r, color.g, color.b, 1.0f));
           renderer->drawTexturedQuad((x - healthBarOffset - (healthWidth)/2) + (interval*healthUnitWidth),
                                     (y + (boxHeight/2) - (healthHeight/2)),
                                      healthUnitWidth, healthHeight - 0.2f, 1, "pipe_section");
@@ -567,7 +570,7 @@ namespace visualizer
 	m_mapWidth = m_game->states[0].mapWidth;
     m_mapHeight = m_game->states[0].mapHeight;
 
-	renderer->setCamera( 0, 0, m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
+    renderer->setCamera( 0, 0, m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
 	renderer->setGridDimensions( m_mapWidth + GRID_OFFSET*2, m_mapHeight + 4 + GRID_OFFSET*2);
  
     start();
@@ -731,7 +734,9 @@ namespace visualizer
           {
                 sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
           }
-          sprite->addKeyFrame(new DrawSmoothMoveSprite(sprite, glm::vec4(GetTeamColor(unit.owner), 1.0f)));
+
+		  sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.15f,
+															  unit.healthLeft / (float)unit.maxHealth, glm::vec4(GetTeamColor(unit.owner),1.0f)));
           turn.addAnimatable(sprite);
 
           turn[unit.id]["id"] = unit.id;

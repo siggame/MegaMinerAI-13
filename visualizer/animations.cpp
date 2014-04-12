@@ -66,21 +66,6 @@ namespace visualizer
 		game->renderer->setColor( Color(m_color.r, m_color.g, m_color.b, alpha) );
 	}
 
-	DrawProgressBar::DrawProgressBar(const glm::vec2& pos, float width, float height, float percent) :
-		m_pos(pos), m_width(width), m_height(height), m_percent(percent)
-	{
-	}
-
-	DrawProgressBar::DrawProgressBar(float width, float height, float percent) :
-		m_width(width), m_height(height), m_percent(percent)
-	{
-	}
-
-	void DrawProgressBar::animate(const float &t, AnimData* d, IGame *game)
-	{
-		RenderProgressBar(*game->renderer,m_pos.x,m_pos.y,m_width,m_height,m_percent,1.0f,Color(1.0f,0.0f,0.0f,0.5f));
-	}
-
     /*void DrawSmoothSpriteProgressBar::animate(const float &t, AnimData *d, IGame *game)
 	{
 		DrawFlippedSmoothMoveSprite::animate(t,d,game);
@@ -172,8 +157,15 @@ namespace visualizer
 
 		float animTime = m_Sprite->m_SingleFrame ? t : 1.0f;
 		game->renderer->drawAnimQuad( m_Sprite->m_pos.x, m_Sprite->m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, m_Sprite->m_sprite , (int)(m_Sprite->m_Frames * animTime));
+	}
 
-		//game->renderer->drawProgressBar()
+	void DrawSmoothSpriteProgressBar::animate(const float &t, AnimData *d, IGame *game)
+	{
+		DrawSmoothMoveSprite::animate(t,d,game);
+
+		RenderProgressBar(*game->renderer, this->m_pos.x, m_pos.y,
+						  this->m_width, this->m_height,
+						  this->m_percent,1.0f,{1.0f,0.0f,0.0f,0.6f});
 	}
 
 	void DrawTextBox::animate(const float &, AnimData*, IGame* game)

@@ -166,39 +166,24 @@ namespace visualizer
         std::chrono::steady_clock::time_point m_prev;
     };
 
-	class DrawProgressBar : public Anim
+	class DrawSmoothSpriteProgressBar : public DrawSmoothMoveSprite
 	{
 	public:
 
-		DrawProgressBar(float width, float height, float percent);
-		DrawProgressBar(const glm::vec2& pos, float width, float height, float percent);
+		DrawSmoothSpriteProgressBar(MoveableSprite * sprite,
+									float width, float height, float percent,
+									const glm::vec4& c,
+									Fade f = None) :
+			DrawSmoothMoveSprite(sprite,c,f), m_width(width), m_height(height), m_percent(percent)  {}
+
 
 		void animate( const float& t, AnimData* d, IGame* game );
 
-		void SetPos(const glm::vec2& pos) { m_pos = pos; }
-
 	private:
-
-		glm::vec2 m_pos;
 		float m_width;
 		float m_height;
 		float m_percent;
-
 	};
-
-    /*class DrawSmoothSpriteProgressBar : public DrawFlippedSmoothMoveSprite
-	{
-	public:
-
-		DrawSmoothSpriteProgressBar(MoveableSprite * sprite, DrawProgressBar* pBar, const glm::vec4& c, bool flipped = false, Fade f = None) :
-			DrawFlippedSmoothMoveSprite(sprite,c,flipped,f), m_pProgressBar(pBar)  {}
-
-
-		void animate( const float& t, AnimData* d, IGame* game );
-
-	private:
-		SmartPointer<DrawProgressBar> m_pProgressBar;
-    };*/
 
 	/** @name DrawAnimatedSprite
 	  * @inherits Anim
