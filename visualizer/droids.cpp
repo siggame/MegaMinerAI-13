@@ -783,11 +783,22 @@ namespace visualizer
                   nextflipped[unit.id] = prevflipped[unit.id];
           }
 
+		  glm::vec4 teamColor;
+
+		  if (unit.hackedTurnsLeft > 0)
+		  {
+			   teamColor = glm::vec4(GetTeamColor(!unit.owner),1.0f);
+		  }
+		  else
+		  {
+			  teamColor = glm::vec4(GetTeamColor(unit.owner),1.0f);
+		  }
+
 		  if(!bAnimationSprite)
 		  {
 
               sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.075f,
-                                                                glm::vec4(GetTeamColor(unit.owner),1.0f),nextflipped[unit.id],
+																teamColor,nextflipped[unit.id],
 																unit.healthLeft / (float)unit.maxHealth,
                                                                 unit.armor / (float)unit.maxArmor
                                                                 ));
@@ -795,7 +806,7 @@ namespace visualizer
 		  else
 		  {
               sprite->addKeyFrame(new DrawAnimatedMovingSprite(sprite,
-															   glm::vec4(GetTeamColor(unit.owner),1.0f),
+															   teamColor,
                                                                numFrame,
                                                                nextflipped[unit.id],
                                                                1.5f,

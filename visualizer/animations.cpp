@@ -167,7 +167,7 @@ namespace visualizer
 
         game->renderer->push();
         //game->renderer->rotate(m_Rotation,m_Sprite->m_pos.x + 0.5, m_Sprite->m_pos.y, 0.0f );
-        game->renderer->drawAnimQuad(m_Sprite->m_pos.x, m_Sprite->m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, m_Sprite->m_sprite, (int)(m_Sprite->m_Frames * animTime));
+		game->renderer->drawAnimQuad(m_Sprite->m_pos.x, m_Sprite->m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, m_Sprite->m_sprite, false, (int)(m_Sprite->m_Frames * animTime));
         game->renderer->pop();
     }
 
