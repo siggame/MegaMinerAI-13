@@ -158,19 +158,19 @@ class AI(BaseAI):
               target = target2
               if target is not None:
                 if target.x > droid.x:
-                  if not droid.move(droid.x - 1, droid.y ):
-                    if not droid.move(droid.x + self.change, droid.y):
-                      droid.move(droid.x - self.change, droid.y)
-                elif target.x < droid.x:
                   if not droid.move(droid.x + 1, droid.y ):
                     if not droid.move(droid.x + self.change, droid.y):
                       droid.move(droid.x - self.change, droid.y)
+                elif target.x < droid.x:
+                  if not droid.move(droid.x - 1, droid.y ):
+                    if not droid.move(droid.x + self.change, droid.y):
+                      droid.move(droid.x - self.change, droid.y)
                 elif target.y > droid.y:
-                  if not droid.move(droid.x , droid.y - 1):
+                  if not droid.move(droid.x , droid.y + 1):
                     if not droid.move(droid.x, droid.y + 1):
                       droid.move(droid.x, droid.y - 1)
                 elif target.y < droid.y:
-                  if not droid.move(droid.x, droid.y + 1):
+                  if not droid.move(droid.x, droid.y - 1):
                     if not droid.move(droid.x, droid.y + 1):
                       droid.move(droid.x, droid.y - 1)
 
