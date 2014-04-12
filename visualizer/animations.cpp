@@ -98,7 +98,7 @@ namespace visualizer
 
 		ColorSprite::animate(t, d, game);
 
-		game->renderer->drawTexturedQuad(m_pos.x, m_pos.y, 1.0f, 1.0f, 1.0f, m_Sprite->m_sprite);
+        game->renderer->drawTexturedQuad(m_pos.x, m_pos.y, 1.0f, 1.0f, 1.0f, m_Sprite->m_sprite, m_flipped);
 	}
 
     void DrawSmoothMoveRotatedSprite::animate(const float& t, AnimData*d, IGame* game)
@@ -156,7 +156,7 @@ namespace visualizer
 		ColorSprite::animate(t, d, game);
 
 		float animTime = m_Sprite->m_SingleFrame ? t : 1.0f;
-		game->renderer->drawAnimQuad( m_Sprite->m_pos.x, m_Sprite->m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, m_Sprite->m_sprite , (int)(m_Sprite->m_Frames * animTime));
+        game->renderer->drawAnimQuad( m_Sprite->m_pos.x, m_Sprite->m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, m_Sprite->m_sprite , false, (int)(m_Sprite->m_Frames * animTime));
 	}
 
     void DrawRotatedAnimatedSprite::animate(const float &t, AnimData *d, IGame *game)
@@ -230,10 +230,14 @@ namespace visualizer
 			frame = m_numFrames * ((t - m_startTime) / (1 - m_startTime));
 		}
 
-		game->renderer->drawAnimQuad(pos.x, pos.y,
-									 1.0f, 1.0f,
-									 m_Sprite->m_sprite,
-									 (int)frame);
+		game->renderer->drawAnimQuad(pos.x,
+								 pos.y,
+								 1.0f,
+								 1.0f,
+								 m_Sprite->m_sprite,
+                                 m_flipped,
+                                 (int)frame);
+
 
 		if(m_armorPercent < 1.0f)
 		{
