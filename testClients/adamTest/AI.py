@@ -130,13 +130,21 @@ class AI(BaseAI):
 
               target = target2
               if target.x > droid.x:
-                droid.move(droid.x + 1, droid.y)
+                if not droid.move(droid.x + 1, droid.y):
+                  if not droid.move(droid.x, droid.y - 1):
+                    droid.move(droid.x, droid.y + 1)
               elif target.x < droid.x:
-                droid.move(droid.x - 1, droid.y)
+                if not droid.move(droid.x - 1, droid.y):
+                  if not droid.move(droid.x, droid.y - 1):
+                    droid.move(droid.x, droid.y + 1)
               elif target.y > droid.y:
-                droid.move(droid.x, droid.y + 1)
+                if not droid.move(droid.x, droid.y + 1):
+                  if not droid.move(droid.x + 1, droid.y):
+                    droid.move(droid.x - 1, droid.y)
               elif target.y < droid.y:
-                droid.move(droid.x, droid.y - 1)
+                if not droid.move(droid.x, droid.y - 1):
+                  if not droid.move(droid.x + 1, droid.y):
+                    droid.move(droid.x - 1, droid.y)
 
           for droid2 in bleh:
             droid.operate(droid2.x, droid2.y)
