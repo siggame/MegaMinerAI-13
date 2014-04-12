@@ -63,7 +63,7 @@ class AI(BaseAI):
   ##This function is called each time it is your turn
   ##Return true to end your turn, return false to ask the server for updated information
 
-  randVars = [0,1,4,6]
+  randVars = [0,1,6]
 
   def run(self):
 
@@ -75,7 +75,7 @@ class AI(BaseAI):
     #if self.dropY > self.maxY:
     #  self.dropY = self.minY
 
-    meh = self.randVars[random.randint(0,3)]
+    meh = self.randVars[random.randint(0,2)]
 
     if self.players[self.playerID].scrapAmount > 80:
       while self.players[self.playerID].scrapAmount >= self.modelVariants[meh].cost:
