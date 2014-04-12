@@ -110,9 +110,28 @@ class AI(BaseAI):
                   move = False
 
           if move:
-            if not droid.move(droid.x + self.change, droid.y):
-              if not droid.move(droid.x, droid.y - 1):
+            if (droid.x <= self.minX and self.playerID == 0) or \
+               (droid.x >= self.maxX and self.playerID == 1):
+              if not droid.move(droid.x + self.change, droid.y):
+                if not droid.move(droid.x, droid.y - 1):
+                  droid.move(droid.x, droid.y + 1)
+            else:
+              target2 = None
+              for target in self.droids:
+                distance = 99999
+                if target.variant == 7 and target.owner != self.playerID:
+                  if abs(target.x - droid.x) + abs(target.y - droid.y) < distance:
+                    distance = abs(target.x - droid.x) + abs(target.y - droid.y)
+                    target2 = target
+              target = target2
+              if target.x > droid.x:
+                droid.move(droid.x + 1, droid.y)
+              elif target.x < droid.x:
+                droid.move(droid.x - 1, droid.y)
+              elif target.y > droid.y:
                 droid.move(droid.x, droid.y + 1)
+              elif target.y < droid.y:
+                droid.move(droid.x, droid.y - 1)
 
           droid.operate(droid.x + self.change, droid.y)
           droid.operate(droid.x + self.change, droid.y)
