@@ -128,13 +128,7 @@ namespace visualizer
 
     void DrawDeltaScalar::animate(const float& t, AnimData* d, IGame * game)
     {
-        const float deltaScale = 3.141592f *2;
-        /*
-        std::chrono::steady_clock::time_point newTime = std::chrono::steady_clock::now();
-        std::chrono::steady_clock::duration duration = newTime - m_prev;
-
-        double dt = double(duration.count()) * std::chrono::steady_clock::period::num / std::chrono::steady_clock::period::den;
-        m_prev = newTime;*/
+		const float deltaScale = glm::pi<float>()*2;
         ColorSprite::animate(t,d,game);
         game->renderer->push();
 
