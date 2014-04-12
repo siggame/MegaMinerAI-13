@@ -415,6 +415,11 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
         else
         {
           int damage;
+          if (object->attack > target->armor)
+          {
+            target->armor = 0;
+            damage = target->armor - object->attack;
+          }
           if (target->armor > 0)
           {
             damage = static_cast<int>(object->attack * ((target->maxArmor - target->armor) / static_cast<double>(target->maxArmor)));
