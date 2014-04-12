@@ -218,7 +218,10 @@ class Droid(Mappable):
   #the function to deal damage; separated out so armor damage can be changed
   def doDamage(self, attacker, target):
     damage = 3
-    if target.armor > 0:
+    if attacker.attack > target.armor:
+      target.armor = 0
+      damage = attacker.attack - target.armor
+    elif target.armor > 0:
       damage = int(attacker.attack * ((target.maxArmor - target.armor) / float(target.maxArmor)))
       target.armor -= attacker.attack
       if target.armor < 0:
