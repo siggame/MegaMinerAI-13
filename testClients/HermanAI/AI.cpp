@@ -29,22 +29,25 @@ const char* AI::password()
 
 //This function is run once, before your first turn.
 void AI::init(){
-  spawnX=5;
-  spawnY=1;
+
 }
 
 //This function is called each time it is your turn.
 //Return true to end your turn, return false to ask the server for updated information.
 bool AI::run()
 {
-  spawnBitches();
+  spawnDemDroids();
+  getDemDroids();
+  doStuffs();
   return true;
 }
 
-void AI::spawnBitches()
+void AI::spawnDemDroids()
 {
-  int unitType=TURRET;
-  if(players[playerID()].scrapAmount() >= modelVariants[TURRET].cost())
+  spawnX=rand()%mapWidth();
+  spawnY=rand()%mapHeight();
+  int unitType=TERMINATOR;
+  if(players[playerID()].scrapAmount() >= modelVariants[unitType].cost())
   {
     if(getTile(spawnX, spawnY)->turnsUntilAssembled() == 0)
     {
@@ -67,8 +70,52 @@ void AI::spawnBitches()
       if(spawn)
       {
         //spawn the turret
-        players[playerID()].orbitalDrop(spawnX, spawnY, TURRET);
+        players[playerID()].orbitalDrop(spawnX, spawnY, unitType);
       }
+    }
+  }
+}
+
+void AI::moveTo(Droid & droid, int x, int y)
+{
+  for(int i=0; i<droid.maxMovement(); i++)
+  {
+    bool moved=false;
+    if(droid.x()<x && validMove(droid.x()+1,droid.y()))
+    {
+      moved=true;
+      droid.move(droid.x()+1,droid.y());
+    }
+    else if(droid.x()>x && validMove(droid.x()-1,droid.y()))
+    {
+      moved=true;
+      droid.move(droid.x()-1,droid.y());
+    }
+    else if(droid.y()<y && validMove(droid.x(),droid.y()+1))
+    {
+      moved=true;
+      droid.move(droid.x(),droid.y()+1);
+    }
+    else if(droid.y()>y && validMove(droid.x(),droid.y()-1))
+    {
+      moved=true;
+      droid.move(droid.x(),droid.y()-1);
+    }
+    if(!moved)
+    {
+      int temp;
+      if(rand()%2==0)
+        temp=-1;
+      else
+        temp=1;
+      if(droid.x()<x && !validMove(droid.x()+1,droid.y()))
+        droid.move(droid.x(),droid.y()+temp);
+      else if(droid.x()>x && !validMove(droid.x()-1,droid.y()))
+        droid.move(droid.x(),droid.y()+temp);
+      else if(droid.y()<y && !validMove(droid.x(),droid.y()+1))
+        droid.move(droid.x()+temp,droid.y());
+      else if(droid.y()>y && !validMove(droid.x(),droid.y()-1))
+        droid.move(droid.x()+temp,droid.y());
     }
   }
 }
@@ -82,54 +129,21 @@ void AI::doStuffs()
        (droids[i].owner() != playerID() && droids[i].hackedTurnsLeft() > 0))
     {
       //if there are any moves to be done
-      if(droids[i].movementLeft() > 0)
-      {
-        //try to move towards the enemy
-        int changeX = 1;
-        //if on the right move towards the left
-        if(playerID() == 1)
-        {
-          changeX = -1;
-        }
-        bool move = true;
-        //check if there is a droid on that tile
-        for(int z = 0; z < droids.size(); z++)
-        {
-          //if the two droids are different
-          if(droids[z].id() != droids[i].id())
-          {
-            //if there is a droid to run into
-            if(droids[z].x() == droids[i].x() + changeX && droids[z].y() == droids[i].y())
-            {
-              //don't move
-              move = false;
-            }
-          }
-        }
-        //move if okay and within map boundaries
-        if(move && droids[i].x() + changeX >= 0 && droids[i].x() + changeX < mapWidth())
-        {
-          droids[i].move(droids[i].x() + changeX, droids[i].y());
-        }
-      }
+      Droid* droid = getNearestHangar(droids[i].x(), droids[i].y());
+      moveTo(droids[i], droid->x(), droid->y());
+     
       //if there are any attacks left
       if(droids[i].attacksLeft() > 0)
       {
-        //find a target towards the enemy
-        int changeX = 1;
-        //enemy is to the left if playerID is one
-        if(playerID() == 1)
-        {
-          changeX = -1;
-        }
+        
         Droid* target = NULL;
-        for(int z = 0; z < droids.size(); z++)
+        if(droids[i].variant() == REPAIRER)
         {
-          //if the droid is there make it a target
-          if(droids[z].x() == droids[i].x() + changeX && droids[z].y() == droids[i].y() && droids[z].healthLeft() > 0)
-          {
-            target = &droids[z];
-          }
+          target = getFriendInRange(droids[i].x(), droids[i].y(), droids[i].range());
+        }
+        else
+        {
+          target = getEnemyInRange(droids[i].x(), droids[i].y(), droids[i].range());
         }
         //if a target was found
         if(target != NULL)
@@ -190,6 +204,84 @@ Tile* AI::getTile(const int x, const int y)
         return NULL;
 }
 
+void AI::getDemDroids()
+{
+  enemyDroids.clear();
+  friendDroids.clear();
+  enemyHangars.clear();
+  for(int i=0; i< droids.size(); i++)
+  {
+    if(droids[i].owner() != playerID())
+    {
+      enemyDroids.push_back(& droids[i]);
+      if(droids[i].variant() == HANGAR)
+      {
+        enemyHangars.push_back(& droids[i]);
+      }
+    }
+    else if(droids[i].owner() == playerID())
+    {
+      friendDroids.push_back(& droids[i]);
+    }
+  }
+}
+
+Droid* AI::getEnemyInRange(int xloc, int yloc, int range)
+{
+  for(int i=0; i< enemyDroids.size(); i++)
+  {
+    if(abs(xloc - enemyDroids[i]->x()) + abs(yloc - enemyDroids[i]->y()) <= range &&
+       !(xloc == enemyDroids[i]->x() && yloc == enemyDroids[i]->y()))
+      return enemyDroids[i];
+  }
+  return NULL;
+}
+
+Droid* AI::getFriendInRange(int xloc, int yloc, int range)
+{
+  for(int i=0; i< friendDroids.size(); i++)
+  {
+    if(abs(xloc - friendDroids[i]->x()) + abs(yloc - friendDroids[i]->y()) <= range &&
+       !(xloc == friendDroids[i]->x() && yloc == friendDroids[i]->y()))
+      return enemyDroids[i];
+  }
+  return NULL;
+}
+
+Droid* AI::getNearestHangar(int xloc, int yloc)
+{
+  int minDist=10000;
+  int xMin, yMin;
+  int distance;
+  int hangarNum;
+  for(int i=0; i<enemyHangars.size(); i++)
+  {
+    distance = abs(enemyHangars[i]->x()-xloc) + abs(enemyHangars[i]->y()-yloc);
+    if(distance<minDist)
+    {
+      minDist=distance;
+      xMin=enemyHangars[i]->x();
+      yMin=enemyHangars[i]->y();
+      hangarNum=i;
+    }
+  }
+  return enemyHangars[hangarNum];
+}
+
+bool AI::validMove(const int x, const int y)
+{
+  for(int i=0; i< droids.size(); i++)
+  {
+    if(droids[i].x()==x && droids[i].y()==y)
+      return false;
+  }
+  Tile* tile =getTile(x, y);
+  if(tile-> turnsUntilAssembled() == 1)
+  {
+    return false;
+  }
+  return true;
+}
 
 
 
