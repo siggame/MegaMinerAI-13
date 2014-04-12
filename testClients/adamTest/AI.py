@@ -94,7 +94,6 @@ class AI(BaseAI):
       if ((droid.owner == self.playerID and droid.hackedTurnsLeft <= 0) or\
           (droid.owner != self.playerID and droid.hackedTurnsLeft > 0))\
            and droid.variant != 7 and droid.variant != 5:
-        print "ID: {}".format(droid.id)
         bleh = []
         if droid.attack > 0:
           for droid2 in self.droids:
@@ -106,10 +105,8 @@ class AI(BaseAI):
             if droid2.owner == self.playerID:
               if abs(droid2.x - droid.x) + abs(droid2.y - droid.y) <= droid.range + droid.maxMovement:
                 bleh.append(droid2)
-        print "Done gettin' bleh"
         movez = droid.maxMovement
         while movez > 0:
-          print "Moves: {}".format(movez)
           movez -= 1
           movey = 1
 
@@ -124,20 +121,17 @@ class AI(BaseAI):
                 if droid2.owner != droid.owner:
                   move = False
 
-          print "move: {}".format(move)
-
           if move and droid.movementLeft > 0:
-            if ((droid.x <= self.mapWidth/2 and self.playerID == 0) or \
-               (droid.x >= self.mapWidth/2 and self.playerID == 1)):
-              print "YO IN HERE"
-              if droid.x  + self.change >= self.mapWidth and droid.x + self.change < 0:
-                  if not droid.move(droid.x + self.change, droid.y):
-                    if droid.y != 0:
-                      if not droid.move(droid.x, droid.y - 1):
-                        if droid.y != self.mapHeight - 1:
-                          droid.move(droid.x, droid.y + 1)
-            else:
-              print "NO OUT HERE"
+            #if ((droid.x <= self.mapWidth/2 and self.playerID == 0) or \
+            #   (droid.x >= self.mapWidth/2 and self.playerID == 1)):
+            #  print "YO IN HERE"
+            #  if droid.x  + self.change <= self.mapWidth and droid.x + self.change > 0:
+            #      if not droid.move(droid.x + self.change, droid.y):
+            #        if droid.y != 0:
+            #          if not droid.move(droid.x, droid.y - 1):
+            #            if droid.y != self.mapHeight - 1:
+            #              droid.move(droid.x, droid.y + 1)
+            #else:
               target2 = None
               self.distance = 99999
               for target in self.droids:
@@ -158,28 +152,25 @@ class AI(BaseAI):
                         self.distance = (abs(target.x - droid.x) + abs(target.y - droid.y))
                         target2 = target
 
-              print "got target: {}".format(target2)
-
               target = target2
               if target is not None:
                 if target.x > droid.x:
                   if not droid.move(droid.x + 1, droid.y ):
-                    if not droid.move(droid.x + self.change, droid.y):
-                      droid.move(droid.x - self.change, droid.y)
+                    if not droid.move(droid.x, droid.y - 1):
+                      droid.move(droid.x, droid.y + 1)
                 elif target.x < droid.x:
                   if not droid.move(droid.x - 1, droid.y ):
-                    if not droid.move(droid.x + self.change, droid.y):
-                      droid.move(droid.x - self.change, droid.y)
+                    if not droid.move(droid.x, droid.y - 1):
+                      droid.move(droid.x, droid.y + 1)
                 elif target.y > droid.y:
                   if not droid.move(droid.x , droid.y + 1):
-                    if not droid.move(droid.x, droid.y + 1):
-                      droid.move(droid.x, droid.y - 1)
+                    if not droid.move(droid.x + self.change, droid.y):
+                      droid.move(droid.x - self.change, droid.y)
                 elif target.y < droid.y:
                   if not droid.move(droid.x, droid.y - 1):
-                    if not droid.move(droid.x, droid.y + 1):
-                      droid.move(droid.x, droid.y - 1)
+                    if not droid.move(droid.x + self.change, droid.y):
+                      droid.move(droid.x - self.change, droid.y)
 
-              print "done with move."
     return 1
 
   def __init__(self, conn):
