@@ -159,6 +159,18 @@ namespace visualizer
 		game->renderer->drawAnimQuad( m_Sprite->m_pos.x, m_Sprite->m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, m_Sprite->m_sprite , (int)(m_Sprite->m_Frames * animTime));
 	}
 
+    void DrawRotatedAnimatedSprite::animate(const float &t, AnimData *d, IGame *game)
+    {
+        ColorSprite::animate(t, d, game);
+
+        float animTime = m_Sprite->m_SingleFrame ? t : 1.0f;
+
+        game->renderer->push();
+        //game->renderer->rotate(m_Rotation,m_Sprite->m_pos.x + 0.5, m_Sprite->m_pos.y, 0.0f );
+        game->renderer->drawAnimQuad(m_Sprite->m_pos.x, m_Sprite->m_pos.y, m_Sprite->m_scale.x, m_Sprite->m_scale.y, m_Sprite->m_sprite, (int)(m_Sprite->m_Frames * animTime));
+        game->renderer->pop();
+    }
+
 	void DrawSmoothSpriteProgressBar::animate(const float &t, AnimData *d, IGame *game)
 	{
 		DrawSmoothMoveSprite::animate(t,d,game);

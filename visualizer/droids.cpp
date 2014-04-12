@@ -710,6 +710,7 @@ namespace visualizer
                       }
                       case parser::ORBITALDROP:
                       {
+
                           break;
                       }
                       case parser::REPAIR:
@@ -883,6 +884,42 @@ namespace visualizer
 
       }
   }
+
+  bool Droids::isUnitAt(int frameNum, int x, int y)
+  {
+      bool exists = false;
+      for(auto& droidIter: m_game->states[frameNum].droids)
+      {
+          auto& droid = droidIter.second;
+          if(droid.x == x && droid.y == y)
+          {
+              exists = true;
+              break;
+          }
+      }
+
+      return exists;
+  }
+
+  parser::Droid* Droids::getUnitAt(int frameNum, int x, int y)
+  {
+      parser::Droid* droidPtr = NULL;
+      for(auto& droidIter: m_game->states[frameNum].droids)
+      {
+          auto& droid = droidIter.second;
+          if(droid.x == x && droid.y == y)
+          {
+              droidPtr = &droid;
+              break;
+          }
+      }
+
+      return droidPtr;
+  }
+
+
 } // visualizer
+
+
 
 Q_EXPORT_PLUGIN2( Droids, visualizer::Droids );
