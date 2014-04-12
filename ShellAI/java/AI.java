@@ -27,7 +27,7 @@ public class AI extends BaseAI
   //Return true to end your turn, return false to ask the server for updated information
   public boolean run()
   {
-  	//try to spawn a claw near your side
+    //try to spawn a claw near your side
     //make sure you own enough scrap
     if(players[playerID()].getScrapAmount() >= modelVariants[CLAW].getCost())
     {
@@ -164,37 +164,37 @@ public class AI extends BaseAI
   //This function is called once, before your first turn
   public void init()
   {
-		int offset = 0;
-		boolean found = false;
-		while(!found)
-		{
-  		//find a location without a hangar
-  		for(int i = 0; i < tiles.length; i++)
-  		{
-  		  //make sure that the tile is near the edge
-  		  if(tiles[i].getX() == (mapWidth() - 1) * playerID() + offset)
-  		  {
-  		    spawnX = tiles[i].getX();
-  		    spawnY = tiles[i].getY();
-  		    found = true;
-  		    break;
-  		  }
-  		}
-  		//if nothing was found then move away from the edge
-  		if(!found)
-  		{
-  	    //if on the left
-  	    if(playerID() == 0)
-  		  {
-  		    offset++;
-  		  }
-  		  else
-  		  {
-  		    //on the right
-  		    offset--;
-  		  }
-  		}
-		}
+    int offset = 0;
+    boolean found = false;
+    while(!found)
+    {
+      //find a location without a hangar
+      for(int i = 0; i < tiles.length; i++)
+      {
+        //make sure that the tile is near the edge
+        if(tiles[i].getX() == (mapWidth() - 1) * playerID() + offset)
+        {
+          spawnX = tiles[i].getX();
+          spawnY = tiles[i].getY();
+          found = true;
+          break;
+        }
+      }
+      //if nothing was found then move away from the edge
+      if(!found)
+      {
+        //if on the left
+        if(playerID() == 0)
+        {
+          offset++;
+        }
+        else
+        {
+          //on the right
+          offset--;
+        }
+      }
+    }
   }
 
   //This function is called once, after your last turn
@@ -206,13 +206,13 @@ public class AI extends BaseAI
     super(c);
   }
   
-	//This functions returns a reference to a tile
-	Tile getTile(int x, int y)
-	{
-	  if(x >= mapWidth() || x < 0 || y >= mapHeight() || y < 0)
-	  {
-	    return null;
-	  }
-	  return tiles[y + x * mapHeight()];
-	}
+  //This functions returns a reference to a tile
+  Tile getTile(int x, int y)
+  {
+    if(x >= mapWidth() || x < 0 || y >= mapHeight() || y < 0)
+    {
+      return null;
+    }
+    return tiles[y + x * mapHeight()];
+  }
 }
