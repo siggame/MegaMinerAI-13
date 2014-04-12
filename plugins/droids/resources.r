@@ -23,6 +23,9 @@ texture med_reticle textures/med_reticle.png
 
 texture spiral textures/spiral.png
 
+texture lightning textures/lightning.png
+texture laser textures/laser.png
+
 animation death textures/animations/death.png
 animation hacker_anim textures/animations/hacker_anim.png
 animation claw_anim textures/animations/crawler_anim.png

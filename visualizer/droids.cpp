@@ -736,13 +736,51 @@ namespace visualizer
                       case parser::REPAIR:
                       case parser::ATTACK:
                       {
+
+
 						  if(!bAnimationSprite)
 						  {
 							  sprite->m_sprite += "_anim";
 							  bAnimationSprite = true;
 						  }
+						  if (unit.variant == DROID_ARCHER || unit.variant == DROID_TURRET)
+						  {
+							  std::string spriteName;
+							  if(unit.variant == DROID_ARCHER)
+							  {
+								spriteName = "laser";
+							  }
+							  else
+							  {
+								  spriteName = "lightning";
+							  }
+
+							  parser::attack& attack = (parser::attack&)*anim;
+							  auto attackerIter = m_game->states[frameNum - 1].droids.find(attack.actingID);
+							  auto targetIter = m_game->states[frameNum].droids.find(attack.targetID);
+
+							  if(attackerIter != m_game->states[frameNum].droids.end() && targetIter != m_game->states[frameNum].droids.end())
+							  {
+
+								  glm::vec2 from(attackerIter->second.x,attackerIter->second.y);
+								  glm::vec2 to(targetIter->second.x,targetIter->second.y);
+								  glm::vec2 diff = to - from;
+								  float angle = glm::degrees(std::atan2(diff.y,diff.x));
+
+								  SmartPointer<MoveableSprite> pLaser = new MoveableSprite(spriteName,glm::vec2(1.0f,0.5f));
+								  pLaser->m_Moves.push_back(MoveableSprite::Move(to,from));
+								  pLaser->addKeyFrame(new DrawSmoothMoveRotatedSprite(pLaser, glm::vec4(1.0f,1.0f,1.0f,0.7f),angle));
+
+								  turn.addAnimatable(pLaser);
+								  //animList.push(pLaser);
+
+							  }
+						  }
                           break;
-                      }
+					  }
+					  //Archer Lasers
+
+
                       default:
                       break;
                   }
@@ -873,7 +911,7 @@ namespace visualizer
               }
           }
 
-          if(tile.second.turnsUntilAssembled > 2 && tile.second.owner == 0 || tile.second.owner == 1)
+		  if(tile.second.turnsUntilAssembled > 1)
           {
               std::string variant;
               std::string timetilldrop;
