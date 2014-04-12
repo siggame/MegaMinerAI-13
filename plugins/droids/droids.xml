@@ -1,5 +1,12 @@
 <options>
   <option>
+    <key>Enable Dust Effect</key>
+    <type>Integer</type>
+    <value>1</value>
+    <minvalue>0</minvalue>
+    <maxvalue>1</maxvalue>
+  </option>
+  <option>
     <key>Enable Grid Lines</key>
     <type>Integer</type>
     <value>0</value>

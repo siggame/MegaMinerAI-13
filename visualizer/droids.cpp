@@ -303,30 +303,33 @@ namespace visualizer
       renderer->drawRotatedTexturedQuad(-1, m_mapHeight, 1 , 1, 1, 270, "rivet_corner");
       renderer->drawRotatedTexturedQuad(m_mapWidth, m_mapHeight, 1, 1, 1, 180, "rivet_corner");
 
-      if(time > nextGust + gustLength)
-      {
-          nextGust = time + rand() % 4 + 4.0f;
-          direction = !direction;
-      }
+	  if(options->getNumber("Enable Dust Effect") > 0)
+	  {
+		  if(time > nextGust + gustLength)
+		  {
+			  nextGust = time + rand() % 4 + 4.0f;
+			  direction = !direction;
+		  }
 
-      if(time > nextGust)
-      {
-        float alphaValue = 0.15f * sin( ((time - nextGust)/ gustLength) * 3.141592f );
-        renderer->setColor({1.0f, 1.0f, 1.0f, alphaValue});
-      }
-      else
-      {
-        renderer->setColor({1.0f, 1.0f, 1.0f,0.0f});
-      }
+		  if(time > nextGust)
+		  {
+			float alphaValue = 0.15f * sin( ((time - nextGust)/ gustLength) * 3.141592f );
+			renderer->setColor({1.0f, 1.0f, 1.0f, alphaValue});
+		  }
+		  else
+		  {
+			renderer->setColor({1.0f, 1.0f, 1.0f,0.0f});
+		  }
 
-      if (direction)
-      {
-        renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
-      }
-      else
-      {
-        renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", -fmod(time, 1.0f) * 5, fmod(time, 1.0f));
-      }
+		  if (direction)
+		  {
+			renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+		  }
+		  else
+		  {
+			renderer->drawSubTexturedQuad(-m_mapWidth,-m_mapHeight,m_mapWidth*3,m_mapHeight*3, 0, 0, 16, 9, "dust", -fmod(time, 1.0f) * 5, fmod(time, 1.0f));
+		  }
+	  }
 
 	  if(options->getNumber("Enable Grid Lines") > 0)
 	  {
