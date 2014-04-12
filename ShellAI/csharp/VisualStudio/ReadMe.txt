@@ -1,0 +1,1 @@
+This solution is for Visual Studio 2010. Opening it in VS2012 or VS2013 should work, but ask for Chester if it doesn't.
