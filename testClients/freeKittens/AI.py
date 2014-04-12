@@ -6,6 +6,9 @@ from play import *
 from cat_vision import *
 from cat_scan import *
 
+import time
+
+
 class AI(BaseAI):
     """The class implementing gameplay logic."""
     @staticmethod
@@ -27,10 +30,12 @@ class AI(BaseAI):
     ##This function is called each time it is your turn
     ##Return true to end your turn, return false to ask the server for updated information
     def run(self):
+        c = time.clock()
         cat_scan(self)
-        make_kittens(self)
-        play_fast(self)
-        show_cat(cat_see(self))
+        make_kittens_back(self)
+        play_greedy(self)
+        print 'Time: {}'.format(time.clock() - c)
+        #show_cat(cat_see(self))
         return 1
 
 
