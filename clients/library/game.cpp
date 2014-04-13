@@ -397,6 +397,8 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
       else
       {
         // Check target ownership
+        if (object->variant == 3 && target->owner == getPlayerID(c) && target->hackedTurnsLeft > 0)
+          return 0;
         if (target->owner == (getPlayerID(c) ^ (target->hackedTurnsLeft > 0)))
           return 0;
 
@@ -404,7 +406,7 @@ DLLEXPORT int droidOperate(_Droid* object, int x, int y)
         if (object->variant == 3)
         {
           target->hackets += object->attack;
-          if (target->hackets > target->hacketsMax)
+          if (target->hackets >= target->hacketsMax)
           {
             target->hackedTurnsLeft = target->turnsToBeHacked;
             target->hackets = 0;

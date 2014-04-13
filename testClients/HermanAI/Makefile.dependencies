@@ -1,0 +1,27 @@
+AI.o: AI.cpp AI.h BaseAI.h ../library/game.h ../library/network.h \
+ ../library/sexp/sfcompat.h ../library/sexp/sexp.h \
+ ../library/structures.h Player.h ../library/structures.h Mappable.h \
+ Droid.h Tile.h ModelVariant.h ../library/util.h
+BaseAI.o: BaseAI.cpp BaseAI.h ../library/game.h ../library/network.h \
+ ../library/sexp/sfcompat.h ../library/sexp/sexp.h \
+ ../library/structures.h Player.h ../library/structures.h Mappable.h \
+ Droid.h Tile.h ModelVariant.h
+Droid.o: Droid.cpp Droid.h ../library/structures.h Mappable.h \
+ ../library/game.h ../library/network.h ../library/sexp/sfcompat.h \
+ ../library/sexp/sexp.h ../library/structures.h
+main.o: main.cpp AI.h BaseAI.h ../library/game.h ../library/network.h \
+ ../library/sexp/sfcompat.h ../library/sexp/sexp.h \
+ ../library/structures.h Player.h ../library/structures.h Mappable.h \
+ Droid.h Tile.h ModelVariant.h ../library/network.h
+Mappable.o: Mappable.cpp Mappable.h ../library/structures.h \
+ ../library/game.h ../library/network.h ../library/sexp/sfcompat.h \
+ ../library/sexp/sexp.h ../library/structures.h
+ModelVariant.o: ModelVariant.cpp ModelVariant.h ../library/structures.h \
+ ../library/game.h ../library/network.h ../library/sexp/sfcompat.h \
+ ../library/sexp/sexp.h ../library/structures.h
+Player.o: Player.cpp Player.h ../library/structures.h ../library/game.h \
+ ../library/network.h ../library/sexp/sfcompat.h ../library/sexp/sexp.h \
+ ../library/structures.h
+Tile.o: Tile.cpp Tile.h ../library/structures.h Mappable.h \
+ ../library/game.h ../library/network.h ../library/sexp/sfcompat.h \
+ ../library/sexp/sexp.h ../library/structures.h

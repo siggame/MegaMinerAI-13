@@ -83,10 +83,91 @@ class Match(DefaultGameWorld):
   
 
   def createhangars(self):
-    return self.createhangars0()
+    return self.createhangars1()
+
+  def createhangars2(self):
+    offsets = [(0,1),(0,-1),(1,0),(-1,0),(1,1),(-1,1),(1,-1),(-1,-1)]
+    variant = self.variantToModelVariant(7)
+    nodes = []
+
+    #Create initial nodes
+    for _ in range(random.randrange(1, 4)):
+        x = int(random.triangular(0, self.mapWidth/4 ,self.mapWidth/2))
+        y = int(random.randrange(0, self.mapHeight))
+        while (x,y) in nodes:
+          x = int(random.triangular(0, self.mapWidth/4 ,self.mapWidth/2))
+          y = int(random.randrange(0, self.mapHeight))
+        nodes.append((x, y))
+
+    #Continue to create hangars until enough have been created
+    howmany = random.randrange(self.minHangars, self.maxHangars)
+    while len(nodes) < howmany:
+        potentials = []
+
+        for node in nodes:
+            for offset in offsets:
+                neighbor = (node[0] + offset[0], node[1] + offset[1])
+                if neighbor not in (potentials + nodes) and (0 <= neighbor[0] < self.mapWidth/2) and (0 <= neighbor[1] < self.mapHeight):
+                    potentials.append(neighbor)
+
+        randc = random.choice(potentials)
+        nodes.append(randc)
+
+        val = random.random()
+        if val > .30:
+          variant = self.variantToModelVariant(7)
+        elif val > .05:
+          variant = self.variantToModelVariant(5)
+        else:
+          variant = self.variantToModelVariant(4)
+
+
+        print('PICKED {}'.format(randc))
+        newDroidStats0 = [randc[0], randc[1], 0, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        newDroidStats1 = [self.mapWidth - randc[0] - 1, randc[1], 1, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        newDroid0 = self.addObject(Droid, newDroidStats0)
+        newDroid1 = self.addObject(Droid, newDroidStats1)
+        self.grid[randc[0]][randc[1]].append(newDroid0)
+        self.grid[self.mapWidth - randc[0] - 1][randc[1]].append(newDroid1)
+    return
 
   def createhangars1(self):
-    pass
+    offsets = [(0,1),(0,-1),(1,0),(-1,0),(1,1),(-1,1),(1,-1),(-1,-1)]
+    variant = self.variantToModelVariant(7)
+    nodes = []
+
+
+    #Create initial nodes
+    for _ in range(random.randrange(1, 4)):
+        x = random.randrange(0, self.mapWidth/2)
+        y = random.randrange(0, self.mapHeight)
+        while (x,y) in nodes:
+            x = random.randrange(0, self.mapWidth/2)
+            y = random.randrange(0, self.mapHeight)
+        nodes.append((x, y))
+
+    #Continue to create hangars until enough have been created
+    howmany = random.randrange(self.minHangars, self.maxHangars)
+    while len(nodes) < howmany:
+        potentials = []
+
+        for node in nodes:
+            for offset in offsets:
+                neighbor = (node[0] + offset[0], node[1] + offset[1])
+                if neighbor not in (potentials + nodes) and (0 <= neighbor[0] < self.mapWidth/2) and (0 <= neighbor[1] < self.mapHeight):
+                    potentials.append(neighbor)
+
+        randc = random.choice(potentials)
+        nodes.append(randc)
+
+        print('PICKED {}'.format(randc))
+        newDroidStats0 = [randc[0], randc[1], 0, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        newDroidStats1 = [self.mapWidth - randc[0] - 1, randc[1], 1, variant.variant, variant.maxAttacks, variant.maxAttacks, variant.maxHealth, variant.maxHealth, variant.maxMovement, variant.maxMovement, variant.range, variant.attack, variant.maxArmor, variant.maxArmor, variant.scrapWorth, variant.turnsToBeHacked, 0, 0, variant.hacketsMax]
+        newDroid0 = self.addObject(Droid, newDroidStats0)
+        newDroid1 = self.addObject(Droid, newDroidStats1)
+        self.grid[randc[0]][randc[1]].append(newDroid0)
+        self.grid[self.mapWidth - randc[0] - 1][randc[1]].append(newDroid1)
+    return
 
   def createhangars0(self):
     hangarSize = random.randrange(self.minHangar, self.maxHangar)
