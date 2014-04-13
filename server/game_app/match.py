@@ -50,9 +50,8 @@ class Match(DefaultGameWorld):
     pass
 
   def variantToModelVariant(self, type):
-    for variant in self.objects.modelVariants:
-      if variant.variant == type:
-        return variant
+    if type >= 0 and type < 8:
+      return self.objects.modelVariants[type]
     return None
 
   def addPlayer(self, connection, type="player"):
@@ -306,7 +305,7 @@ class Match(DefaultGameWorld):
           total1 += droid.healthLeft
           armor1 += droid.armor
           hangars1 += 1
-        elif droid.owner == 1 and droid.healthLeft > 1 and droid.variant == 7:
+        elif droid.owner == 1 and droid.healthLeft > 0 and droid.variant == 7:
           total2 += droid.healthLeft
           armor2 += droid.armor
           hangars2 += 1
