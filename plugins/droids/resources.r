@@ -12,10 +12,10 @@ texture pipe_section textures/pipe_section.png
 
 texture hacker textures/units/hackedit.png
 texture claw textures/units/longneck.png
-texture archer textures/units/ghost2.png
+texture archer textures/units/archer.png
 texture repairer textures/units/welder.png
 texture turret textures/units/turret.png
-texture terminator textures/units/tank.png
+texture terminator textures/units/terminator.png
 texture hangar textures/units/hub.png
 texture wall textures/units/wall.png
 
