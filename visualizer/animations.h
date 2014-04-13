@@ -4,7 +4,6 @@
 #include "droidsAnimatable.h"
 #include <glm/glm.hpp>
 #include <ctime>
-#include <chrono>
 
 namespace visualizer
 {
@@ -168,7 +167,6 @@ namespace visualizer
         glm::vec2 m_Start;
         glm::vec2 m_End;
         float m_Scale;
-        std::chrono::steady_clock::time_point m_prev;
     };
 
 	class DrawSmoothSpriteProgressBar : public DrawSmoothMoveSprite
