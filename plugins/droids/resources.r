@@ -11,7 +11,7 @@ texture health_bar textures/health_bar.png
 texture pipe_section textures/pipe_section.png
 
 texture hacker textures/units/hackedit.png
-texture claw textures/units/longneck.png
+texture claw textures/units/crawler.png
 texture archer textures/units/archer.png
 texture repairer textures/units/welder.png
 texture turret textures/units/turret.png
