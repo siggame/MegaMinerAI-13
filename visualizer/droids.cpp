@@ -733,7 +733,9 @@ namespace visualizer
           {
                 sprite->m_Moves.push_back(MoveableSprite::Move(glm::vec2(unit.x, unit.y), glm::vec2(unit.x, unit.y)));
           }
-          sprite->addKeyFrame(new DrawSmoothMoveSprite(sprite, glm::vec4(GetTeamColor(unit.owner), 1.0f)));
+
+		  sprite->addKeyFrame(new DrawSmoothSpriteProgressBar(sprite, 1.0f, 0.2f,
+															  unit.healthLeft / (float)unit.maxHealth, glm::vec4(GetTeamColor(unit.owner),1.0)));
           turn.addAnimatable(sprite);
 
           turn[unit.id]["id"] = unit.id;
